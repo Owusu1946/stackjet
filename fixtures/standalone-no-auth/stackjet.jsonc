@@ -1,0 +1,12 @@
+{
+  "$schema": "https://stackjet.dev/schemas/project.schema.json",
+  "generatorVersion": "0.0.0",
+  "sdk": 57,
+  "sdkPackSha256": "9c79e22f9c386a4dd19a32ebefcee46c10b5b424d8d7b5403895ce3955c4cd11",
+  "structure": "standalone",
+  "packageManager": "pnpm",
+  "adapters": {
+    "auth": "none",
+    "style": "stylesheet"
+  }
+}

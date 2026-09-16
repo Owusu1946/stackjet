@@ -1,0 +1,9 @@
+appId: com.stackjet.reference.clerk
+tags: [smoke]
+---
+- launchApp
+- extendedWaitUntil:
+    visible: { id: "auth-loaded" }
+    timeout: 15000
+- assertVisible: { id: "sign-in" }
+- assertVisible: { id: "sign-up" }

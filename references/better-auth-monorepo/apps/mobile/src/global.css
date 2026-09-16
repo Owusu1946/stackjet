@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "uniwind";
+@source "../../../packages/**/*.{ts,tsx}";
+
+@theme {
+  --color-canvas: #0b0d15;
+  --color-panel: #171a27;
+  --color-brand: #ffca68;
+  --color-ink: #f7f3eb;
+  --color-muted: #aaa7b4;
+  --color-danger: #ff8c8c;
+}

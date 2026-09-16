@@ -1,0 +1,22 @@
+{
+  "name": "@stackjet/schemas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "tsup": "latest",
+    "typescript": "~6.0.3",
+    "vitest": "latest"
+  }
+}

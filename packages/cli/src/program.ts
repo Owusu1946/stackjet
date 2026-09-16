@@ -1,0 +1,102 @@
+import { commandName, tagline } from "@stackjet/brand";
+import { ExitCode, redactText } from "@stackjet/core";
+import { authAdapters, packageManagers, structures, styleAdapters } from "@stackjet/schemas";
+import { Command, Option } from "commander";
+import { runDoctor, runEnvCheck, runInfo } from "./commands.js";
+import { type CreateFlags, runCreate } from "./create.js";
+import { CliError } from "./errors.js";
+import type { CliIo } from "./io.js";
+
+export const cliVersion = "0.0.0";
+
+function decorateCommand(command: Command) {
+  return command.showHelpAfterError("Run with --help for usage.");
+}
+
+export function createProgram(io: CliIo) {
+  const program = decorateCommand(new Command());
+  program
+    .name(commandName)
+    .description(tagline)
+    .version(cliVersion)
+    .configureOutput({
+      writeOut: (message) => io.stdout(message.trimEnd()),
+      writeErr: (message) => io.stderr(redactText(message.trimEnd())),
+    })
+    .exitOverride()
+    .addHelpText(
+      "after",
+      `\nExit codes:\n  0 success\n  1 unexpected failure\n  2 invalid input\n  3 environment/check failure\n  4 invalid project state\n  5 cancelled`,
+    );
+
+  decorateCommand(program.command("create [project-name]"))
+    .description("Validate and normalize a new Stackjet project request")
+    .option("--config <path>", "load defaults from a JSON configuration file")
+    .option("--destination <path>", "target directory")
+    .addOption(new Option("--structure <type>").choices([...structures]))
+    .addOption(new Option("--package-manager <name>").choices([...packageManagers]))
+    .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
+    .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
+    .option("--onboarding", "include onboarding")
+    .option("--no-onboarding", "exclude onboarding")
+    .option("--eas", "include EAS profiles")
+    .option("--no-eas", "exclude EAS profiles")
+    .option("--allow-current-directory", "explicitly allow an empty current directory")
+    .option("--dry-run", "validate and preview the file plan without writing the destination")
+    .option("--yes", "accept defaults and disable prompts")
+    .action(async (projectName: string | undefined, flags: CreateFlags) => {
+      process.exitCode = await runCreate(projectName, flags, io);
+    });
+
+  decorateCommand(program.command("doctor"))
+    .description("Run read-only compatibility and project checks")
+    .action(() => {
+      process.exitCode = runDoctor(io);
+    });
+
+  const env = program
+    .command("env")
+    .description("Inspect environment configuration without values");
+  decorateCommand(env.command("check"))
+    .description("Report missing environment variable names and classifications")
+    .action(() => {
+      process.exitCode = runEnvCheck(io);
+    });
+
+  decorateCommand(program.command("info"))
+    .description("Print a copyable, secret-free support report")
+    .action(() => {
+      process.exitCode = runInfo(io, cliVersion);
+    });
+
+  return program;
+}
+
+export async function runProgram(argv: string[], io: CliIo) {
+  const program = createProgram(io);
+  try {
+    await program.parseAsync(argv);
+    return Number(process.exitCode ?? ExitCode.Success);
+  } catch (error) {
+    if (error instanceof CliError) {
+      if (error.message !== "Cancelled") io.stderr(`Error: ${redactText(error.message)}`);
+      if (error.recovery) io.stderr(`Recovery: ${error.recovery}`);
+      process.exitCode = error.exitCode;
+      return error.exitCode;
+    }
+    if (error instanceof Error && "code" in error && String(error.code).startsWith("commander.")) {
+      const code =
+        error.code === "commander.helpDisplayed" || error.code === "commander.version"
+          ? ExitCode.Success
+          : ExitCode.InvalidInput;
+      process.exitCode = code;
+      return code;
+    }
+    io.stderr(
+      `Unexpected error: ${redactText(error instanceof Error ? error.message : String(error))}`,
+    );
+    io.stderr("Recovery: Run stackjet doctor, then retry with --help if the problem persists.");
+    process.exitCode = ExitCode.Unexpected;
+    return ExitCode.Unexpected;
+  }
+}

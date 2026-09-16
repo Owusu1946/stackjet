@@ -1,0 +1,12 @@
+node_modules/
+.expo/
+.turbo/
+.env
+.env.*
+!.env.example
+coverage/
+dist/
+android/
+ios/
+*.log
+stackjet-researched-implementation-blueprint.md

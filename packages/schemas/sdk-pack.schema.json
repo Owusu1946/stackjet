@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stackjet.dev/schemas/sdk-pack.schema.json",
+  "title": "Stackjet SDK pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sdk",
+    "status",
+    "source",
+    "supportedPackageManagers",
+    "newArchitecture",
+    "checks",
+    "filesSha256"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "sdk": { "const": 57 },
+    "status": { "enum": ["experimental", "stable"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "template", "syncedAt"],
+      "properties": {
+        "kind": { "const": "create-expo-app" },
+        "template": { "type": "string", "minLength": 1 },
+        "syncedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "supportedPackageManagers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["pnpm", "npm", "bun"] }
+    },
+    "newArchitecture": { "type": "boolean" },
+    "checks": {
+      "type": "array",
+      "items": { "enum": ["typecheck", "test", "expo-doctor", "expo-export"] }
+    },
+    "filesSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

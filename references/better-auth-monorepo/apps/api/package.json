@@ -1,0 +1,35 @@
+{
+  "name": "@stackjet/better-auth-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { "./app": "./src/app.ts" },
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "start": "tsx --env-file=.env src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "auth:generate": "auth generate --config src/auth/index.ts --output src/db/auth-schema.ts --yes"
+  },
+  "dependencies": {
+    "@better-auth/expo": "latest",
+    "@hono/node-server": "latest",
+    "@neondatabase/serverless": "latest",
+    "@t3-oss/env-core": "latest",
+    "better-auth": "latest",
+    "drizzle-orm": "latest",
+    "hono": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "drizzle-kit": "latest",
+    "tsx": "latest",
+    "typescript": "~6.0.3",
+    "vitest": "latest"
+  }
+}

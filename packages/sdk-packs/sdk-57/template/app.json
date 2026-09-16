@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Stackjet App",
+    "slug": "stackjet-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "stackjet-app",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": ["expo-router", "expo-splash-screen"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

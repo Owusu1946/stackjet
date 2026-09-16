@@ -1,0 +1,9 @@
+appId: com.stackjet.reference.betterauth
+tags: [smoke, experimental]
+---
+- launchApp
+- extendedWaitUntil:
+    visible: { id: "auth-loaded" }
+    timeout: 15000
+- assertVisible: { id: "sign-in" }
+- assertVisible: { id: "sign-up" }

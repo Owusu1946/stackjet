@@ -1,0 +1,19 @@
+{
+  "name": "@stackjet/brand",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "latest",
+    "typescript": "~6.0.3",
+    "vitest": "latest"
+  }
+}
