@@ -1,5 +1,5 @@
 {
-  "name": "@stackjet/adapters",
+  "name": "@expojet/adapters",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,8 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@stackjet/core": "workspace:*",
-    "@stackjet/schemas": "workspace:*",
+    "@expojet/brand": "workspace:*",
+    "@expojet/core": "workspace:*",
+    "@expojet/schemas": "workspace:*",
     "zod": "latest"
   },
   "devDependencies": {

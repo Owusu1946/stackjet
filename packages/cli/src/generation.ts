@@ -3,10 +3,11 @@ import {
   monorepoPlatformAdapter,
   styleAdapter,
   themeAdapter,
-} from "@stackjet/adapters";
-import { executePlan, type GenerationPlan, type Operation } from "@stackjet/core";
-import type { CreateInput } from "@stackjet/schemas";
-import { sdk57Files, sdk57FilesSha256 } from "@stackjet/sdk-57";
+} from "@expojet/adapters";
+import { commandName, manifestFileName } from "@expojet/brand";
+import { executePlan, type GenerationPlan, type Operation } from "@expojet/core";
+import type { CreateInput } from "@expojet/schemas";
+import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
 
 export function buildCreatePlan(input: CreateInput): GenerationPlan {
   const owner = `sdk-57:${sdk57FilesSha256.slice(0, 12)}`;
@@ -54,11 +55,11 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
     },
     {
       type: "write-file",
-      path: "stackjet.jsonc",
+      path: manifestFileName,
       content: `${JSON.stringify(
         {
-          $schema: "https://stackjet.dev/schemas/project.schema.json",
-          generatorVersion: "0.0.0",
+          $schema: "https://expojet.dev/schemas/project.schema.json",
+          generatorVersion: "0.1.0",
           sdk: 57,
           sdkPackSha256: sdk57FilesSha256,
           structure: input.structure,
@@ -69,13 +70,19 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
         null,
         2,
       )}\n`,
-      owner: "stackjet",
+      owner: commandName,
+    },
+    {
+      type: "write-file",
+      path: `${mobileRoot}src/${commandName}-features.ts`,
+      content: `export const features = ${JSON.stringify({ onboarding: input.onboarding, darkMode: input.darkMode }, null, 2)} as const;\n`,
+      owner: commandName,
     },
     {
       type: "write-file",
       path: `${mobileRoot}src/stackjet-features.ts`,
-      content: `export const features = ${JSON.stringify({ onboarding: input.onboarding, darkMode: input.darkMode }, null, 2)} as const;\n`,
-      owner: "stackjet",
+      content: `export { features } from "./${commandName}-features.js";\n`,
+      owner: commandName,
     },
   );
   operations.push(...authAdapter(input.auth).plan(input, {}));
@@ -87,7 +94,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       type: "write-file",
       path: `${mobileRoot}eas.json`,
       content: `${JSON.stringify({ cli: { version: ">= 16.0.0" }, build: { development: { developmentClient: true, distribution: "internal" }, preview: { distribution: "internal" }, production: { autoIncrement: true } }, submit: { production: {} } }, null, 2)}\n`,
-      owner: "stackjet:eas",
+      owner: `${commandName}:eas`,
     });
   }
   return { destination: input.destination, operations };

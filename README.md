@@ -1,6 +1,6 @@
 <div align="center">
 
-#  Stackjet
+# ⚡️ Expojet
 
 ### The production-ready, Expo-first full-stack TypeScript application generator.
 
@@ -12,52 +12,57 @@
 
 Scaffold battle-tested Expo SDK 57 mobile apps, type-safe Hono backends, and Next.js 15 web monorepos in seconds.
 
-[Quick Start](#-quick-start) • [Why Stackjet?](#-why-stackjet) • [Feature Matrix](#-feature-matrix) • [CLI Flags](#-cli-options--flags) • [Architecture](#-project-architectures) • [Contributing](#-contributing)
+[Quick Start](#-quick-start) • [Why Expojet?](#-why-expojet) • [Feature Matrix](#-feature-matrix) • [CLI Flags](#-cli-options--flags) • [Architecture](#-project-architectures) • [Contributing](#-contributing)
 
 </div>
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 Create a new project interactively:
 
 ```bash
-npx create-stackjet@latest
+npx create-expojet@latest
 ```
 
 Or using your favorite package manager:
 
 ```bash
 # Using pnpm
-pnpm dlx create-stackjet@latest
+pnpm dlx create-expojet@latest
 
 # Using bun
-bunx create-stackjet@latest
+bunx create-expojet@latest
+```
+
+You can also run with the `expojet` command:
+```bash
+npx expojet my-app
 ```
 
 ### Non-Interactive Quickstarts
 
 Generate a standalone Expo app with NativeWind:
 ```bash
-npx create-stackjet my-app --style nativewind --auth clerk --yes
+npx create-expojet my-app --style nativewind --auth clerk --yes
 ```
 
 Generate a full-stack Expo + Next.js 15 + Hono API monorepo with Unistyles 3.0:
 ```bash
-npx create-stackjet my-monorepo --structure monorepo-web --style unistyles --auth clerk --yes
+npx create-expojet my-monorepo --structure monorepo-web --style unistyles --auth clerk --yes
 ```
 
 ---
 
-## Why Stackjet?
+## 💡 Why Expojet?
 
 Setting up a modern, production-grade Expo mobile app or full-stack monorepo is notoriously complex:
 - **Version Hell**: Mismatched versions of React Native, React 19, Expo Router, and Tailwind often fail silently or crash in release builds.
 - **Leaky Secrets**: Many generators inadvertently bundle server database URLs (`DATABASE_URL`) or API secret keys directly into client mobile JS bundles.
 - **Corrupted Scaffolding**: Failed installations or network hiccups often leave directories half-written and dirty.
 
-### The Stackjet Guarantees:
+### The Expojet Guarantees:
 1. **Verified Compatibility**: Every combination is locked against **Expo SDK 57**, React Native 0.86, and React 19.
 2. **Strict Secret Isolation**: Mobile bundles are statically scanned and forbidden from containing server secrets. All client variables require the `EXPO_PUBLIC_` prefix.
 3. **Atomic Generation**: Scaffolding always executes in an isolated sibling staging sandbox. Files commit to the destination path only after passing static integrity checks.
@@ -65,7 +70,7 @@ Setting up a modern, production-grade Expo mobile app or full-stack monorepo is 
 
 ---
 
-## Feature Matrix
+## 🧩 Feature Matrix
 
 | Category | Supported Options | Highlights |
 |---|---|---|
@@ -74,7 +79,7 @@ Setting up a modern, production-grade Expo mobile app or full-stack monorepo is 
 | **Authentication** | `clerk`<br>`better-auth`<br>`none` | • **Clerk**: Hosted auth, session provider, token caching via `expo-secure-store`, Maestro E2E flows<br>• **Better Auth**: Full-stack auth with Drizzle schema<br>• **None**: Clean, unopinionated base |
 | **Theme Engine** | Dynamic Dark Mode | • System / manual toggle (`ThemeProvider`, `ThemeToggle`, `useTheme`)<br>• Secure token persistence via `expo-secure-store` |
 | **Navigation** | Expo Router | • File-based routing with typed route groups (`(app)`, `(public)`, `(onboarding)`) |
-| **Full-Stack Sharing** | `@stackjet/api-contract` | • End-to-end type safety between backend and mobile/web clients using Hono RPC and TanStack React Query |
+| **Full-Stack Sharing** | `@expojet/api-contract` | • End-to-end type safety between backend and mobile/web clients using Hono RPC and TanStack React Query |
 | **Deployment & Ops** | EAS & Doctor | • Preconfigured `eas.json` profiles for development, preview, and production<br>• Built-in `doctor` command for project health diagnostics |
 
 ---
@@ -99,7 +104,7 @@ my-app/
 ├── app.json                    # Expo configuration
 ├── eas.json                    # EAS build profiles
 ├── metro.config.js             # Composed Metro styling configuration
-└── stackjet.jsonc              # Stackjet project manifest
+└── expojet.jsonc               # Expojet project manifest
 ```
 
 ### 2. Full-Stack Monorepo (`monorepo-web`)
@@ -114,17 +119,17 @@ my-monorepo/
 │   └── api-contract/           # Shared Zod schemas, Hono RPC types, and models
 ├── turbo.json                  # Turborepo task pipeline
 ├── package.json                # Workspace root with packageManager
-└── stackjet.jsonc              # Monorepo manifest
+└── expojet.jsonc               # Monorepo manifest
 ```
 
 ---
 
-## CLI Options & Flags
+## ⚙️ CLI Options & Flags
 
-The `create-stackjet` command supports rich interactive prompts or fully scriptable CLI flags:
+The `create-expojet` command supports rich interactive prompts or fully scriptable CLI flags:
 
 ```bash
-create-stackjet [project-name] [options]
+create-expojet [project-name] [options]
 ```
 
 ### Available Flags
@@ -146,26 +151,26 @@ create-stackjet [project-name] [options]
 
 ---
 
-## Built-in Diagnostics (`doctor`)
+## 🩺 Built-in Diagnostics (`doctor`)
 
-Stackjet includes built-in diagnostics to audit your environment and project health:
+Expojet includes built-in diagnostics to audit your environment and project health:
 
 ```bash
 # Audit the current project
-npx create-stackjet doctor
+npx expojet doctor
 
 # Validate environment variables against .env.example
-npx create-stackjet env check
+npx expojet env check
 
 # Inspect system info, package managers, and SDK support
-npx create-stackjet info
+npx expojet info
 ```
 
 ---
 
-## Local Development
+## 💻 Local Development
 
-Stackjet is developed as an open-source monorepo. To contribute or inspect the codebase:
+Expojet is developed as an open-source monorepo. To contribute or inspect the codebase:
 
 ```bash
 # 1. Clone the repo
@@ -187,7 +192,7 @@ node packages/cli/dist/cli.js --help
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are warmly welcomed! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request or submitting an issue.
 
@@ -198,6 +203,6 @@ Contributions are warmly welcomed! Please read our [Contributing Guide](CONTRIBU
 
 ---
 
-## License
+## 📄 License
 
-Stackjet is open-source software licensed under the [MIT License](LICENSE).
+Expojet is open-source software licensed under the [MIT License](LICENSE).

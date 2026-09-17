@@ -1,5 +1,5 @@
 {
-  "name": "@stackjet/sdk-57",
+  "name": "@expojet/sdk-57",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@stackjet/schemas": "workspace:*"
+    "@expojet/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "latest",

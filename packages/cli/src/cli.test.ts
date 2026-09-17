@@ -19,7 +19,7 @@ function captureIo(cwd: string) {
 
 describe("non-interactive create", () => {
   it("normalizes documented defaults", () => {
-    const cwd = mkdtempSync(join(tmpdir(), "stackjet-cli-"));
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
     const input = normalizeNonInteractiveCreate("my-app", { yes: true }, {}, cwd);
     expect(input).toMatchObject({
       projectName: "my-app",
@@ -37,7 +37,7 @@ describe("non-interactive create", () => {
   });
 
   it("supports flag equivalents for disabling optional features", () => {
-    const cwd = mkdtempSync(join(tmpdir(), "stackjet-cli-"));
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
     const input = normalizeNonInteractiveCreate(
       "minimal-app",
       { yes: true, onboarding: false, darkMode: false, eas: false, install: false, git: false },
@@ -54,7 +54,7 @@ describe("non-interactive create", () => {
   });
 
   it("supports monorepo-web structure flag", () => {
-    const cwd = mkdtempSync(join(tmpdir(), "stackjet-cli-"));
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
     const input = normalizeNonInteractiveCreate(
       "web-monorepo-app",
       { yes: true, structure: "monorepo-web" },
@@ -68,27 +68,27 @@ describe("non-interactive create", () => {
 describe("commands", () => {
   it("prints secret-free info outside a generated project", async () => {
     process.exitCode = 0;
-    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
-    expect(await runProgram(["node", "stackjet", "info"], capture.io)).toBe(0);
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
+    expect(await runProgram(["node", "expojet", "info"], capture.io)).toBe(0);
     expect(capture.stdout.join("\n")).toContain("Project: not detected");
   });
 
   it("rejects an unknown flag before any write", async () => {
     process.exitCode = 0;
-    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
     expect(
-      await runProgram(["node", "stackjet", "create", "my-app", "--yes", "--wat"], capture.io),
+      await runProgram(["node", "expojet", "create", "my-app", "--yes", "--wat"], capture.io),
     ).toBe(2);
   });
 
   it("requires the experimental gate for Better Auth", async () => {
     process.exitCode = 0;
-    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
     expect(
       await runProgram(
         [
           "node",
-          "stackjet",
+          "expojet",
           "create",
           "auth-app",
           "--yes",
@@ -106,12 +106,12 @@ describe("commands", () => {
 
   it("runs create with --dry-run, --no-install, and --no-git", async () => {
     process.exitCode = 0;
-    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
     expect(
       await runProgram(
         [
           "node",
-          "stackjet",
+          "expojet",
           "create",
           "smoke-app",
           "--yes",

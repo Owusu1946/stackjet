@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { sdkPackManifestSchema } from "@stackjet/schemas";
+import { sdkPackManifestSchema } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import { sdk57Files, sdk57FilesSha256, sdk57Manifest } from "./index.js";
 

@@ -1,4 +1,4 @@
-import type { Operation } from "@stackjet/core";
+import type { Operation } from "@expojet/core";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
@@ -19,50 +19,51 @@ const themeTokensSource = `export interface ColorTokens {
 }
 
 export const lightColors: ColorTokens = {
-  background: "#f8fafc",
-  surface: "#ffffff",
-  surfaceElevated: "#ffffff",
+  background: "#ffffff",
+  surface: "#f8fafc",
+  surfaceElevated: "#f1f5f9",
   border: "#e2e8f0",
   text: "#0f172a",
   textSecondary: "#475569",
   textMuted: "#94a3b8",
-  primary: "#2563eb",
+  primary: "#4f46e5",
   primaryForeground: "#ffffff",
   card: "#ffffff",
   error: "#ef4444",
 };
 
 export const darkColors: ColorTokens = {
-  background: "#090d16",
-  surface: "#111827",
-  surfaceElevated: "#1f2937",
-  border: "#1f2937",
-  text: "#f8fafc",
-  textSecondary: "#94a3b8",
-  textMuted: "#64748b",
-  primary: "#3b82f6",
+  background: "#09090b",
+  surface: "#18181b",
+  surfaceElevated: "#27272a",
+  border: "#27272a",
+  text: "#fafafa",
+  textSecondary: "#a1a1aa",
+  textMuted: "#71717a",
+  primary: "#6366f1",
   primaryForeground: "#ffffff",
-  card: "#111827",
+  card: "#18181b",
   error: "#f87171",
 };
 `;
 
-const dynamicThemeProviderSource = `import * as SecureStore from "expo-secure-store";
-import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
+const dynamicThemeProviderSource = `import React, { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 import { useColorScheme as useNativeColorScheme } from "react-native";
-import { type ColorTokens, darkColors, lightColors } from "./tokens";
+import * as SecureStore from "expo-secure-store";
+import { lightColors, darkColors, type ColorTokens } from "./tokens";
 
-export type ThemeMode = "system" | "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
 
 export interface ThemeContextValue {
   mode: ThemeMode;
+  resolvedMode: "light" | "dark";
   colorScheme: "light" | "dark";
   colors: ColorTokens;
   setMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
 
-const STORAGE_KEY = "stackjet.theme.mode";
+const STORAGE_KEY = "expojet.theme.mode";
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: PropsWithChildren) {

@@ -1,4 +1,4 @@
-import type { Operation } from "@stackjet/core";
+import type { Operation } from "@expojet/core";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
@@ -246,7 +246,7 @@ export const betterAuthAdapter: Adapter = {
   optionsSchema: () => noOptions,
   plan(input) {
     const { root, workspace } = location(input.structure);
-    const client = `import { expoClient } from "@better-auth/expo/client";\nimport * as SecureStore from "expo-secure-store";\nimport { createAuthClient } from "better-auth/react";\nimport { env } from "../env";\nexport const authClient = createAuthClient({ baseURL: env.EXPO_PUBLIC_API_URL, plugins: [expoClient({ scheme: "${input.projectName}", storagePrefix: "stackjet", storage: SecureStore })] });\n`;
+    const client = `import { expoClient } from "@better-auth/expo/client";\nimport * as SecureStore from "expo-secure-store";\nimport { createAuthClient } from "better-auth/react";\nimport { env } from "../env";\nexport const authClient = createAuthClient({ baseURL: env.EXPO_PUBLIC_API_URL, plugins: [expoClient({ scheme: "${input.projectName}", storagePrefix: "expojet", storage: SecureStore })] });\n`;
     return [
       {
         type: "add-dependency",

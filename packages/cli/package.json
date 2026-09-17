@@ -1,17 +1,23 @@
 {
-  "name": "create-stackjet",
-  "version": "0.0.0",
+  "name": "create-expojet",
+  "version": "0.1.0",
   "description": "A production-ready Expo stack in one command.",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
-    "create-stackjet": "./dist/cli.js",
-    "stackjet": "./dist/cli.js"
+    "create-expojet": "./dist/cli.js",
+    "expojet": "./dist/cli.js"
   },
   "exports": {
     ".": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -29,11 +35,11 @@
     "zod": "latest"
   },
   "devDependencies": {
-    "@stackjet/adapters": "workspace:*",
-    "@stackjet/brand": "workspace:*",
-    "@stackjet/core": "workspace:*",
-    "@stackjet/schemas": "workspace:*",
-    "@stackjet/sdk-57": "workspace:*",
+    "@expojet/adapters": "workspace:*",
+    "@expojet/brand": "workspace:*",
+    "@expojet/core": "workspace:*",
+    "@expojet/schemas": "workspace:*",
+    "@expojet/sdk-57": "workspace:*",
     "@types/node": "latest",
     "tsup": "latest",
     "tsx": "latest",

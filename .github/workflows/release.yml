@@ -25,6 +25,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm smoke:pack
-      - run: pnpm --filter create-stackjet publish --access public --provenance
+      - run: pnpm --filter create-expojet publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,5 +1,5 @@
 {
-  "name": "@stackjet/schemas",
+  "name": "@expojet/schemas",
   "version": "0.0.0",
   "private": true,
   "type": "module",

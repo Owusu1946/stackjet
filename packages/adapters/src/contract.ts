@@ -1,5 +1,5 @@
-import type { Operation } from "@stackjet/core";
-import type { CreateInput } from "@stackjet/schemas";
+import type { Operation } from "@expojet/core";
+import type { CreateInput } from "@expojet/schemas";
 import type { z } from "zod";
 
 export interface CapabilityDeclaration {

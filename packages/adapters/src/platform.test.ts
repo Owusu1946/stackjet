@@ -1,4 +1,4 @@
-import type { CreateInput } from "@stackjet/schemas";
+import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import { monorepoPlatformAdapter } from "./platform.js";
 

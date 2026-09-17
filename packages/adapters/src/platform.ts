@@ -1,4 +1,4 @@
-import type { Operation } from "@stackjet/core";
+import type { Operation } from "@expojet/core";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
@@ -7,12 +7,12 @@ const noOptions = z.object({}).strict();
 function makeRootPackage(packageManager: "pnpm" | "npm" | "bun") {
   const dbGenerate =
     packageManager === "npm"
-      ? "npm run db:generate --workspace=@stackjet/api"
-      : `${packageManager} --filter @stackjet/api db:generate`;
+      ? "npm run db:generate --workspace=@expojet/api"
+      : `${packageManager} --filter @expojet/api db:generate`;
   const dbMigrate =
     packageManager === "npm"
-      ? "npm run db:migrate --workspace=@stackjet/api"
-      : `${packageManager} --filter @stackjet/api db:migrate`;
+      ? "npm run db:migrate --workspace=@expojet/api"
+      : `${packageManager} --filter @expojet/api db:migrate`;
 
   const packageManagerVersion =
     packageManager === "pnpm"
@@ -23,7 +23,7 @@ function makeRootPackage(packageManager: "pnpm" | "npm" | "bun") {
 
   return `${JSON.stringify(
     {
-      name: "stackjet-workspace",
+      name: "expojet-workspace",
       private: true,
       packageManager: packageManagerVersion,
       workspaces: ["apps/*", "packages/*"],
@@ -46,7 +46,7 @@ function makeWebPackage(packageManager: "pnpm" | "npm" | "bun") {
   const contractVersion = packageManager === "npm" ? "*" : "workspace:*";
   return `${JSON.stringify(
     {
-      name: "@stackjet/web",
+      name: "@expojet/web",
       private: true,
       type: "module",
       scripts: {
@@ -57,7 +57,7 @@ function makeWebPackage(packageManager: "pnpm" | "npm" | "bun") {
         test: "vitest run",
       },
       dependencies: {
-        "@stackjet/api-contract": contractVersion,
+        "@expojet/api-contract": contractVersion,
         "@tanstack/react-query": "^5.87.1",
         hono: "^4.9.8",
         next: "^15.1.7",
@@ -106,7 +106,7 @@ const webTsConfig = `{
 const webNextConfig = `import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@stackjet/api-contract"],
+  transpilePackages: ["@expojet/api-contract"],
 };
 
 export default nextConfig;
@@ -262,7 +262,7 @@ describe("Web HomePage", () => {
 });
 `;
 
-const webApiClient = `import type { AppType } from "@stackjet/api-contract";
+const webApiClient = `import type { AppType } from "@expojet/api-contract";
 import { hc } from "hono/client";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
@@ -280,7 +280,7 @@ export function createWebApiClient(getToken?: () => Promise<string | null>) {
 `;
 
 const apiPackage = `{
-  "name": "@stackjet/api",
+  "name": "@expojet/api",
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.ts", "./app": "./src/app.ts" },
@@ -353,7 +353,7 @@ export function createApp(overrides: Partial<Dependencies> = {}) {
     .use("*", async (c, next) => { c.set("requestId", c.req.header("x-request-id") ?? crypto.randomUUID()); await next(); c.header("x-request-id", c.get("requestId")); })
     .use("*", secureHeaders())
     .use("/v1/*", cors({ origin: (origin) => { const allowed = (process.env.ALLOWED_ORIGINS ?? "http://localhost:8081").split(","); return allowed.includes(origin) ? origin : allowed[0]!; }, credentials: true }))
-    .get("/health", (c) => c.json({ ok: true, service: "stackjet-api" }))
+    .get("/health", (c) => c.json({ ok: true, service: "expojet-api" }))
     .get("/v1/me", auth, async (c) => { const userId = c.get("userId"); return c.json({ user: { id: userId }, profile: await dependencies.findProfile(userId) }); })
     .notFound((c) => c.json(failure("NOT_FOUND", "Route not found", c.get("requestId")), 404))
     .onError((error, c) => { console.error(error); return c.json(failure("INTERNAL_ERROR", "An unexpected error occurred", c.get("requestId")), 500); });
@@ -390,7 +390,7 @@ export function createApp() { return new Hono<{ Variables: Variables }>()
   .use("*", async (c, next) => { c.set("requestId", c.req.header("x-request-id") ?? crypto.randomUUID()); await next(); c.header("x-request-id", c.get("requestId")); })
   .use("*", secureHeaders())
   .on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw))
-  .get("/health", (c) => c.json({ ok: true, service: "stackjet-api", auth: "better-auth-experimental" }))
+  .get("/health", (c) => c.json({ ok: true, service: "expojet-api", auth: "better-auth-experimental" }))
   .get("/v1/me", async (c) => { const session = await auth.api.getSession({ headers: c.req.raw.headers }); if (!session) return c.json(failure("UNAUTHORIZED", "Authentication is required", c.get("requestId")), 401); return c.json({ user: session.user }); })
   .notFound((c) => c.json(failure("NOT_FOUND", "Route not found", c.get("requestId")), 404))
   .onError((error, c) => { console.error(error); return c.json(failure("INTERNAL_ERROR", "An unexpected error occurred", c.get("requestId")), 500); }); }
@@ -409,7 +409,7 @@ export function DataProvider({ children }: PropsWithChildren) { const [client] =
 const noDataProvider = `import type { PropsWithChildren } from "react";
 export function DataProvider({ children }: PropsWithChildren) { return children; }
 `;
-const apiClient = `import type { AppType } from "@stackjet/api-contract";
+const apiClient = `import type { AppType } from "@expojet/api-contract";
 import { hc } from "hono/client";
 import { env } from "../env";
 export function createApiClient(getToken: () => Promise<string | null>) {
@@ -515,7 +515,7 @@ export const monorepoPlatformAdapter: Adapter = {
       {
         type: "add-dependency",
         workspace: "apps/mobile",
-        name: "@stackjet/api-contract",
+        name: "@expojet/api-contract",
         version: "workspace:*",
         kind: "dependencies",
         owner: this.id,
@@ -629,7 +629,7 @@ export const monorepoPlatformAdapter: Adapter = {
         type: "write-file",
         path: "packages/api-contract/package.json",
         content:
-          '{"name":"@stackjet/api-contract","private":true,"type":"module","types":"./src/index.ts","dependencies":{"@stackjet/api":"workspace:*"},"scripts":{"typecheck":"tsc --noEmit","test":"node --test"},"devDependencies":{"@types/node":"^24.3.1","typescript":"~6.0.3"}}\n',
+          '{"name":"@expojet/api-contract","private":true,"type":"module","types":"./src/index.ts","dependencies":{"@expojet/api":"workspace:*"},"scripts":{"typecheck":"tsc --noEmit","test":"node --test"},"devDependencies":{"@types/node":"^24.3.1","typescript":"~6.0.3"}}\n',
         owner: this.id,
       },
       {
@@ -642,7 +642,7 @@ export const monorepoPlatformAdapter: Adapter = {
       {
         type: "write-file",
         path: "packages/api-contract/src/index.ts",
-        content: 'export type { AppType } from "@stackjet/api/app";\n',
+        content: 'export type { AppType } from "@expojet/api/app";\n',
         owner: this.id,
       },
     ];

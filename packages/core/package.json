@@ -1,5 +1,5 @@
 {
-  "name": "@stackjet/core",
+  "name": "@expojet/core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@stackjet/schemas": "workspace:*",
+    "@expojet/brand": "workspace:*",
+    "@expojet/schemas": "workspace:*",
     "jsonc-parser": "latest"
   },
   "devDependencies": {

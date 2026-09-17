@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { authAdapters, packageManagers, structures, styleAdapters } from "./create-input.js";
 
-export const stackjetManifestSchema = z.object({
+export const expojetManifestSchema = z.object({
   $schema: z.string().optional(),
   generatorVersion: z.string().min(1),
   sdk: z.literal(57),
@@ -20,4 +20,7 @@ export const stackjetManifestSchema = z.object({
     .optional(),
 });
 
-export type StackjetManifest = z.infer<typeof stackjetManifestSchema>;
+export type ExpojetManifest = z.infer<typeof expojetManifestSchema>;
+
+export const stackjetManifestSchema = expojetManifestSchema;
+export type StackjetManifest = ExpojetManifest;

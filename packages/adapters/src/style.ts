@@ -1,4 +1,4 @@
-import type { Operation } from "@stackjet/core";
+import type { Operation } from "@expojet/core";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 

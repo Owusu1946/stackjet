@@ -6,11 +6,11 @@ export default defineConfig({
   dts: true,
   clean: true,
   noExternal: [
-    "@stackjet/adapters",
-    "@stackjet/brand",
-    "@stackjet/core",
-    "@stackjet/schemas",
-    "@stackjet/sdk-57",
+    "@expojet/adapters",
+    "@expojet/brand",
+    "@expojet/core",
+    "@expojet/schemas",
+    "@expojet/sdk-57",
   ],
   banner: { js: "#!/usr/bin/env node" },
 });

@@ -1,13 +1,13 @@
-import { commandName, tagline } from "@stackjet/brand";
-import { ExitCode, redactText } from "@stackjet/core";
-import { authAdapters, packageManagers, structures, styleAdapters } from "@stackjet/schemas";
+import { commandName, productName, tagline } from "@expojet/brand";
+import { ExitCode, redactText } from "@expojet/core";
+import { authAdapters, packageManagers, structures, styleAdapters } from "@expojet/schemas";
 import { Command, Option } from "commander";
 import { runDoctor, runEnvCheck, runInfo } from "./commands.js";
 import { type CreateFlags, runCreate } from "./create.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
-export const cliVersion = "0.0.0";
+export const cliVersion = "0.1.0";
 
 function decorateCommand(command: Command) {
   return command.showHelpAfterError("Run with --help for usage.");
@@ -30,7 +30,7 @@ export function createProgram(io: CliIo) {
     );
 
   decorateCommand(program.command("create [project-name]"))
-    .description("Validate and normalize a new Stackjet project request")
+    .description(`Validate and normalize a new ${productName} project request`)
     .option("--config <path>", "load defaults from a JSON configuration file")
     .option("--destination <path>", "target directory")
     .addOption(new Option("--structure <type>").choices([...structures]))
@@ -102,7 +102,9 @@ export async function runProgram(argv: string[], io: CliIo) {
     io.stderr(
       `Unexpected error: ${redactText(error instanceof Error ? error.message : String(error))}`,
     );
-    io.stderr("Recovery: Run stackjet doctor, then retry with --help if the problem persists.");
+    io.stderr(
+      `Recovery: Run ${commandName} doctor, then retry with --help if the problem persists.`,
+    );
     process.exitCode = ExitCode.Unexpected;
     return ExitCode.Unexpected;
   }

@@ -1,4 +1,4 @@
-import type { SdkPackManifest } from "@stackjet/schemas";
+import type { SdkPackManifest } from "@expojet/schemas";
 import { sdk57FilesSha256 } from "./template.generated.js";
 
 export { sdk57Files, sdk57FilesSha256 } from "./template.generated.js";

@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import * as p from "@clack/prompts";
-import { ExitCode, ProjectPathError, validateProjectPath } from "@stackjet/core";
+import { createPackageName } from "@expojet/brand";
+import { ExitCode, ProjectPathError, validateProjectPath } from "@expojet/core";
 import {
   authAdapters,
   type CreateConfig,
@@ -10,7 +11,7 @@ import {
   createInputSchema,
   packageManagers,
   styleAdapters,
-} from "@stackjet/schemas";
+} from "@expojet/schemas";
 import { ZodError } from "zod";
 import { CliError } from "./errors.js";
 import { generateCreatePlan } from "./generation.js";
@@ -60,7 +61,7 @@ export function normalizeNonInteractiveCreate(
     throw new CliError(
       "Project name is required in --yes mode",
       ExitCode.InvalidInput,
-      "Pass a project name, for example: create-stackjet my-app --yes.",
+      `Pass a project name, for example: ${createPackageName} my-app --yes.`,
     );
   }
   const destination = flags.destination ?? config.destination ?? projectName;

@@ -1,6 +1,6 @@
-# Contributing to Stackjet
+# Contributing to Expojet
 
-Thank you for your interest in contributing to **Stackjet**! Stackjet is an open-source, Expo-first application generator and full-stack monorepo scaffolding system built on strict architectural boundaries, verified compatibility, and deterministic generation.
+Thank you for your interest in contributing to **Expojet**! Expojet is an open-source, Expo-first application generator and full-stack monorepo scaffolding system built on strict architectural boundaries, verified compatibility, and deterministic generation.
 
 This guide will help you get started with contributing, whether you're reporting bugs, improving documentation, or adding new adapters.
 
@@ -14,12 +14,12 @@ All contributors and participants agree to abide by our [Code of Conduct](CODE_O
 
 ## Repository Architecture & Invariants
 
-Stackjet is organized as a strict pnpm monorepo managed by Turborepo:
+Expojet is organized as a strict pnpm monorepo managed by Turborepo:
 
 ```text
-stackjet/
+expojet/
 ├── packages/
-│   ├── cli/         # Binary entrypoint (`create-stackjet`), CLI flags, and interactive Clack prompts
+│   ├── cli/         # Binary entrypoint (`create-expojet`), CLI flags, and interactive Clack prompts
 │   ├── core/        # Plan executor, atomic staging, conflict detection, and doctor checks
 │   ├── adapters/    # First-party adapters (auth, styling, platform backends, theme engine)
 │   ├── sdk-packs/   # Immutable Expo SDK 57 pack, template tree, SHA-256 checksums
@@ -44,7 +44,7 @@ stackjet/
 4. **Deterministic Staging**:
    - All generation renders into a sibling staging directory (`.<name>-staging-...`), validates static integrity and secret checks, and commits atomically via rename.
 5. **Brand Isolation**:
-   - Product name strings must be referenced from `@stackjet/brand` rather than hardcoded in templates.
+   - Product name strings must be referenced from `@expojet/brand` rather than hardcoded in templates.
 
 ---
 

@@ -23,10 +23,13 @@ importers:
 
   packages/adapters:
     dependencies:
-      '@stackjet/core':
+      '@expojet/brand':
+        specifier: workspace:*
+        version: link:../brand
+      '@expojet/core':
         specifier: workspace:*
         version: link:../core
-      '@stackjet/schemas':
+      '@expojet/schemas':
         specifier: workspace:*
         version: link:../schemas
       zod:
@@ -73,19 +76,19 @@ importers:
         specifier: latest
         version: 4.6.5
     devDependencies:
-      '@stackjet/adapters':
+      '@expojet/adapters':
         specifier: workspace:*
         version: link:../adapters
-      '@stackjet/brand':
+      '@expojet/brand':
         specifier: workspace:*
         version: link:../brand
-      '@stackjet/core':
+      '@expojet/core':
         specifier: workspace:*
         version: link:../core
-      '@stackjet/schemas':
+      '@expojet/schemas':
         specifier: workspace:*
         version: link:../schemas
-      '@stackjet/sdk-57':
+      '@expojet/sdk-57':
         specifier: workspace:*
         version: link:../sdk-packs/sdk-57
       '@types/node':
@@ -106,7 +109,10 @@ importers:
 
   packages/core:
     dependencies:
-      '@stackjet/schemas':
+      '@expojet/brand':
+        specifier: workspace:*
+        version: link:../brand
+      '@expojet/schemas':
         specifier: workspace:*
         version: link:../schemas
       jsonc-parser:
@@ -144,7 +150,7 @@ importers:
 
   packages/sdk-packs/sdk-57:
     dependencies:
-      '@stackjet/schemas':
+      '@expojet/schemas':
         specifier: workspace:*
         version: link:../../schemas
     devDependencies:

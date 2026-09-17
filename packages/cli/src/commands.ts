@@ -1,12 +1,12 @@
 import { arch, platform, release } from "node:os";
-import { productName, tagline } from "@stackjet/brand";
+import { manifestFileName, productName, tagline } from "@expojet/brand";
 import {
   type CheckResult,
   checkEnvironment,
   ExitCode,
   loadProjectContext,
   runDoctorChecks,
-} from "@stackjet/core";
+} from "@expojet/core";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
@@ -29,9 +29,9 @@ export function runEnvCheck(io: CliIo) {
   const project = loadProjectContext(io.cwd);
   if (!project) {
     throw new CliError(
-      "No stackjet.jsonc found in the current directory",
+      `No ${manifestFileName} found in the current directory`,
       ExitCode.ProjectState,
-      "Run this command from a generated Stackjet project.",
+      `Run this command from a generated ${productName} project.`,
     );
   }
   const results = checkEnvironment(project);

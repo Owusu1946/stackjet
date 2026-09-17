@@ -1,8 +1,8 @@
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadProjectContext, runDoctorChecks } from "@stackjet/core";
-import type { CreateInput } from "@stackjet/schemas";
+import { loadProjectContext, runDoctorChecks } from "@expojet/core";
+import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import { buildCreatePlan, generateCreatePlan } from "./generation.js";
 
@@ -25,7 +25,7 @@ function input(destination: string): CreateInput {
 
 describe("Phase 2 generation", () => {
   it("generates a standalone no-auth fixture", () => {
-    const destination = join(mkdtempSync(join(tmpdir(), "stackjet-generate-")), "generated-app");
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-generate-")), "generated-app");
     const result = generateCreatePlan(input(destination), false);
     expect(result.committed).toBe(true);
     expect(JSON.parse(readFileSync(join(destination, "package.json"), "utf8"))).toMatchObject({
@@ -35,7 +35,7 @@ describe("Phase 2 generation", () => {
     expect(JSON.parse(readFileSync(join(destination, "app.json"), "utf8"))).toMatchObject({
       expo: { slug: "generated-app", scheme: "generated-app" },
     });
-    expect(readFileSync(join(destination, "stackjet.jsonc"), "utf8")).not.toContain("secret");
+    expect(readFileSync(join(destination, "expojet.jsonc"), "utf8")).not.toContain("secret");
   });
 
   it("previews the exact plan without creating a target", () => {

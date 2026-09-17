@@ -12,7 +12,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, parse } from "node:path";
-import { stackjetManifestSchema } from "@stackjet/schemas";
+import { commandName, manifestFileName } from "@expojet/brand";
+import { expojetManifestSchema } from "@expojet/schemas";
 import { applyEdits, modify, parse as parseJsonc } from "jsonc-parser";
 import { composeAppPlugins, composeMetroConfig } from "./compose.js";
 import { detectPlanConflicts } from "./conflicts.js";
@@ -166,16 +167,18 @@ function verifyRenderedTree(staging: string) {
   const files = listFiles(staging);
   for (const file of files) {
     const content = readFileSync(resolvePlanPath(staging, file), "utf8");
-    if (/\{\{STACKJET_[A-Z0-9_]+\}\}/.test(content)) {
+    if (/\{\{(?:STACKJET|EXPOJET)_[A-Z0-9_]+\}\}/.test(content)) {
       throw new Error(`Unresolved template token in ${file}`);
     }
   }
-  const manifestPath = resolvePlanPath(staging, "stackjet.jsonc");
+  const manifestPath = existsSync(resolvePlanPath(staging, manifestFileName))
+    ? resolvePlanPath(staging, manifestFileName)
+    : resolvePlanPath(staging, "stackjet.jsonc");
   if (existsSync(manifestPath)) {
     const errors: { error: number; offset: number; length: number }[] = [];
     const manifest = parseJsonc(readFileSync(manifestPath, "utf8"), errors);
-    if (errors.length > 0) throw new Error("Generated stackjet.jsonc is invalid JSONC");
-    stackjetManifestSchema.parse(manifest);
+    if (errors.length > 0) throw new Error(`Generated ${manifestFileName} is invalid JSONC`);
+    expojetManifestSchema.parse(manifest);
   }
   return files;
 }
@@ -189,7 +192,7 @@ export function executePlan(
 
   const destination = plan.destination;
   const parent = dirname(destination);
-  const prefix = `.stackjet-${parse(destination).name}-`;
+  const prefix = `.${commandName}-${parse(destination).name}-`;
   mkdirSync(parent, { recursive: true });
   const staging = mkdtempSync(join(parent, prefix));
   try {

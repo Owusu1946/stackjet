@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Stackjet App",
-    "slug": "stackjet-app",
+    "name": "Expojet App",
+    "slug": "expojet-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "stackjet-app",
+    "scheme": "expojet-app",
     "userInterfaceStyle": "automatic",
     "plugins": ["expo-router", "expo-splash-screen"],
     "experiments": {

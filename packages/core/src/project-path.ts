@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, parse, resolve, sep } from "node:path";
-import { projectNameSchema } from "@stackjet/schemas";
+import { projectNameSchema } from "@expojet/schemas";
 
 const windowsReservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
 

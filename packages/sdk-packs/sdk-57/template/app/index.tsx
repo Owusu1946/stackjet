@@ -1,8 +1,8 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { features } from "../src/expojet-features";
 import { useOnboarding } from "../src/onboarding/provider";
 import { useSession } from "../src/session/provider";
-import { features } from "../src/stackjet-features";
 
 export default function IndexScreen() {
   const session = useSession();

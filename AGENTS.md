@@ -1,4 +1,4 @@
-# Agent Knowledge Map: Stackjet
+# Agent Knowledge Map: Expojet
 
 > This document serves as the top-level repository harness for AI coding agents and contributors. Keep it concise, authoritative, and synchronized with repository invariants.
 
@@ -6,12 +6,12 @@
 
 ## 1. Repository Architecture
 
-Stackjet is an Expo-first, compatibility-tested application generator that outputs production-ready Expo SDK 57 mobile apps and full-stack Hono/Neon monorepos.
+Expojet is an Expo-first, compatibility-tested application generator that outputs production-ready Expo SDK 57 mobile apps and full-stack Hono/Neon monorepos.
 
 ```text
-stackjet/
+expojet/
 ├── packages/
-│   ├── cli/         # Binary entrypoint (`create-stackjet`), flags, prompts, commands
+│   ├── cli/         # Binary entrypoint (`create-expojet`), flags, prompts, commands
 │   ├── core/        # Plan executor, atomic staging, conflict detection, doctor checks
 │   ├── adapters/    # Declarative adapters for auth, styling, and platform backends
 │   ├── sdk-packs/   # Immutable Expo SDK 57 pack, template tree, SHA-256 checksums
@@ -41,7 +41,7 @@ stackjet/
    - All generation renders into a unique sibling staging directory (`.<name>-staging-...`), passes static integrity and secret checks, and commits atomically via rename.
    - On error or dry-run, only the staging directory is deleted. Target directories are never left in a partial state.
 5. **Brand Isolation**:
-   - Product name strings must be referenced from `@stackjet/brand` rather than hardcoded in templates or generator logic.
+   - Product name strings must be referenced from `@expojet/brand` rather than hardcoded in templates or generator logic.
 
 ---
 

@@ -1,4 +1,4 @@
-import { ExitCode, type ExitCodeValue } from "@stackjet/core";
+import { ExitCode, type ExitCodeValue } from "@expojet/core";
 
 export class CliError extends Error {
   override name = "CliError";
