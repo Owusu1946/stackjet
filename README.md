@@ -1,52 +1,203 @@
-# Stackjet
+<div align="center">
 
-Stackjet is an Expo-first, compatibility-tested application generator. Phase 0 proved the supported Expo Go combinations, and Phase 1 now provides the typed CLI foundation.
+#  Stackjet
 
-## Phase 1 CLI
+### The production-ready, Expo-first full-stack TypeScript application generator.
 
-The workspace contains separate `cli`, `core`, `adapters`, `schemas`, SDK-pack, and `brand` packages with strict TypeScript boundaries. The CLI can atomically generate standalone, no-auth Expo apps with either StyleSheet or Uniwind.
+[![CI](https://github.com/Owusu1946/stackjet/actions/workflows/ci.yml/badge.svg)](https://github.com/Owusu1946/stackjet/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Expo SDK 57](https://img.shields.io/badge/Expo_SDK-57-000020.svg)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB.svg)](https://reactnative.dev)
+[![TypeScript: Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6.svg)](https://www.typescriptlang.org)
 
-```powershell
-pnpm install
-pnpm build
-node packages/cli/dist/cli.js --help
-node packages/cli/dist/cli.js my-app --yes --auth none --style stylesheet
-node packages/cli/dist/cli.js my-uniwind-app --yes --auth none --style uniwind
-node packages/cli/dist/cli.js doctor
-node packages/cli/dist/cli.js env check
-node packages/cli/dist/cli.js info
+Scaffold battle-tested Expo SDK 57 mobile apps, type-safe Hono backends, and Next.js 15 web monorepos in seconds.
+
+[Quick Start](#-quick-start) • [Why Stackjet?](#-why-stackjet) • [Feature Matrix](#-feature-matrix) • [CLI Flags](#-cli-options--flags) • [Architecture](#-project-architectures) • [Contributing](#-contributing)
+
+</div>
+
+---
+
+## Quick Start
+
+Create a new project interactively:
+
+```bash
+npx create-stackjet@latest
 ```
 
-The `create-stackjet my-app` shorthand and `stackjet create my-app` form resolve to the same create command after publication. Add `--dry-run` to preview the exact file plan without creating the destination. Interactive mode uses guided prompts; `--yes` requires enough arguments or configuration to run without prompts. Run `pnpm check` for formatting, checksum verification, type checking, and tests.
+Or using your favorite package manager:
 
-## Phase 0 references
+```bash
+# Using pnpm
+pnpm dlx create-stackjet@latest
 
-- `references/clerk-uniwind`: standalone Expo SDK 57 application using hosted Clerk authentication, secure token restoration, Expo Router protected routes, local onboarding state, and free Uniwind.
-- `references/better-auth-monorepo`: Expo SDK 57 plus Hono Node API, Better Auth, Neon PostgreSQL, Drizzle, Hono RPC, TanStack Query, secure cookie storage, and free Uniwind.
+# Using bun
+bunx create-stackjet@latest
+```
 
-Provider credentials are intentionally absent. Copy each `.env.example` file to `.env` and supply test-only values before device certification.
+### Non-Interactive Quickstarts
 
-See `docs/phase-0/verification.md` for the evidence ledger and remaining device gates.
+Generate a standalone Expo app with NativeWind:
+```bash
+npx create-stackjet my-app --style nativewind --auth clerk --yes
+```
 
-## Run the Expo Go references
+Generate a full-stack Expo + Next.js 15 + Hono API monorepo with Unistyles 3.0:
+```bash
+npx create-stackjet my-monorepo --structure monorepo-web --style unistyles --auth clerk --yes
+```
 
-The Clerk reference deliberately uses hosted authentication, so it works in Expo Go. The Better Auth mobile client also uses Expo Go-compatible JavaScript and Expo SDK modules; its API must be running on a URL your phone or emulator can reach.
+---
 
-### Clerk reference
+## Why Stackjet?
 
-1. Copy `references/clerk-uniwind/.env.example` to `.env` in the same folder.
-2. Replace `pk_test_replace_me` with a Clerk test publishable key.
-3. In that folder, run `pnpm start`.
-4. Scan the QR code with Expo Go.
+Setting up a modern, production-grade Expo mobile app or full-stack monorepo is notoriously complex:
+- **Version Hell**: Mismatched versions of React Native, React 19, Expo Router, and Tailwind often fail silently or crash in release builds.
+- **Leaky Secrets**: Many generators inadvertently bundle server database URLs (`DATABASE_URL`) or API secret keys directly into client mobile JS bundles.
+- **Corrupted Scaffolding**: Failed installations or network hiccups often leave directories half-written and dirty.
 
-### Better Auth reference
+### The Stackjet Guarantees:
+1. **Verified Compatibility**: Every combination is locked against **Expo SDK 57**, React Native 0.86, and React 19.
+2. **Strict Secret Isolation**: Mobile bundles are statically scanned and forbidden from containing server secrets. All client variables require the `EXPO_PUBLIC_` prefix.
+3. **Atomic Generation**: Scaffolding always executes in an isolated sibling staging sandbox. Files commit to the destination path only after passing static integrity checks.
+4. **Declarative Architecture**: Adapters never write directly to disk; they emit typed declarative operations executed atomically by the core engine.
 
-1. Create a Neon test database.
-2. Copy `references/better-auth-monorepo/apps/api/.env.example` to `.env` and fill in the database URL and a secret of at least 32 characters.
-3. Copy `references/better-auth-monorepo/apps/mobile/.env.example` to `.env`.
-4. Use `http://10.0.2.2:3000` for an Android emulator. For a physical phone, replace `10.0.2.2` with this computer's local network IP address.
-5. From `references/better-auth-monorepo`, run `pnpm --filter @stackjet/better-auth-api db:migrate`.
-6. Run `pnpm --filter @stackjet/better-auth-api dev` in one terminal.
-7. Run `pnpm --filter @stackjet/better-auth-mobile start` in another terminal and scan the QR code with Expo Go.
+---
 
-Do not run `expo prebuild` or open Android Studio just to use Expo Go. The generated `android` folders are ignored build artifacts used only for native compatibility checks.
+## Feature Matrix
+
+| Category | Supported Options | Highlights |
+|---|---|---|
+| **Project Structure** | `standalone`<br>`monorepo`<br>`monorepo-web` | • Standalone Expo app<br>• Expo + Hono API backend monorepo<br>• Full-stack Expo + Next.js 15 App Router + shared Hono API |
+| **Styling** | `uniwind`<br>`nativewind`<br>`unistyles`<br>`stylesheet` | • **Uniwind**: Tailwind CSS v4 with Metro integration<br>• **NativeWind v4**: Tailwind CSS with `withNativeWind`<br>• **Unistyles 3.0**: Nitro C++ JSI engine with reactive theme tokens<br>• **StyleSheet**: Zero-runtime vanilla React Native |
+| **Authentication** | `clerk`<br>`better-auth`<br>`none` | • **Clerk**: Hosted auth, session provider, token caching via `expo-secure-store`, Maestro E2E flows<br>• **Better Auth**: Full-stack auth with Drizzle schema<br>• **None**: Clean, unopinionated base |
+| **Theme Engine** | Dynamic Dark Mode | • System / manual toggle (`ThemeProvider`, `ThemeToggle`, `useTheme`)<br>• Secure token persistence via `expo-secure-store` |
+| **Navigation** | Expo Router | • File-based routing with typed route groups (`(app)`, `(public)`, `(onboarding)`) |
+| **Full-Stack Sharing** | `@stackjet/api-contract` | • End-to-end type safety between backend and mobile/web clients using Hono RPC and TanStack React Query |
+| **Deployment & Ops** | EAS & Doctor | • Preconfigured `eas.json` profiles for development, preview, and production<br>• Built-in `doctor` command for project health diagnostics |
+
+---
+
+## 🛠 Project Architectures
+
+### 1. Single Expo App (`standalone`)
+Ideal for focused mobile apps without a dedicated custom backend:
+```text
+my-app/
+├── app/
+│   ├── (app)/index.tsx         # Authenticated / main screens
+│   ├── (onboarding)/index.tsx  # First-time user onboarding
+│   ├── (public)/sign-in.tsx    # Authentication screens
+│   ├── _layout.tsx             # Root layout with providers
+│   └── index.tsx               # Auth & onboarding router gate
+├── src/
+│   ├── components/             # Reusable UI components (BrandCard, ThemeToggle)
+│   ├── session/                # Session provider & token storage
+│   ├── theme/                  # Theme tokens & Dark Mode engine
+│   └── env.ts                  # T3-env client environment validation
+├── app.json                    # Expo configuration
+├── eas.json                    # EAS build profiles
+├── metro.config.js             # Composed Metro styling configuration
+└── stackjet.jsonc              # Stackjet project manifest
+```
+
+### 2. Full-Stack Monorepo (`monorepo-web`)
+Ideal for teams sharing domain logic, API contracts, and types between mobile, web, and server:
+```text
+my-monorepo/
+├── apps/
+│   ├── mobile/                 # Expo SDK 57 mobile application
+│   ├── web/                    # Next.js 15 App Router web application
+│   └── api/                    # Hono serverless backend with Drizzle ORM
+├── packages/
+│   └── api-contract/           # Shared Zod schemas, Hono RPC types, and models
+├── turbo.json                  # Turborepo task pipeline
+├── package.json                # Workspace root with packageManager
+└── stackjet.jsonc              # Monorepo manifest
+```
+
+---
+
+## CLI Options & Flags
+
+The `create-stackjet` command supports rich interactive prompts or fully scriptable CLI flags:
+
+```bash
+create-stackjet [project-name] [options]
+```
+
+### Available Flags
+
+| Flag | Description | Default | Choices |
+|---|---|---|---|
+| `--structure <type>` | Project architecture | `standalone` | `standalone`, `monorepo`, `monorepo-web` |
+| `--package-manager <name>` | Package manager to configure | `pnpm` | `pnpm`, `npm`, `bun` |
+| `--auth <adapter>` | Authentication provider | `clerk` | `clerk`, `better-auth`, `none` |
+| `--style <adapter>` | Styling system | `uniwind` | `uniwind`, `nativewind`, `unistyles`, `stylesheet` |
+| `--dark-mode` / `--no-dark-mode` | Include theme toggle engine | `true` | Boolean flag |
+| `--onboarding` / `--no-onboarding` | Include onboarding flow gate | `true` | Boolean flag |
+| `--eas` / `--no-eas` | Generate EAS build profiles | `true` | Boolean flag |
+| `--install` / `--no-install` | Automatically install dependencies | `true` | Boolean flag |
+| `--git` / `--no-git` | Initialize a Git repository | `true` | Boolean flag |
+| `--dry-run` | Preview file plan without writing disk | `false` | Boolean flag |
+| `--yes` | Accept defaults / skip prompts | `false` | Boolean flag |
+| `--config <path>` | Load options from a JSON config file | - | File path |
+
+---
+
+## Built-in Diagnostics (`doctor`)
+
+Stackjet includes built-in diagnostics to audit your environment and project health:
+
+```bash
+# Audit the current project
+npx create-stackjet doctor
+
+# Validate environment variables against .env.example
+npx create-stackjet env check
+
+# Inspect system info, package managers, and SDK support
+npx create-stackjet info
+```
+
+---
+
+## Local Development
+
+Stackjet is developed as an open-source monorepo. To contribute or inspect the codebase:
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/Owusu1946/stackjet.git
+cd stackjet
+
+# 2. Install dependencies
+pnpm install
+
+# 3. Full repository health check (lint, checksums, typechecks, tests)
+pnpm check
+
+# 4. Build all packages
+pnpm build
+
+# 5. Run the local CLI
+node packages/cli/dist/cli.js --help
+```
+
+---
+
+## Contributing
+
+Contributions are warmly welcomed! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request or submitting an issue.
+
+- [Contributing Guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+- [Architecture Decisions (ADRs)](docs/decisions/)
+
+---
+
+## License
+
+Stackjet is open-source software licensed under the [MIT License](LICENSE).
