@@ -4,19 +4,20 @@ Stackjet is an Expo-first, compatibility-tested application generator. Phase 0 p
 
 ## Phase 1 CLI
 
-The workspace contains separate `cli`, `core`, `schemas`, and `brand` packages with strict TypeScript boundaries. The CLI currently validates and normalizes requests without writing project files; atomic generation begins in Phase 2.
+The workspace contains separate `cli`, `core`, `adapters`, `schemas`, SDK-pack, and `brand` packages with strict TypeScript boundaries. The CLI can atomically generate standalone, no-auth Expo apps with either StyleSheet or Uniwind.
 
 ```powershell
 pnpm install
 pnpm build
 node packages/cli/dist/cli.js --help
-node packages/cli/dist/cli.js my-app --yes
+node packages/cli/dist/cli.js my-app --yes --auth none --style stylesheet
+node packages/cli/dist/cli.js my-uniwind-app --yes --auth none --style uniwind
 node packages/cli/dist/cli.js doctor
 node packages/cli/dist/cli.js env check
 node packages/cli/dist/cli.js info
 ```
 
-The `create-stackjet my-app` shorthand and `stackjet create my-app` form resolve to the same create command after publication. Interactive mode uses guided prompts; `--yes` requires enough arguments or configuration to run without prompts. Run `pnpm check` for formatting, type checking, and tests.
+The `create-stackjet my-app` shorthand and `stackjet create my-app` form resolve to the same create command after publication. Add `--dry-run` to preview the exact file plan without creating the destination. Interactive mode uses guided prompts; `--yes` requires enough arguments or configuration to run without prompts. Run `pnpm check` for formatting, checksum verification, type checking, and tests.
 
 ## Phase 0 references
 

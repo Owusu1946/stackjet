@@ -1,0 +1,1 @@
+{"compilerOptions":{"strict":true,"skipLibCheck":true,"module":"NodeNext","moduleResolution":"NodeNext","noEmit":true,"types":["node"]},"include":["src/**/*.ts"]}

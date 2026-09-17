@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+process.env.DATABASE_URL = "postgresql://test:test@localhost/test"; process.env.DIRECT_DATABASE_URL = process.env.DATABASE_URL; process.env.BETTER_AUTH_SECRET = "test-secret-that-is-at-least-32-characters"; process.env.BETTER_AUTH_URL = "http://localhost:3000";
+describe("experimental Better Auth API", () => { it("reports experimental status", async () => { const { createApp } = await import("./app.js"); const response = await createApp().request("/health"); expect(response.status).toBe(200); expect(await response.json()).toMatchObject({ ok: true, auth: "better-auth-experimental" }); }, 20_000); });

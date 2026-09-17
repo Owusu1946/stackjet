@@ -12,6 +12,12 @@ export const stackjetManifestSchema = z.object({
     auth: z.enum(authAdapters),
     style: z.enum(styleAdapters),
   }),
+  features: z
+    .object({
+      onboarding: z.boolean().optional(),
+      darkMode: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export type StackjetManifest = z.infer<typeof stackjetManifestSchema>;

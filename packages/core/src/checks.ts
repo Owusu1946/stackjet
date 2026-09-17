@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectContext } from "./project.js";
 
@@ -11,6 +11,16 @@ export interface CheckResult {
 
 function majorMinorPatch(version: string) {
   return version.replace(/^v/, "").split(".").map(Number);
+}
+
+function treeContains(directory: string, pattern: RegExp): boolean {
+  if (!existsSync(directory)) return false;
+  return readdirSync(directory, { withFileTypes: true }).some((entry) => {
+    if (["node_modules", ".expo", "dist", "dist-ios"].includes(entry.name)) return false;
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return treeContains(path, pattern);
+    return /\.(?:ts|tsx|js|jsx|json)$/.test(entry.name) && pattern.test(readFileSync(path, "utf8"));
+  });
 }
 
 export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
@@ -60,6 +70,42 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
         : `${lockfiles.length} lockfiles found`,
   });
 
+  if (project.manifest.structure === "monorepo" || project.manifest.structure === "monorepo-web") {
+    const mobile = join(project.root, "apps/mobile");
+    const api = join(project.root, "apps/api");
+    const web = join(project.root, "apps/web");
+    const isWeb = project.manifest.structure === "monorepo-web";
+    const workspacesExist =
+      existsSync(join(mobile, "package.json")) &&
+      existsSync(join(api, "package.json")) &&
+      (!isWeb || existsSync(join(web, "package.json")));
+    checks.push({
+      name: "Monorepo workspaces",
+      status: workspacesExist ? "pass" : "fail",
+      message: isWeb
+        ? "apps/mobile, apps/api, and apps/web are required"
+        : "apps/mobile and apps/api are required",
+    });
+    const leaked = treeContains(
+      mobile,
+      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|DIRECT_DATABASE_URL|(?<!EXPO_PUBLIC_)DATABASE_URL/,
+    );
+    checks.push({
+      name: "Mobile secret boundary",
+      status: leaked ? "fail" : "pass",
+      message: leaked
+        ? "Server environment names found in mobile files"
+        : "No server environment names found in mobile files",
+    });
+  }
+  if (project.manifest.adapters.auth === "better-auth") {
+    checks.push({
+      name: "Better Auth promotion",
+      status: "warning",
+      message: "Experimental until the Expo SDK 57 physical-device gate passes",
+    });
+  }
+
   return checks;
 }
 
@@ -82,7 +128,11 @@ export interface EnvCheckResult {
 
 export function checkEnvironment(project: ProjectContext): EnvCheckResult[] {
   const workspaces =
-    project.manifest.structure === "monorepo" ? ["apps/mobile", "apps/api"] : ["."];
+    project.manifest.structure === "monorepo-web"
+      ? ["apps/mobile", "apps/api", "apps/web"]
+      : project.manifest.structure === "monorepo"
+        ? ["apps/mobile", "apps/api"]
+        : ["."];
   return workspaces.flatMap((workspace) => {
     const directory = workspace === "." ? project.root : join(project.root, workspace);
     const examplePath = join(directory, ".env.example");

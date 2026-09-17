@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "stackjet-app",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "plugins": ["expo-router", "expo-splash-screen"],
     "experiments": {
       "typedRoutes": true

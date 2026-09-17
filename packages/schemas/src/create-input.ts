@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-export const structures = ["standalone", "monorepo"] as const;
+export const structures = ["standalone", "monorepo", "monorepo-web"] as const;
 export const packageManagers = ["pnpm", "npm", "bun"] as const;
 export const authAdapters = ["clerk", "better-auth", "none"] as const;
-export const styleAdapters = ["uniwind", "stylesheet"] as const;
+export const styleAdapters = ["uniwind", "nativewind", "unistyles", "stylesheet"] as const;
 
 export const projectNameSchema = z
   .string()
@@ -25,12 +25,15 @@ const createInputObjectSchema = z.object({
   auth: z.enum(authAdapters),
   style: z.enum(styleAdapters),
   onboarding: z.boolean(),
+  darkMode: z.boolean().default(true),
   eas: z.boolean(),
+  install: z.boolean().default(true),
+  git: z.boolean().default(true),
   sdk: z.literal(57).default(57),
 });
 
 export const createInputSchema = createInputObjectSchema.superRefine((input, context) => {
-  if (input.auth === "better-auth" && input.structure !== "monorepo") {
+  if (input.auth === "better-auth" && input.structure === "standalone") {
     context.addIssue({
       code: "custom",
       path: ["auth"],

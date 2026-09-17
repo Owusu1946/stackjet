@@ -14,6 +14,7 @@ import {
 import { ZodError } from "zod";
 import { CliError } from "./errors.js";
 import { generateCreatePlan } from "./generation.js";
+import { initGitRepository, installDependencies } from "./install.js";
 import type { CliIo } from "./io.js";
 
 export interface CreateFlags {
@@ -24,10 +25,14 @@ export interface CreateFlags {
   auth?: string;
   style?: string;
   onboarding?: boolean;
+  darkMode?: boolean;
   eas?: boolean;
+  install?: boolean;
+  git?: boolean;
   allowCurrentDirectory?: boolean;
   dryRun?: boolean;
   yes?: boolean;
+  experimental?: boolean;
 }
 
 function readConfig(cwd: string, configPath?: string): CreateConfig {
@@ -73,7 +78,10 @@ export function normalizeNonInteractiveCreate(
     auth: flags.auth ?? config.auth ?? "clerk",
     style: flags.style ?? config.style ?? "uniwind",
     onboarding: flags.onboarding ?? config.onboarding ?? true,
+    darkMode: flags.darkMode ?? config.darkMode ?? true,
     eas: flags.eas ?? config.eas ?? true,
+    install: flags.install ?? config.install ?? true,
+    git: flags.git ?? config.git ?? true,
     sdk: 57,
   });
 }
@@ -104,8 +112,9 @@ async function promptCreate(
     (await p.select({
       message: "Project structure",
       options: [
-        { value: "standalone", label: "Expo app" },
-        { value: "monorepo", label: "Expo + Hono API monorepo" },
+        { value: "standalone", label: "Single Expo app" },
+        { value: "monorepo", label: "Expo + API monorepo" },
+        { value: "monorepo-web", label: "Expo + web + shared API monorepo" },
       ],
     }));
   cancelled(structure);
@@ -119,7 +128,10 @@ async function promptCreate(
     }));
   cancelled(packageManager);
 
-  const availableAuth = structure === "monorepo" ? authAdapters : ["clerk", "none"];
+  const availableAuth =
+    structure !== "standalone"
+      ? authAdapters.filter((value) => value !== "better-auth" || flags.experimental)
+      : ["clerk", "none"];
   const auth =
     flags.auth ??
     config.auth ??
@@ -144,7 +156,14 @@ async function promptCreate(
       message: "Styling",
       options: styleAdapters.map((value) => ({
         value,
-        label: value === "stylesheet" ? "React Native StyleSheet" : "Uniwind",
+        label:
+          value === "stylesheet"
+            ? "React Native StyleSheet"
+            : value === "nativewind"
+              ? "NativeWind"
+              : value === "unistyles"
+                ? "Unistyles 3.0"
+                : "Uniwind",
       })),
     }));
   cancelled(style);
@@ -154,9 +173,26 @@ async function promptCreate(
     config.onboarding ??
     (await p.confirm({ message: "Include onboarding?", initialValue: true }));
   cancelled(onboarding);
+  const darkMode =
+    flags.darkMode ??
+    config.darkMode ??
+    (await p.confirm({ message: "Include dark mode?", initialValue: true }));
+  cancelled(darkMode);
   const eas =
     flags.eas ?? config.eas ?? (await p.confirm({ message: "Configure EAS?", initialValue: true }));
   cancelled(eas);
+
+  const install =
+    flags.install ??
+    config.install ??
+    (await p.confirm({ message: "Install dependencies?", initialValue: true }));
+  cancelled(install);
+
+  const git =
+    flags.git ??
+    config.git ??
+    (await p.confirm({ message: "Initialize a git repository?", initialValue: true }));
+  cancelled(git);
 
   const destination = flags.destination ?? config.destination ?? String(projectName);
   const validatedPath = validateProjectPath({
@@ -173,7 +209,10 @@ async function promptCreate(
     auth,
     style,
     onboarding,
+    darkMode,
     eas,
+    install,
+    git,
     sdk: 57,
   });
   const confirmed = await p.confirm({
@@ -189,6 +228,7 @@ function printResult(
   input: CreateInput,
   result: { files: string[]; committed: boolean },
   io: CliIo,
+  status?: { git?: boolean | undefined; install?: boolean | undefined },
 ) {
   io.stdout(result.committed ? "✓ Project generated atomically" : "✓ Dry run validated");
   io.stdout(`  Project: ${input.projectName}`);
@@ -197,13 +237,31 @@ function printResult(
   io.stdout(`  Package manager: ${input.packageManager}`);
   io.stdout(`  Authentication: ${input.auth}`);
   io.stdout(`  Styling: ${input.style}`);
+  io.stdout(`  Dark mode: ${input.darkMode ? "enabled" : "disabled"}`);
   io.stdout(`  Files: ${result.files.length}`);
   io.stdout("  Foundation: Expo SDK 57, Expo Router, strict TypeScript, tests");
+  if (status?.git) io.stdout("  Git: initialized");
+  if (status?.install !== undefined) {
+    io.stdout(`  Dependencies: ${status.install ? "installed" : "install failed"}`);
+  }
   io.stdout("");
   if (result.committed) {
-    io.stdout(`Next: cd ${input.projectName}`);
-    io.stdout(`Then: ${input.packageManager} install`);
-    io.stdout(`Then: ${input.packageManager} start`);
+    const relativeTarget = input.destination === io.cwd ? "." : input.projectName;
+    const steps: string[] = [
+      `1. cd ${relativeTarget}`,
+      `2. Copy .env.example to .env and configure keys if needed`,
+    ];
+    let stepNum = 3;
+    if (status?.install === false || !input.install) {
+      steps.push(`${stepNum++}. ${input.packageManager} install`);
+    }
+    if (input.structure === "monorepo" || input.structure === "monorepo-web") {
+      steps.push(`${stepNum++}. ${input.packageManager} run db:migrate`);
+    }
+    steps.push(`${stepNum++}. ${input.packageManager} run dev`);
+
+    p.note(steps.join("\n"), "Next steps");
+    p.outro(`✨ Project ${input.projectName} is ready!`);
   } else {
     for (const file of result.files) io.stdout(`  + ${file}`);
     io.stdout("No destination files were written.");
@@ -216,8 +274,53 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
     const input = flags.yes
       ? normalizeNonInteractiveCreate(projectName, flags, config, io.cwd)
       : await promptCreate(projectName, flags, config, io.cwd);
+    if (input.auth === "better-auth" && !flags.experimental) {
+      throw new CliError(
+        "Better Auth is experimental and requires --experimental",
+        ExitCode.InvalidInput,
+        "Add --experimental, or use --auth clerk.",
+      );
+    }
+    const s = p.spinner();
+    s.start(
+      flags.dryRun ? `Planning ${input.projectName}...` : `Scaffolding ${input.projectName}...`,
+    );
     const result = generateCreatePlan(input, flags.dryRun ?? false);
-    printResult(input, result, io);
+    s.stop(result.committed ? "Files generated atomically" : "Dry run validated");
+
+    let gitInitialized: boolean | undefined;
+    if (result.committed && input.git && !flags.dryRun) {
+      s.start("Initializing git repository...");
+      const gitRes = await initGitRepository(input.destination, io);
+      if (gitRes.success) {
+        gitInitialized = true;
+        s.stop("Git repository initialized");
+      } else if (gitRes.reason === "already-in-git") {
+        s.stop("Already inside a git repository");
+      } else if (gitRes.reason === "git-not-found") {
+        s.stop("Git not found on PATH, skipping git initialization");
+      } else {
+        s.stop("Skipped git initialization");
+      }
+    }
+
+    let installCompleted: boolean | undefined;
+    if (result.committed && input.install && !flags.dryRun) {
+      s.start(`Installing dependencies with ${input.packageManager}...`);
+      const instRes = await installDependencies(input.destination, input.packageManager, io);
+      if (instRes.success) {
+        installCompleted = true;
+        s.stop(`Dependencies installed with ${input.packageManager}`);
+      } else {
+        installCompleted = false;
+        s.stop(`Failed to install dependencies with ${input.packageManager}`);
+        p.log.warn(
+          `Dependency install warning: ${instRes.error ?? "Installation returned non-zero exit code."}`,
+        );
+      }
+    }
+
+    printResult(input, result, io, { git: gitInitialized, install: installCompleted });
     return ExitCode.Success;
   } catch (error) {
     if (error instanceof CliError) throw error;

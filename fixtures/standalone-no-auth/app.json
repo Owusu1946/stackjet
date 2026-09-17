@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "standalone-no-auth",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "plugins": ["expo-router", "expo-splash-screen"],
     "experiments": {
       "typedRoutes": true

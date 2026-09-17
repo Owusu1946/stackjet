@@ -1,0 +1,19 @@
+import type { Operation } from "@stackjet/core";
+import type { CreateInput } from "@stackjet/schemas";
+import type { z } from "zod";
+
+export interface CapabilityDeclaration {
+  sdk: readonly number[];
+  requires: readonly string[];
+  conflicts: readonly string[];
+}
+
+export interface Adapter<TOptions extends object = object> {
+  readonly id: string;
+  readonly version: string;
+  readonly kind: "auth" | "style" | "api" | "database" | "feature";
+  readonly displayName: string;
+  capabilities(): CapabilityDeclaration;
+  optionsSchema(): z.ZodType<TOptions>;
+  plan(input: CreateInput, options: TOptions): Operation[];
+}

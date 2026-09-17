@@ -1,6 +1,14 @@
 {
   "files": {
-    "includes": ["packages/**", "!packages/**/dist", "*.json", "*.jsonc", "*.yaml"]
+    "includes": [
+      "packages/**",
+      "!packages/**/dist",
+      "!packages/sdk-packs/**/pack.json",
+      "!packages/sdk-packs/**/src/template.generated.ts",
+      "*.json",
+      "*.jsonc",
+      "*.yaml"
+    ]
   },
   "formatter": {
     "enabled": true,

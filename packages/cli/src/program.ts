@@ -39,11 +39,18 @@ export function createProgram(io: CliIo) {
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
     .option("--onboarding", "include onboarding")
     .option("--no-onboarding", "exclude onboarding")
+    .option("--dark-mode", "include dark mode theme engine")
+    .option("--no-dark-mode", "exclude dark mode theme engine")
     .option("--eas", "include EAS profiles")
     .option("--no-eas", "exclude EAS profiles")
+    .option("--install", "install dependencies after scaffolding (default: true)")
+    .option("--no-install", "skip installing dependencies")
+    .option("--git", "initialize a git repository (default: true)")
+    .option("--no-git", "skip git repository initialization")
     .option("--allow-current-directory", "explicitly allow an empty current directory")
     .option("--dry-run", "validate and preview the file plan without writing the destination")
     .option("--yes", "accept defaults and disable prompts")
+    .option("--experimental", "show and allow experimental adapters")
     .action(async (projectName: string | undefined, flags: CreateFlags) => {
       process.exitCode = await runCreate(projectName, flags, io);
     });

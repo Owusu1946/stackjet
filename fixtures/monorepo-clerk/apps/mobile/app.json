@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "phase5-clerk",
+    "slug": "phase5-clerk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "phase5-clerk",
+    "userInterfaceStyle": "automatic",
+    "plugins": ["expo-router", "expo-splash-screen"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

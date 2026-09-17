@@ -1,0 +1,12 @@
+{
+  "$schema": "https://stackjet.dev/schemas/project.schema.json",
+  "generatorVersion": "0.0.0",
+  "sdk": 57,
+  "sdkPackSha256": "a2edb634e552783ecf6f1327af394e5bd9be62e6290554c3a54ba02169e5c9f4",
+  "structure": "monorepo",
+  "packageManager": "pnpm",
+  "adapters": {
+    "auth": "better-auth",
+    "style": "uniwind"
+  }
+}

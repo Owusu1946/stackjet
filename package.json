@@ -10,10 +10,11 @@
   "scripts": {
     "build": "turbo build",
     "changeset": "changeset",
-    "check": "biome check . && turbo typecheck test",
+    "check": "biome check . && pnpm sdk:check && turbo typecheck test",
     "format": "biome check --write .",
     "sdk:check": "node scripts/sync-sdk-pack.mjs --check",
     "sdk:sync": "node scripts/sync-sdk-pack.mjs",
+    "smoke:pack": "node scripts/smoke-pack.mjs",
     "test": "turbo test",
     "typecheck": "turbo typecheck"
   },

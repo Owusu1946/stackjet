@@ -1,0 +1,25 @@
+{
+  "name": "@stackjet/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stackjet/core": "workspace:*",
+    "@stackjet/schemas": "workspace:*",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsup": "latest",
+    "typescript": "~6.0.3",
+    "vitest": "latest"
+  }
+}

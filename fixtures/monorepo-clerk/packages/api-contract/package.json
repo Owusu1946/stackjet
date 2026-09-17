@@ -1,0 +1,1 @@
+{"name":"@stackjet/api-contract","private":true,"type":"module","types":"./src/index.ts","dependencies":{"@stackjet/api":"workspace:*"},"scripts":{"typecheck":"tsc --noEmit","test":"node --test"},"devDependencies":{"@types/node":"^24.3.1","typescript":"~6.0.3"}}

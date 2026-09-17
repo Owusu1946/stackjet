@@ -8,7 +8,7 @@
     "stackjet": "./dist/cli.js"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/cli.js"
   },
   "files": [
     "dist"
@@ -24,15 +24,16 @@
   },
   "dependencies": {
     "@clack/prompts": "latest",
-    "@stackjet/brand": "workspace:*",
-    "@stackjet/core": "workspace:*",
-    "@stackjet/schemas": "workspace:*",
-    "@stackjet/sdk-57": "workspace:*",
     "commander": "latest",
     "execa": "latest",
     "zod": "latest"
   },
   "devDependencies": {
+    "@stackjet/adapters": "workspace:*",
+    "@stackjet/brand": "workspace:*",
+    "@stackjet/core": "workspace:*",
+    "@stackjet/schemas": "workspace:*",
+    "@stackjet/sdk-57": "workspace:*",
     "@types/node": "latest",
     "tsup": "latest",
     "tsx": "latest",

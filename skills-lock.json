@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "skills": {
+    "advanced-evaluation": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/advanced-evaluation/SKILL.md",
+      "computedHash": "e05159dc68e33f4e4bb7ab6bda7c99fdf517aa0f7e8846cab00b5f99946051a9"
+    },
+    "clerk-backend-api": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/core/clerk-backend-api/SKILL.md",
+      "computedHash": "cbcad1341a7d32fed789abe864c829f27a2858dc8ba68b92254e9beb53467148"
+    },
+    "clerk-cli": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/core/clerk-cli/SKILL.md",
+      "computedHash": "032774905bcc27fa768483a3eafdff00aae14ba8ad39a5387c5b49c6c4400072"
+    },
+    "clerk-custom-ui": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/core/clerk-custom-ui/SKILL.md",
+      "computedHash": "27cea644237b0458967891474a3300d54cb4693bba19b964025c73a8ca035fb2"
+    },
+    "clerk-expo": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/mobile/clerk-expo/SKILL.md",
+      "computedHash": "268e6d6ea293c440d9a2fa4fd2a97828e9cbda1c66e2cc2cd7c4379a840f21cc"
+    },
+    "clerk-setup": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/core/clerk-setup/SKILL.md",
+      "computedHash": "5152ddb16d1a3b97e74ba3751142a7aeea677d4ce13333bdcf263808dece2d01"
+    },
+    "clerk-testing": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/features/clerk-testing/SKILL.md",
+      "computedHash": "7a103e04442822f0e8e11184e11e92fea143723817dba8c5f06fd71dab86c4ad"
+    },
+    "clerk-webhooks": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/features/clerk-webhooks/SKILL.md",
+      "computedHash": "6acecf8a6a4a77294c87874bce189d311bce39ea28786a010d2769b922fbb8cc"
+    },
+    "context-engineering-collection": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "229cdb57880516eac5a6736f1259467ea52dede174fb1cfacdca8962311bc99a"
+    },
+    "drizzle-sqlite": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.experimental/drizzle-sqlite/SKILL.md",
+      "computedHash": "1bebe1aa4176e1615b80425d7d360754e765a16bd83ef302dd088dd1544ba215"
+    },
+    "evaluation": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/evaluation/SKILL.md",
+      "computedHash": "362ea1b61a39080f52d48a93a65d5db7319719945ae3e05d83516ca4f011181a"
+    },
+    "filesystem-context": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/filesystem-context/SKILL.md",
+      "computedHash": "569e3daebcf07edfc2c642888176b40ac2cb42c158044125fe22a8f0e5dcb4e4"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "github-actions": {
+      "source": "full-stack-skills/devops-skills",
+      "sourceType": "github",
+      "skillPath": "skills/github-actions/SKILL.md",
+      "computedHash": "b51ab202602a620d201ebfe7678de31e71688dd96f566e4aebbe89f5e927ba0a"
+    },
+    "harness-engineering": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.experimental/harness-engineering/SKILL.md",
+      "computedHash": "09765e4694cb6e167d15e2047b1b1da33b7f24e7328f99075e1a4433ecb37dc4"
+    },
+    "hono": {
+      "source": "honojs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/hono/SKILL.md",
+      "computedHash": "a23cd3d8f7da3134b79a14454f6e44bb0913390c30d4c278cafb529b3efce4c0"
+    },
+    "maestro-mobile-testing": {
+      "source": "tovimx/maestro-mobile-testing-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "0da465e616e3c96744ba5d0641054c4468e7bd801cde67ba6a915a89cfe465d3"
+    },
+    "multi-agent-patterns": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/multi-agent-patterns/SKILL.md",
+      "computedHash": "31a81f92540a554ef8866451f793bbbc40207ce87e3fc3b562bf2f69fb3d1e92"
+    },
+    "neon": {
+      "source": "neondatabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/neon/SKILL.md",
+      "computedHash": "1c144c5aac4c9af298be6967b4b2438d23699243297694c244fc98b37ed488f1"
+    },
+    "neon-postgres": {
+      "source": "neondatabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/neon-postgres/SKILL.md",
+      "computedHash": "2989af6804b11be25eb956dc0660ed503a3f4dd1c7a0b7bc8f3b5981e1db2270"
+    },
+    "nextjs-app-router-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
+      "computedHash": "3a46e9093baecb3a85819529ce05006f817663f48d9e872868c32ae6049c0d5c"
+    },
+    "nextjs-performance": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/nextjs-performance/SKILL.md",
+      "computedHash": "e7aacb7a0f57077fd7494a5c3b633cbc6a351463142acb1101a7f85570e20ace"
+    },
+    "playwright-e2e-testing": {
+      "source": "fugazi/test-automation-skills-agents",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-e2e-testing/SKILL.md",
+      "computedHash": "9057a6e2ae130de2e14bc7ec33d9d106e8f877b7437d439e6641da485cdd796a"
+    },
+    "plugin-management": {
+      "source": "bandofai/puerto",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/plugin-management/SKILL.md"
+    },
+    "project-development": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/project-development/SKILL.md",
+      "computedHash": "6da5cf34ba576af3bc7178eae583d63b755d49a3a943296300a95b4bf41fb3d6"
+    },
+    "skill-installer": {
+      "source": "composio-community/awesome-codex-skills",
+      "sourceType": "github",
+      "skillPath": "skill-installer/SKILL.md",
+      "computedHash": "5820adf0da0fc093c28ea47a70234a2400a7789bcfb2bd3790a9cfd0b7b4412b"
+    },
+    "tool-design": {
+      "source": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "sourceType": "github",
+      "skillPath": "skills/tool-design/SKILL.md",
+      "computedHash": "50032642e8084597cc1f2d4d1ab988fda592c405c9d4d063087dcdbb37cbda07"
+    },
+    "websocket-implementation": {
+      "source": "secondsky/claude-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/websocket-implementation/skills/websocket-implementation/SKILL.md",
+      "computedHash": "30b29bb489b57236faedc20644edc9f6b5721bcc5280a60b50805e553bee09bf"
+    }
+  }
+}

@@ -28,7 +28,10 @@ describe("non-interactive create", () => {
       auth: "clerk",
       style: "uniwind",
       onboarding: true,
+      darkMode: true,
       eas: true,
+      install: true,
+      git: true,
       sdk: 57,
     });
   });
@@ -37,11 +40,28 @@ describe("non-interactive create", () => {
     const cwd = mkdtempSync(join(tmpdir(), "stackjet-cli-"));
     const input = normalizeNonInteractiveCreate(
       "minimal-app",
-      { yes: true, onboarding: false, eas: false },
+      { yes: true, onboarding: false, darkMode: false, eas: false, install: false, git: false },
       {},
       cwd,
     );
-    expect(input).toMatchObject({ onboarding: false, eas: false });
+    expect(input).toMatchObject({
+      onboarding: false,
+      darkMode: false,
+      eas: false,
+      install: false,
+      git: false,
+    });
+  });
+
+  it("supports monorepo-web structure flag", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "stackjet-cli-"));
+    const input = normalizeNonInteractiveCreate(
+      "web-monorepo-app",
+      { yes: true, structure: "monorepo-web" },
+      {},
+      cwd,
+    );
+    expect(input.structure).toBe("monorepo-web");
   });
 });
 
@@ -59,5 +79,49 @@ describe("commands", () => {
     expect(
       await runProgram(["node", "stackjet", "create", "my-app", "--yes", "--wat"], capture.io),
     ).toBe(2);
+  });
+
+  it("requires the experimental gate for Better Auth", async () => {
+    process.exitCode = 0;
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
+    expect(
+      await runProgram(
+        [
+          "node",
+          "stackjet",
+          "create",
+          "auth-app",
+          "--yes",
+          "--structure",
+          "monorepo",
+          "--auth",
+          "better-auth",
+          "--dry-run",
+        ],
+        capture.io,
+      ),
+    ).toBe(2);
+    expect(capture.stderr.join("\n")).toContain("requires --experimental");
+  });
+
+  it("runs create with --dry-run, --no-install, and --no-git", async () => {
+    process.exitCode = 0;
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "stackjet-cli-")));
+    expect(
+      await runProgram(
+        [
+          "node",
+          "stackjet",
+          "create",
+          "smoke-app",
+          "--yes",
+          "--dry-run",
+          "--no-install",
+          "--no-git",
+        ],
+        capture.io,
+      ),
+    ).toBe(0);
+    expect(capture.stdout.join("\n")).toContain("Dry run validated");
   });
 });

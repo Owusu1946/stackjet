@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "better-auth-app",
+    "slug": "better-auth-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "better-auth-app",
+    "userInterfaceStyle": "automatic",
+    "plugins": ["expo-router", "expo-splash-screen"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

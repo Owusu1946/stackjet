@@ -21,8 +21,21 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
 
-  packages/brand:
+  packages/adapters:
+    dependencies:
+      '@stackjet/core':
+        specifier: workspace:*
+        version: link:../core
+      '@stackjet/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      zod:
+        specifier: latest
+        version: 4.6.5
     devDependencies:
+      '@types/node':
+        specifier: latest
+        version: 22.20.3
       tsup:
         specifier: latest
         version: 8.5.1(postcss@8.5.28)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
@@ -33,11 +46,36 @@ importers:
         specifier: latest
         version: 5.0.1(@types/node@22.20.3)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(tsx@4.23.13)(yaml@2.9.1))
 
+  packages/brand:
+    devDependencies:
+      tsup:
+        specifier: latest
+        version: 8.5.1(postcss@8.5.28)(tsx@4.23.13)(typescript@6.0.3)(yaml@2.9.1)
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: latest
+        version: 5.0.1(@types/node@22.20.3)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.28.2)(tsx@4.23.13)(yaml@2.9.1))
+
   packages/cli:
     dependencies:
       '@clack/prompts':
         specifier: latest
         version: 1.8.1
+      commander:
+        specifier: latest
+        version: 15.0.0
+      execa:
+        specifier: latest
+        version: 10.0.1
+      zod:
+        specifier: latest
+        version: 4.6.5
+    devDependencies:
+      '@stackjet/adapters':
+        specifier: workspace:*
+        version: link:../adapters
       '@stackjet/brand':
         specifier: workspace:*
         version: link:../brand
@@ -50,16 +88,6 @@ importers:
       '@stackjet/sdk-57':
         specifier: workspace:*
         version: link:../sdk-packs/sdk-57
-      commander:
-        specifier: latest
-        version: 15.0.0
-      execa:
-        specifier: latest
-        version: 10.0.1
-      zod:
-        specifier: latest
-        version: 4.6.5
-    devDependencies:
       '@types/node':
         specifier: latest
         version: 22.20.3

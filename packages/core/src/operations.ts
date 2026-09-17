@@ -8,12 +8,14 @@ export interface EnvVariableDefinition {
 
 export interface MetroContribution {
   id: string;
+  workspace?: string;
   module: string;
   exportName: string;
   options?: unknown;
 }
 
 export interface AppConfigContribution {
+  workspace?: string;
   plugin: string;
   options?: unknown;
 }

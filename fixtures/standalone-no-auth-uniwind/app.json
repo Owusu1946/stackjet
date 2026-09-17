@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "standalone-no-auth-uniwind",
+    "slug": "standalone-no-auth-uniwind",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "standalone-no-auth-uniwind",
+    "userInterfaceStyle": "automatic",
+    "plugins": ["expo-router", "expo-splash-screen"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

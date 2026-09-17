@@ -1,0 +1,48 @@
+{
+  "name": "@better-auth-app/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@better-auth/expo": "^1.7.5",
+    "@stackjet/api-contract": "workspace:*",
+    "@t3-oss/env-core": "^0.13.11",
+    "@tanstack/react-query": "^5.87.1",
+    "better-auth": "^1.7.5",
+    "expo": "~57.0.23",
+    "expo-constants": "~57.0.18",
+    "expo-linking": "~57.0.10",
+    "expo-router": "~57.0.21",
+    "expo-secure-store": "~57.0.4",
+    "expo-splash-screen": "~57.0.9",
+    "expo-status-bar": "~57.0.1",
+    "hono": "^4.9.8",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.10.1",
+    "tailwindcss": "^4.3.3",
+    "uniwind": "^1.12.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "@react-native/metro-config": "0.86.3",
+    "metro": "0.84.5",
+    "metro-cache": "0.84.5",
+    "metro-transform-worker": "0.84.5",
+    "typescript": "~6.0.3"
+  }
+}

@@ -5,6 +5,12 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   clean: true,
-  noExternal: ["@stackjet/brand", "@stackjet/core", "@stackjet/schemas", "@stackjet/sdk-57"],
+  noExternal: [
+    "@stackjet/adapters",
+    "@stackjet/brand",
+    "@stackjet/core",
+    "@stackjet/schemas",
+    "@stackjet/sdk-57",
+  ],
   banner: { js: "#!/usr/bin/env node" },
 });

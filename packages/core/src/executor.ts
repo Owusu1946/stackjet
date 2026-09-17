@@ -60,8 +60,8 @@ function writeJson(path: string, value: unknown) {
 }
 
 function renderPlan(plan: GenerationPlan, staging: string) {
-  const metro = [];
-  const appPlugins = [];
+  const metro = new Map<string, Parameters<typeof composeMetroConfig>[0]>();
+  const appPlugins = new Map<string, Parameters<typeof composeAppPlugins>[0]>();
   for (const operation of plan.operations) {
     switch (operation.type) {
       case "write-file": {
@@ -120,21 +120,34 @@ function renderPlan(plan: GenerationPlan, staging: string) {
         break;
       }
       case "compose-metro":
-        metro.push(operation.contribution);
+        metro.set(operation.contribution.workspace ?? ".", [
+          ...(metro.get(operation.contribution.workspace ?? ".") ?? []),
+          operation.contribution,
+        ]);
         break;
       case "compose-app-config":
-        appPlugins.push(operation.contribution);
+        appPlugins.set(operation.contribution.workspace ?? ".", [
+          ...(appPlugins.get(operation.contribution.workspace ?? ".") ?? []),
+          operation.contribution,
+        ]);
         break;
     }
   }
-  if (metro.length > 0) {
-    writeFileSync(resolvePlanPath(staging, "metro.config.js"), composeMetroConfig(metro), "utf8");
+  for (const [workspace, contributions] of metro) {
+    const prefix = workspace === "." ? "" : `${workspace}/`;
+    writeFileSync(
+      resolvePlanPath(staging, `${prefix}metro.config.js`),
+      composeMetroConfig(contributions),
+      "utf8",
+    );
   }
-  if (appPlugins.length > 0) {
-    const path = resolvePlanPath(staging, "app.json");
+  for (const [workspace, contributions] of appPlugins) {
+    const prefix = workspace === "." ? "" : `${workspace}/`;
+    const path = resolvePlanPath(staging, `${prefix}app.json`);
     const data = JSON.parse(readFileSync(path, "utf8")) as { expo?: Record<string, unknown> };
     data.expo ??= {};
-    data.expo.plugins = composeAppPlugins(appPlugins);
+    const existing = Array.isArray(data.expo.plugins) ? data.expo.plugins : [];
+    data.expo.plugins = [...existing, ...composeAppPlugins(contributions)];
     writeJson(path, data);
   }
 }
