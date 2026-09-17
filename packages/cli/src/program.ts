@@ -1,6 +1,13 @@
 import { commandName, productName, tagline } from "@expojet/brand";
 import { ExitCode, redactText } from "@expojet/core";
-import { authAdapters, packageManagers, structures, styleAdapters } from "@expojet/schemas";
+import {
+  authAdapters,
+  databaseAdapters,
+  ormAdapters,
+  packageManagers,
+  structures,
+  styleAdapters,
+} from "@expojet/schemas";
 import { Command, Option } from "commander";
 import { runDoctor, runEnvCheck, runInfo } from "./commands.js";
 import { type CreateFlags, runCreate } from "./create.js";
@@ -37,6 +44,8 @@ export function createProgram(io: CliIo) {
     .addOption(new Option("--package-manager <name>").choices([...packageManagers]))
     .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
+    .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
+    .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")
     .option("--no-onboarding", "exclude onboarding")
     .option("--dark-mode", "include dark mode theme engine")

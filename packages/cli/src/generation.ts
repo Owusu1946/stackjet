@@ -1,6 +1,8 @@
 import {
   authAdapter,
+  databaseAdapter,
   monorepoPlatformAdapter,
+  ormAdapter,
   styleAdapter,
   themeAdapter,
 } from "@expojet/adapters";
@@ -10,8 +12,12 @@ import type { CreateInput } from "@expojet/schemas";
 import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
 
 export function buildCreatePlan(input: CreateInput): GenerationPlan {
+  const database = input.database ?? (input.structure === "standalone" ? "none" : "neon");
+  const orm = input.orm ?? (database === "none" ? "none" : "drizzle");
+  const normalizedInput: CreateInput = { ...input, database, orm };
+
   const owner = `sdk-57:${sdk57FilesSha256.slice(0, 12)}`;
-  const mobileRoot = input.structure === "standalone" ? "" : "apps/mobile/";
+  const mobileRoot = normalizedInput.structure === "standalone" ? "" : "apps/mobile/";
   const operations: Operation[] = Object.entries(sdk57Files)
     .filter(
       ([path]) =>
@@ -34,7 +40,9 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
         {
           path: ["name"],
           value:
-            input.structure === "standalone" ? input.projectName : `@${input.projectName}/mobile`,
+            normalizedInput.structure === "standalone"
+              ? normalizedInput.projectName
+              : `@${normalizedInput.projectName}/mobile`,
         },
         {
           path: ["scripts", "dev"],
@@ -47,9 +55,9 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       type: "patch-json",
       path: `${mobileRoot}app.json`,
       edits: [
-        { path: ["expo", "name"], value: input.projectName },
-        { path: ["expo", "slug"], value: input.projectName },
-        { path: ["expo", "scheme"], value: input.projectName },
+        { path: ["expo", "name"], value: normalizedInput.projectName },
+        { path: ["expo", "slug"], value: normalizedInput.projectName },
+        { path: ["expo", "scheme"], value: normalizedInput.projectName },
       ],
       owner,
     },
@@ -62,10 +70,18 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           generatorVersion: "0.1.0",
           sdk: 57,
           sdkPackSha256: sdk57FilesSha256,
-          structure: input.structure,
-          packageManager: input.packageManager,
-          adapters: { auth: input.auth, style: input.style },
-          features: { onboarding: input.onboarding, darkMode: input.darkMode },
+          structure: normalizedInput.structure,
+          packageManager: normalizedInput.packageManager,
+          adapters: {
+            auth: normalizedInput.auth,
+            style: normalizedInput.style,
+            database: normalizedInput.database,
+            orm: normalizedInput.orm,
+          },
+          features: {
+            onboarding: normalizedInput.onboarding,
+            darkMode: normalizedInput.darkMode,
+          },
         },
         null,
         2,
@@ -75,7 +91,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
     {
       type: "write-file",
       path: `${mobileRoot}src/${commandName}-features.ts`,
-      content: `export const features = ${JSON.stringify({ onboarding: input.onboarding, darkMode: input.darkMode }, null, 2)} as const;\n`,
+      content: `export const features = ${JSON.stringify({ onboarding: normalizedInput.onboarding, darkMode: normalizedInput.darkMode }, null, 2)} as const;\n`,
       owner: commandName,
     },
     {
@@ -85,11 +101,13 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       owner: commandName,
     },
   );
-  operations.push(...authAdapter(input.auth).plan(input, {}));
-  operations.push(...styleAdapter(input.style).plan(input, {}));
-  operations.push(...themeAdapter.plan(input, {}));
-  operations.push(...monorepoPlatformAdapter.plan(input, {}));
-  if (input.eas) {
+  operations.push(...authAdapter(normalizedInput.auth).plan(normalizedInput, {}));
+  operations.push(...styleAdapter(normalizedInput.style).plan(normalizedInput, {}));
+  operations.push(...themeAdapter.plan(normalizedInput, {}));
+  operations.push(...monorepoPlatformAdapter.plan(normalizedInput, {}));
+  operations.push(...databaseAdapter(normalizedInput.database).plan(normalizedInput, {}));
+  operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
+  if (normalizedInput.eas) {
     operations.push({
       type: "write-file",
       path: `${mobileRoot}eas.json`,
@@ -97,7 +115,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       owner: `${commandName}:eas`,
     });
   }
-  return { destination: input.destination, operations };
+  return { destination: normalizedInput.destination, operations };
 }
 
 export function generateCreatePlan(input: CreateInput, dryRun: boolean) {

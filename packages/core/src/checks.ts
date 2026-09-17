@@ -106,6 +106,37 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
       message: "Experimental until the Expo SDK 57 physical-device gate passes",
     });
   }
+  if (project.manifest.adapters.database === "postgres") {
+    const hasCompose = existsSync(join(project.root, "docker-compose.yml"));
+    checks.push({
+      name: "PostgreSQL Docker compose",
+      status: hasCompose ? "pass" : "fail",
+      message: hasCompose ? "docker-compose.yml found" : "docker-compose.yml missing",
+    });
+  }
+  if (
+    project.manifest.adapters.orm === "drizzle" &&
+    (project.manifest.structure === "monorepo" || project.manifest.structure === "monorepo-web")
+  ) {
+    const hasDrizzle = existsSync(join(project.root, "apps/api/drizzle.config.ts"));
+    checks.push({
+      name: "Drizzle configuration",
+      status: hasDrizzle ? "pass" : "fail",
+      message: hasDrizzle
+        ? "drizzle.config.ts found in apps/api"
+        : "drizzle.config.ts missing in apps/api",
+    });
+  }
+  if (project.manifest.adapters.orm === "prisma") {
+    const hasPrisma = existsSync(join(project.root, "apps/api/prisma/schema.prisma"));
+    checks.push({
+      name: "Prisma schema",
+      status: hasPrisma ? "pass" : "fail",
+      message: hasPrisma
+        ? "prisma/schema.prisma found in apps/api"
+        : "prisma/schema.prisma missing in apps/api",
+    });
+  }
 
   return checks;
 }

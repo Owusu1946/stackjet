@@ -10,6 +10,8 @@ function makeInput(overrides: Partial<CreateInput>): CreateInput {
     packageManager: "pnpm",
     auth: "clerk",
     style: "uniwind",
+    database: "neon",
+    orm: "drizzle",
     onboarding: true,
     darkMode: true,
     eas: true,

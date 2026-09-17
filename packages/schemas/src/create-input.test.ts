@@ -19,6 +19,8 @@ describe("createInputSchema", () => {
     packageManager: "pnpm" as const,
     auth: "clerk" as const,
     style: "uniwind" as const,
+    database: "none" as const,
+    orm: "none" as const,
     onboarding: true,
     darkMode: true,
     eas: true,
@@ -44,19 +46,103 @@ describe("createInputSchema", () => {
 
   it("rejects Better Auth outside a monorepo", () => {
     expect(
-      createInputSchema.safeParse({ ...base, auth: "better-auth", structure: "standalone" })
-        .success,
+      createInputSchema.safeParse({
+        ...base,
+        auth: "better-auth",
+        structure: "standalone",
+        database: "neon",
+        orm: "drizzle",
+      }).success,
     ).toBe(false);
   });
 
-  it("accepts Better Auth in monorepo and monorepo-web", () => {
+  it("accepts Better Auth in monorepo and monorepo-web with Drizzle", () => {
     expect(
-      createInputSchema.safeParse({ ...base, auth: "better-auth", structure: "monorepo" }).success,
+      createInputSchema.safeParse({
+        ...base,
+        auth: "better-auth",
+        structure: "monorepo",
+        database: "neon",
+        orm: "drizzle",
+      }).success,
     ).toBe(true);
     expect(
-      createInputSchema.safeParse({ ...base, auth: "better-auth", structure: "monorepo-web" })
-        .success,
+      createInputSchema.safeParse({
+        ...base,
+        auth: "better-auth",
+        structure: "monorepo-web",
+        database: "postgres",
+        orm: "drizzle",
+      }).success,
     ).toBe(true);
+  });
+
+  it("rejects standalone with postgres or neon", () => {
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "neon",
+        orm: "drizzle",
+      }).success,
+    ).toBe(false);
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "postgres",
+        orm: "prisma",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts standalone with sqlite or none", () => {
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "sqlite",
+        orm: "drizzle",
+      }).success,
+    ).toBe(true);
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "none",
+        orm: "none",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects ORM when database is none", () => {
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "monorepo",
+        database: "none",
+        orm: "drizzle",
+      }).success,
+    ).toBe(false);
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "monorepo",
+        database: "none",
+        orm: "prisma",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts postgres with prisma in monorepo", () => {
+    const result = createInputSchema.parse({
+      ...base,
+      structure: "monorepo",
+      database: "postgres",
+      orm: "prisma",
+    });
+    expect(result.database).toBe("postgres");
+    expect(result.orm).toBe("prisma");
   });
 
   it.each(["nativewind", "unistyles", "stylesheet", "uniwind"] as const)(

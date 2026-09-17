@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { authAdapters, packageManagers, structures, styleAdapters } from "./create-input.js";
+import {
+  authAdapters,
+  databaseAdapters,
+  ormAdapters,
+  packageManagers,
+  structures,
+  styleAdapters,
+} from "./create-input.js";
 
 export const expojetManifestSchema = z.object({
   $schema: z.string().optional(),
@@ -11,6 +18,8 @@ export const expojetManifestSchema = z.object({
   adapters: z.object({
     auth: z.enum(authAdapters),
     style: z.enum(styleAdapters),
+    database: z.enum(databaseAdapters).optional(),
+    orm: z.enum(ormAdapters).optional(),
   }),
   features: z
     .object({

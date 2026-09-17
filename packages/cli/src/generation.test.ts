@@ -14,6 +14,8 @@ function input(destination: string): CreateInput {
     packageManager: "pnpm",
     auth: "none",
     style: "stylesheet",
+    database: "none",
+    orm: "none",
     onboarding: false,
     darkMode: true,
     eas: false,
@@ -178,5 +180,74 @@ describe("Phase 2 generation", () => {
     expect(existsSync(join(destination, "apps/mobile/src/theme/tokens.ts"))).toBe(true);
     expect(existsSync(join(destination, "apps/api/package.json"))).toBe(true);
     expect(existsSync(join(destination, "packages/api-contract/package.json"))).toBe(true);
+  });
+
+  it("generates a monorepo with Local Postgres and Prisma ORM", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-postgres-prisma-")), "pg-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        auth: "clerk",
+        database: "postgres",
+        orm: "prisma",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.database).toBe("postgres");
+    expect(project?.manifest.adapters.orm).toBe("prisma");
+
+    const checks = runDoctorChecks(project);
+    const secretBoundaryCheck = checks.find((c) => c.name === "Mobile secret boundary");
+    expect(secretBoundaryCheck?.status).toBe("pass");
+
+    // Root docker-compose for Postgres
+    expect(existsSync(join(destination, "docker-compose.yml"))).toBe(true);
+    const composeContent = readFileSync(join(destination, "docker-compose.yml"), "utf8");
+    expect(composeContent).toContain("postgres:16-alpine");
+
+    // Prisma files in API
+    expect(existsSync(join(destination, "apps/api/prisma/schema.prisma"))).toBe(true);
+    const prismaSchema = readFileSync(join(destination, "apps/api/prisma/schema.prisma"), "utf8");
+    expect(prismaSchema).toContain('provider  = "postgresql"');
+    expect(existsSync(join(destination, "apps/api/src/db/client.ts"))).toBe(true);
+
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.dependencies["@prisma/client"]).toBeDefined();
+    expect(apiPkg.devDependencies.prisma).toBeDefined();
+    expect(apiPkg.scripts["db:generate"]).toBe("prisma generate");
+  });
+
+  it("generates a standalone app with SQLite and Drizzle ORM", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-sqlite-drizzle-")), "sqlite-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "standalone",
+        database: "sqlite",
+        orm: "drizzle",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.database).toBe("sqlite");
+    expect(project?.manifest.adapters.orm).toBe("drizzle");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["expo-sqlite"]).toBeDefined();
+    expect(pkg.dependencies["drizzle-orm"]).toBeDefined();
+    expect(pkg.devDependencies["drizzle-kit"]).toBeDefined();
+
+    expect(existsSync(join(destination, "src/db/schema.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/db/client.ts"))).toBe(true);
+    const clientContent = readFileSync(join(destination, "src/db/client.ts"), "utf8");
+    expect(clientContent).toContain("openDatabaseSync");
   });
 });

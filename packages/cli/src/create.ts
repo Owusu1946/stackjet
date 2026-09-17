@@ -25,6 +25,8 @@ export interface CreateFlags {
   packageManager?: string;
   auth?: string;
   style?: string;
+  database?: string;
+  orm?: string;
   onboarding?: boolean;
   darkMode?: boolean;
   eas?: boolean;
@@ -71,13 +73,22 @@ export function normalizeNonInteractiveCreate(
     projectName,
     allowCurrentDirectory: flags.allowCurrentDirectory ?? false,
   });
+
+  const structure = flags.structure ?? config.structure ?? "standalone";
+  const defaultDatabase = structure === "standalone" ? "none" : "neon";
+  const database = flags.database ?? config.database ?? defaultDatabase;
+  const defaultOrm = database === "none" ? "none" : "drizzle";
+  const orm = flags.orm ?? config.orm ?? defaultOrm;
+
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
-    structure: flags.structure ?? config.structure ?? "standalone",
+    structure,
     packageManager: flags.packageManager ?? config.packageManager ?? "pnpm",
     auth: flags.auth ?? config.auth ?? "clerk",
     style: flags.style ?? config.style ?? "uniwind",
+    database,
+    orm,
     onboarding: flags.onboarding ?? config.onboarding ?? true,
     darkMode: flags.darkMode ?? config.darkMode ?? true,
     eas: flags.eas ?? config.eas ?? true,
@@ -169,6 +180,65 @@ async function promptCreate(
     }));
   cancelled(style);
 
+  let database = flags.database ?? config.database;
+  if (!database) {
+    if (structure === "standalone") {
+      database = (await p.select({
+        message: "Database",
+        options: [
+          { value: "none", label: "None" },
+          { value: "sqlite", label: "Local SQLite (expo-sqlite)" },
+        ],
+      })) as string;
+    } else if (auth === "better-auth") {
+      database = (await p.select({
+        message: "Database",
+        options: [
+          { value: "neon", label: "Neon Serverless Postgres (recommended)" },
+          { value: "postgres", label: "Local PostgreSQL (Docker)" },
+        ],
+      })) as string;
+    } else {
+      database = (await p.select({
+        message: "Database",
+        options: [
+          { value: "neon", label: "Neon Serverless Postgres (recommended)" },
+          { value: "postgres", label: "Local PostgreSQL (Docker)" },
+          { value: "sqlite", label: "SQLite (LibSQL)" },
+          { value: "none", label: "None" },
+        ],
+      })) as string;
+    }
+  }
+  cancelled(database);
+
+  let orm = flags.orm ?? config.orm;
+  if (!orm) {
+    if (database === "none") {
+      orm = "none";
+    } else if (auth === "better-auth") {
+      orm = "drizzle";
+    } else if (structure === "standalone") {
+      orm = (await p.select({
+        message: "ORM",
+        options: [
+          { value: "drizzle", label: "Drizzle ORM (recommended)" },
+          { value: "none", label: "None (Raw SQLite)" },
+        ],
+      })) as string;
+    } else {
+      orm = (await p.select({
+        message: "ORM",
+        options: [
+          { value: "drizzle", label: "Drizzle ORM (recommended)" },
+          { value: "prisma", label: "Prisma ORM" },
+          { value: "none", label: "None (Raw driver)" },
+        ],
+      })) as string;
+    }
+  }
+  cancelled(orm);
+
   const onboarding =
     flags.onboarding ??
     config.onboarding ??
@@ -209,6 +279,8 @@ async function promptCreate(
     packageManager,
     auth,
     style,
+    database,
+    orm,
     onboarding,
     darkMode,
     eas,
@@ -217,7 +289,7 @@ async function promptCreate(
     sdk: 57,
   });
   const confirmed = await p.confirm({
-    message: `Plan ${input.projectName} with Expo SDK 57, ${input.auth}, and ${input.style}?`,
+    message: `Plan ${input.projectName} with Expo SDK 57, ${input.auth}, ${input.style}, ${input.database} database, and ${input.orm} ORM?`,
     initialValue: true,
   });
   cancelled(confirmed);
@@ -238,6 +310,8 @@ function printResult(
   io.stdout(`  Package manager: ${input.packageManager}`);
   io.stdout(`  Authentication: ${input.auth}`);
   io.stdout(`  Styling: ${input.style}`);
+  io.stdout(`  Database: ${input.database}`);
+  io.stdout(`  ORM: ${input.orm}`);
   io.stdout(`  Dark mode: ${input.darkMode ? "enabled" : "disabled"}`);
   io.stdout(`  Files: ${result.files.length}`);
   io.stdout("  Foundation: Expo SDK 57, Expo Router, strict TypeScript, tests");
@@ -253,10 +327,13 @@ function printResult(
       `2. Copy .env.example to .env and configure keys if needed`,
     ];
     let stepNum = 3;
+    if (input.database === "postgres") {
+      steps.push(`${stepNum++}. ${input.packageManager} run db:up (start PostgreSQL container)`);
+    }
     if (status?.install === false || !input.install) {
       steps.push(`${stepNum++}. ${input.packageManager} install`);
     }
-    if (input.structure === "monorepo" || input.structure === "monorepo-web") {
+    if (input.database !== "none" && input.orm !== "none") {
       steps.push(`${stepNum++}. ${input.packageManager} run db:migrate`);
     }
     steps.push(`${stepNum++}. ${input.packageManager} run dev`);
