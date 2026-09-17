@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const structures = ["standalone", "monorepo", "monorepo-web"] as const;
 export const packageManagers = ["pnpm", "npm", "bun"] as const;
-export const authAdapters = ["clerk", "better-auth", "none"] as const;
+export const authAdapters = ["clerk", "better-auth", "supabase", "firebase", "none"] as const;
 export const styleAdapters = ["uniwind", "nativewind", "unistyles", "stylesheet"] as const;
-export const databaseAdapters = ["neon", "postgres", "sqlite", "none"] as const;
+export const databaseAdapters = ["neon", "postgres", "sqlite", "supabase", "none"] as const;
 export const ormAdapters = ["drizzle", "prisma", "none"] as const;
 
 export type DatabaseAdapter = (typeof databaseAdapters)[number];
@@ -55,7 +55,14 @@ export const createInputSchema = createInputObjectSchema.superRefine((input, con
       code: "custom",
       path: ["database"],
       message:
-        "PostgreSQL databases (Neon, Local Postgres) require a monorepo structure with an API backend. Standalone apps only support SQLite or None.",
+        "PostgreSQL databases (Neon, Local Postgres) require a monorepo structure with an API backend. Standalone apps only support SQLite, Supabase, or None.",
+    });
+  }
+  if (input.structure === "standalone" && input.orm === "prisma") {
+    context.addIssue({
+      code: "custom",
+      path: ["orm"],
+      message: "Prisma ORM is not supported in standalone mobile apps",
     });
   }
   if (input.database === "none" && input.orm !== "none") {

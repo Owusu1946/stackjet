@@ -6,6 +6,7 @@ import {
   noneDatabaseAdapter,
   postgresDatabaseAdapter,
   sqliteDatabaseAdapter,
+  supabaseDatabaseAdapter,
 } from "./database.js";
 
 function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
@@ -33,6 +34,7 @@ describe("database adapters", () => {
     expect(databaseAdapter("neon")).toBe(neonDatabaseAdapter);
     expect(databaseAdapter("postgres")).toBe(postgresDatabaseAdapter);
     expect(databaseAdapter("sqlite")).toBe(sqliteDatabaseAdapter);
+    expect(databaseAdapter("supabase")).toBe(supabaseDatabaseAdapter);
     expect(databaseAdapter("none")).toBe(noneDatabaseAdapter);
   });
 
@@ -120,6 +122,46 @@ describe("database adapters", () => {
         .filter((op) => op.type === "add-env")
         .map((op) => op.type === "add-env" && op.variable.name);
       expect(envVars).toContain("DATABASE_URL");
+    });
+  });
+
+  describe("supabaseDatabaseAdapter", () => {
+    it("plans client dependency and public keys in standalone mode without supabase auth", () => {
+      const ops = supabaseDatabaseAdapter.plan(
+        makeInput({ structure: "standalone", database: "supabase", auth: "clerk" }),
+        {},
+      );
+      const deps = ops
+        .filter((op) => op.type === "add-dependency")
+        .map((op) => op.type === "add-dependency" && op.name);
+      expect(deps).toContain("@supabase/supabase-js");
+
+      const envVars = ops
+        .filter((op) => op.type === "add-env")
+        .map((op) => op.type === "add-env" && op.variable.name);
+      expect(envVars).toContain("EXPO_PUBLIC_SUPABASE_URL");
+      expect(envVars).toContain("EXPO_PUBLIC_SUPABASE_ANON_KEY");
+    });
+
+    it("returns empty operations in standalone if auth is already supabase", () => {
+      const ops = supabaseDatabaseAdapter.plan(
+        makeInput({ structure: "standalone", database: "supabase", auth: "supabase" }),
+        {},
+      );
+      expect(ops).toHaveLength(0);
+    });
+
+    it("plans pooled and direct database URLs plus service role key in monorepo mode", () => {
+      const ops = supabaseDatabaseAdapter.plan(
+        makeInput({ structure: "monorepo", database: "supabase" }),
+        {},
+      );
+      const envVars = ops
+        .filter((op) => op.type === "add-env")
+        .map((op) => op.type === "add-env" && op.variable.name);
+      expect(envVars).toContain("DATABASE_URL");
+      expect(envVars).toContain("DIRECT_DATABASE_URL");
+      expect(envVars).toContain("SUPABASE_SERVICE_ROLE_KEY");
     });
   });
 

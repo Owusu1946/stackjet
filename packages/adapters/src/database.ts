@@ -196,6 +196,96 @@ export const sqliteDatabaseAdapter: Adapter = {
   },
 };
 
+export const supabaseDatabaseAdapter: Adapter = {
+  id: "database:supabase",
+  version: "1.0.0",
+  kind: "database",
+  displayName: "Supabase Postgres (Cloud)",
+  capabilities: () => ({ sdk: [57], requires: [], conflicts: [] }),
+  optionsSchema: () => noOptions,
+  plan(input) {
+    if (input.structure === "standalone") {
+      if (input.auth === "supabase") return [];
+      return [
+        {
+          type: "add-dependency",
+          workspace: ".",
+          name: "@supabase/supabase-js",
+          version: "^2.49.1",
+          kind: "dependencies",
+          owner: this.id,
+        },
+        {
+          type: "add-env",
+          workspace: ".",
+          variable: {
+            name: "EXPO_PUBLIC_SUPABASE_URL",
+            classification: "public",
+            description: "Supabase project URL",
+          },
+          owner: this.id,
+        },
+        {
+          type: "add-env",
+          workspace: ".",
+          variable: {
+            name: "EXPO_PUBLIC_SUPABASE_ANON_KEY",
+            classification: "public",
+            description: "Supabase anon/publishable key",
+          },
+          owner: this.id,
+        },
+      ];
+    }
+
+    const operations: Operation[] = [
+      {
+        type: "add-env",
+        workspace: "apps/api",
+        variable: {
+          name: "DATABASE_URL",
+          classification: "server-secret",
+          description: "Supabase pooled Postgres connection string (port 6543)",
+        },
+        owner: this.id,
+      },
+      {
+        type: "add-env",
+        workspace: "apps/api",
+        variable: {
+          name: "DIRECT_DATABASE_URL",
+          classification: "server-secret",
+          description: "Supabase direct Postgres connection string (port 5432)",
+        },
+        owner: this.id,
+      },
+      {
+        type: "add-env",
+        workspace: "apps/api",
+        variable: {
+          name: "SUPABASE_SERVICE_ROLE_KEY",
+          classification: "server-secret",
+          description: "Supabase privileged service role key",
+        },
+        owner: this.id,
+      },
+    ];
+
+    if (input.orm === "none") {
+      operations.push({
+        type: "add-dependency",
+        workspace: "apps/api",
+        name: "@supabase/supabase-js",
+        version: "^2.49.1",
+        kind: "dependencies",
+        owner: this.id,
+      });
+    }
+
+    return operations;
+  },
+};
+
 export const noneDatabaseAdapter: Adapter = {
   id: "database:none",
   version: "1.0.0",
@@ -216,6 +306,8 @@ export function databaseAdapter(id: DatabaseAdapter): Adapter {
       return postgresDatabaseAdapter;
     case "sqlite":
       return sqliteDatabaseAdapter;
+    case "supabase":
+      return supabaseDatabaseAdapter;
     case "none":
       return noneDatabaseAdapter;
   }

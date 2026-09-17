@@ -77,7 +77,10 @@ export function normalizeNonInteractiveCreate(
   const structure = flags.structure ?? config.structure ?? "standalone";
   const defaultDatabase = structure === "standalone" ? "none" : "neon";
   const database = flags.database ?? config.database ?? defaultDatabase;
-  const defaultOrm = database === "none" ? "none" : "drizzle";
+  const defaultOrm =
+    database === "none" || (structure === "standalone" && database === "supabase")
+      ? "none"
+      : "drizzle";
   const orm = flags.orm ?? config.orm ?? defaultOrm;
 
   return createInputSchema.parse({
@@ -143,7 +146,7 @@ async function promptCreate(
   const availableAuth =
     structure !== "standalone"
       ? authAdapters.filter((value) => value !== "better-auth" || flags.experimental)
-      : ["clerk", "none"];
+      : (["clerk", "supabase", "firebase", "none"] as const);
   const auth =
     flags.auth ??
     config.auth ??
@@ -154,9 +157,13 @@ async function promptCreate(
         label:
           value === "better-auth"
             ? "Better Auth (experimental)"
-            : value === "none"
-              ? "None"
-              : "Clerk",
+            : value === "supabase"
+              ? "Supabase Auth"
+              : value === "firebase"
+                ? "Firebase Auth"
+                : value === "none"
+                  ? "None"
+                  : "Clerk",
       })),
     }));
   cancelled(auth);
@@ -188,6 +195,7 @@ async function promptCreate(
         options: [
           { value: "none", label: "None" },
           { value: "sqlite", label: "Local SQLite (expo-sqlite)" },
+          { value: "supabase", label: "Supabase (Cloud)" },
         ],
       })) as string;
     } else if (auth === "better-auth") {
@@ -195,6 +203,7 @@ async function promptCreate(
         message: "Database",
         options: [
           { value: "neon", label: "Neon Serverless Postgres (recommended)" },
+          { value: "supabase", label: "Supabase Postgres (Cloud)" },
           { value: "postgres", label: "Local PostgreSQL (Docker)" },
         ],
       })) as string;
@@ -203,6 +212,7 @@ async function promptCreate(
         message: "Database",
         options: [
           { value: "neon", label: "Neon Serverless Postgres (recommended)" },
+          { value: "supabase", label: "Supabase Postgres (Cloud)" },
           { value: "postgres", label: "Local PostgreSQL (Docker)" },
           { value: "sqlite", label: "SQLite (LibSQL)" },
           { value: "none", label: "None" },
@@ -214,7 +224,7 @@ async function promptCreate(
 
   let orm = flags.orm ?? config.orm;
   if (!orm) {
-    if (database === "none") {
+    if (database === "none" || (structure === "standalone" && database === "supabase")) {
       orm = "none";
     } else if (auth === "better-auth") {
       orm = "drizzle";

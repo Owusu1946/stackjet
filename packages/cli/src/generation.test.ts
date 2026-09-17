@@ -250,4 +250,143 @@ describe("Phase 2 generation", () => {
     const clientContent = readFileSync(join(destination, "src/db/client.ts"), "utf8");
     expect(clientContent).toContain("openDatabaseSync");
   });
+
+  it("generates a standalone app with Supabase Auth and Database", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-supabase-")), "supabase-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "standalone",
+        auth: "supabase",
+        database: "supabase",
+        orm: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.auth).toBe("supabase");
+    expect(project?.manifest.adapters.database).toBe("supabase");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@supabase/supabase-js"]).toBeDefined();
+    expect(pkg.dependencies["expo-secure-store"]).toBeDefined();
+
+    expect(existsSync(join(destination, "src/supabase/client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/session/provider.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(public)/sign-in.tsx"))).toBe(true);
+    expect(existsSync(join(destination, ".maestro/supabase-auth.yaml"))).toBe(true);
+
+    const envContent = readFileSync(join(destination, "src/env.ts"), "utf8");
+    expect(envContent).toContain("EXPO_PUBLIC_SUPABASE_URL");
+    expect(envContent).toContain("EXPO_PUBLIC_SUPABASE_ANON_KEY");
+
+    const checks = runDoctorChecks(project);
+    expect(checks.find((c) => c.name === "Expo SDK pack")?.status).toBe("pass");
+  });
+
+  it("generates a standalone app with Firebase Auth", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-firebase-")), "firebase-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "standalone",
+        auth: "firebase",
+        database: "none",
+        orm: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.auth).toBe("firebase");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies.firebase).toBeDefined();
+    expect(pkg.dependencies["@react-native-async-storage/async-storage"]).toBeDefined();
+
+    expect(existsSync(join(destination, "src/firebase/client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/session/provider.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(public)/sign-in.tsx"))).toBe(true);
+    expect(existsSync(join(destination, ".maestro/firebase-auth.yaml"))).toBe(true);
+
+    const envContent = readFileSync(join(destination, "src/env.ts"), "utf8");
+    expect(envContent).toContain("EXPO_PUBLIC_FIREBASE_API_KEY");
+  });
+
+  it("generates a monorepo with Supabase Auth, Supabase Postgres, and Drizzle", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-supabase-monorepo-")), "sb-mono");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        auth: "supabase",
+        database: "supabase",
+        orm: "drizzle",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.auth).toBe("supabase");
+    expect(project?.manifest.adapters.database).toBe("supabase");
+
+    const checks = runDoctorChecks(project);
+    const secretBoundary = checks.find((c) => c.name === "Mobile secret boundary");
+    expect(secretBoundary?.status).toBe("pass");
+
+    // Check API dependencies
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.dependencies["@supabase/supabase-js"]).toBeDefined();
+    expect(apiPkg.dependencies["drizzle-orm"]).toBeDefined();
+
+    // Check API env
+    const apiEnv = readFileSync(join(destination, "apps/api/src/env.ts"), "utf8");
+    expect(apiEnv).toContain("SUPABASE_SERVICE_ROLE_KEY");
+    expect(apiEnv).toContain("DATABASE_URL");
+
+    // Check mobile files
+    expect(existsSync(join(destination, "apps/mobile/src/supabase/client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/src/data/use-me.ts"))).toBe(true);
+  });
+
+  it("generates a monorepo with Firebase Auth, Neon, and Drizzle", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-firebase-monorepo-")), "fb-mono");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        auth: "firebase",
+        database: "neon",
+        orm: "drizzle",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.auth).toBe("firebase");
+
+    const checks = runDoctorChecks(project);
+    const secretBoundary = checks.find((c) => c.name === "Mobile secret boundary");
+    expect(secretBoundary?.status).toBe("pass");
+
+    // Check API dependencies and env
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.dependencies["firebase-admin"]).toBeDefined();
+
+    const apiEnv = readFileSync(join(destination, "apps/api/src/env.ts"), "utf8");
+    expect(apiEnv).toContain("FIREBASE_PROJECT_ID");
+
+    // Check mobile files
+    expect(existsSync(join(destination, "apps/mobile/src/firebase/client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/src/data/use-me.ts"))).toBe(true);
+  });
 });

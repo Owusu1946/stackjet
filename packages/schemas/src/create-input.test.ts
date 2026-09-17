@@ -145,6 +145,50 @@ describe("createInputSchema", () => {
     expect(result.orm).toBe("prisma");
   });
 
+  it("accepts supabase and firebase auth adapters", () => {
+    expect(createInputSchema.safeParse({ ...base, auth: "supabase" }).success).toBe(true);
+    expect(createInputSchema.safeParse({ ...base, auth: "firebase" }).success).toBe(true);
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        auth: "supabase",
+        structure: "monorepo",
+        database: "supabase",
+        orm: "drizzle",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts supabase database in standalone and monorepo", () => {
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "supabase",
+        orm: "none",
+      }).success,
+    ).toBe(true);
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "monorepo",
+        database: "supabase",
+        orm: "prisma",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects prisma in standalone", () => {
+    expect(
+      createInputSchema.safeParse({
+        ...base,
+        structure: "standalone",
+        database: "sqlite",
+        orm: "prisma",
+      }).success,
+    ).toBe(false);
+  });
+
   it.each(["nativewind", "unistyles", "stylesheet", "uniwind"] as const)(
     "accepts style adapter %s",
     (style) => {

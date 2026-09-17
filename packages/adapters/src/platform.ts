@@ -296,10 +296,13 @@ const apiPackage = `{
 `;
 
 function makeApiEnv(input: CreateInput) {
-  const hasPostgres = input.database === "neon" || input.database === "postgres";
+  const hasPostgres =
+    input.database === "neon" || input.database === "postgres" || input.database === "supabase";
   const hasSqlite = input.database === "sqlite";
   const hasBetterAuth = input.auth === "better-auth";
   const hasClerk = input.auth === "clerk";
+  const hasSupabase = input.auth === "supabase";
+  const hasFirebase = input.auth === "firebase";
 
   const lines: string[] = [];
   if (hasPostgres) {
@@ -314,6 +317,11 @@ function makeApiEnv(input: CreateInput) {
     lines.push("BETTER_AUTH_URL: z.string().url(),");
   } else if (hasClerk) {
     lines.push("CLERK_SECRET_KEY: z.string().min(1),");
+  } else if (hasSupabase) {
+    lines.push("SUPABASE_URL: z.string().url(),");
+    lines.push("SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),");
+  } else if (hasFirebase) {
+    lines.push("FIREBASE_PROJECT_ID: z.string().min(1),");
   }
 
   lines.push("PORT: z.coerce.number().int().positive().default(3000),");
@@ -361,12 +369,46 @@ export type AppType = ReturnType<typeof createApp>;
   }
 
   const isClerk = input.auth === "clerk";
-  const authHeader = isClerk
-    ? 'import { verifyToken as verifyClerkToken } from "@clerk/backend";\n'
-    : "";
-  const verifyCall = isClerk
-    ? "verifyClerkToken(token, { secretKey: getEnv().CLERK_SECRET_KEY })"
-    : 'Promise.resolve({ sub: "local-user" })';
+  const isSupabase = input.auth === "supabase";
+  const isFirebase = input.auth === "firebase";
+
+  let authHeader = "";
+  let authHelpers = "";
+  let verifyCall = '() => Promise.resolve({ sub: "local-user" })';
+
+  if (isClerk) {
+    authHeader = 'import { verifyToken as verifyClerkToken } from "@clerk/backend";\n';
+    verifyCall = "(token) => verifyClerkToken(token, { secretKey: getEnv().CLERK_SECRET_KEY })";
+  } else if (isSupabase) {
+    authHeader = 'import { createClient } from "@supabase/supabase-js";\n';
+    authHelpers = `let supabaseAdmin: ReturnType<typeof createClient> | undefined;
+function getSupabaseAdmin() {
+  if (!supabaseAdmin) {
+    const env = getEnv();
+    supabaseAdmin = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+  return supabaseAdmin;
+}
+`;
+    verifyCall = `async (token) => {
+    const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
+    if (error || !user) throw new Error("Invalid Supabase token");
+    return { sub: user.id };
+  }`;
+  } else if (isFirebase) {
+    authHeader = 'import admin from "firebase-admin";\n';
+    authHelpers = `function getFirebaseAdmin() {
+  if (!admin.apps.length) {
+    admin.initializeApp({ projectId: getEnv().FIREBASE_PROJECT_ID });
+  }
+  return admin;
+}
+`;
+    verifyCall = `async (token) => {
+    const decoded = await getFirebaseAdmin().auth().verifyIdToken(token);
+    return { sub: decoded.uid };
+  }`;
+  }
 
   let dbImports = "";
   let findProfileBody = "return null;";
@@ -397,8 +439,8 @@ type Dependencies = {
   findProfile(userId: string): Promise<Profile | null>;
 };
 
-const defaults: Dependencies = {
-  verifyToken: (token) => ${verifyCall},
+${authHelpers}const defaults: Dependencies = {
+  verifyToken: ${verifyCall},
   async findProfile(userId) {
     ${findProfileBody}
   },
@@ -470,7 +512,7 @@ describe("API contract", () => {
     expect(await response.json()).toMatchObject({ error: { code: "UNAUTHORIZED" } });
   });
 
-  it("returns the Clerk subject", async () => {
+  it("returns the authenticated subject", async () => {
     const response = await createApp(deps).request("/v1/me", {
       headers: { authorization: "Bearer test" },
     });
@@ -562,6 +604,53 @@ export function useMe() {
 }
 `;
 
+const useMeSupabase = `import { useQuery } from "@tanstack/react-query";
+import { useSession } from "../session/provider";
+import { supabase } from "../supabase/client";
+import { createApiClient } from "./api";
+
+export function useMe() {
+  const { session } = useSession();
+  const getToken = async () => {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
+  };
+
+  return useQuery({
+    queryKey: ["me", session?.user.id],
+    enabled: Boolean(session),
+    queryFn: async () => {
+      const response = await createApiClient(getToken).v1.me.$get();
+      if (!response.ok) throw new Error("Unable to load profile");
+      return response.json();
+    },
+  });
+}
+`;
+
+const useMeFirebase = `import { useQuery } from "@tanstack/react-query";
+import { auth } from "../firebase/client";
+import { useSession } from "../session/provider";
+import { createApiClient } from "./api";
+
+export function useMe() {
+  const { user } = useSession();
+  const getToken = async () => {
+    return auth.currentUser ? await auth.currentUser.getIdToken() : null;
+  };
+
+  return useQuery({
+    queryKey: ["me", user?.id],
+    enabled: Boolean(user),
+    queryFn: async () => {
+      const response = await createApiClient(getToken).v1.me.$get();
+      if (!response.ok) throw new Error("Unable to load profile");
+      return response.json();
+    },
+  });
+}
+`;
+
 const readme = `# Expojet app
 
 Expo SDK 57 mobile app with modern authentication and a typed Hono API.
@@ -600,14 +689,23 @@ export const monorepoPlatformAdapter: Adapter = {
     }
 
     const better = input.auth === "better-auth";
+    const supabase = input.auth === "supabase";
+    const firebase = input.auth === "firebase";
     const selectedApiPackage = better
       ? apiPackage.replace(
           '"@clerk/backend": "^2.14.0", ',
           '"@better-auth/expo": "^1.7.5", "better-auth": "^1.7.5", ',
         )
-      : input.auth === "none"
-        ? apiPackage.replace('"@clerk/backend": "^2.14.0", ', "")
-        : apiPackage;
+      : supabase
+        ? apiPackage.replace(
+            '"@clerk/backend": "^2.14.0", ',
+            '"@supabase/supabase-js": "^2.49.1", ',
+          )
+        : firebase
+          ? apiPackage.replace('"@clerk/backend": "^2.14.0", ', '"firebase-admin": "^13.1.0", ')
+          : input.auth === "none"
+            ? apiPackage.replace('"@clerk/backend": "^2.14.0", ', "")
+            : apiPackage;
 
     const hasDb = input.database !== "none" && input.orm !== "none";
 
@@ -727,15 +825,6 @@ export const monorepoPlatformAdapter: Adapter = {
       {
         type: "add-env",
         workspace: "apps/api",
-        variable: {
-          name: better ? "BETTER_AUTH_SECRET" : "CLERK_SECRET_KEY",
-          classification: "server-secret",
-        },
-        owner: this.id,
-      },
-      {
-        type: "add-env",
-        workspace: "apps/api",
         variable: { name: "ALLOWED_ORIGINS", classification: "server-secret" },
         owner: this.id,
       },
@@ -766,6 +855,12 @@ export const monorepoPlatformAdapter: Adapter = {
         {
           type: "add-env",
           workspace: "apps/api",
+          variable: { name: "BETTER_AUTH_SECRET", classification: "server-secret" },
+          owner: this.id,
+        },
+        {
+          type: "add-env",
+          workspace: "apps/api",
           variable: { name: "BETTER_AUTH_URL", classification: "server-secret" },
           owner: this.id,
         },
@@ -776,15 +871,57 @@ export const monorepoPlatformAdapter: Adapter = {
           owner: this.id,
         },
       );
-    }
-
-    if (input.auth === "clerk") {
-      operations.push({
-        type: "write-file",
-        path: "apps/mobile/src/data/use-me.ts",
-        content: useMe,
-        owner: this.id,
-      });
+    } else if (input.auth === "clerk") {
+      operations.push(
+        {
+          type: "add-env",
+          workspace: "apps/api",
+          variable: { name: "CLERK_SECRET_KEY", classification: "server-secret" },
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: "apps/mobile/src/data/use-me.ts",
+          content: useMe,
+          owner: this.id,
+        },
+      );
+    } else if (supabase) {
+      operations.push(
+        {
+          type: "add-env",
+          workspace: "apps/api",
+          variable: { name: "SUPABASE_URL", classification: "server-secret" },
+          owner: this.id,
+        },
+        {
+          type: "add-env",
+          workspace: "apps/api",
+          variable: { name: "SUPABASE_SERVICE_ROLE_KEY", classification: "server-secret" },
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: "apps/mobile/src/data/use-me.ts",
+          content: useMeSupabase,
+          owner: this.id,
+        },
+      );
+    } else if (firebase) {
+      operations.push(
+        {
+          type: "add-env",
+          workspace: "apps/api",
+          variable: { name: "FIREBASE_PROJECT_ID", classification: "server-secret" },
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: "apps/mobile/src/data/use-me.ts",
+          content: useMeFirebase,
+          owner: this.id,
+        },
+      );
     }
 
     if (input.structure === "monorepo-web") {

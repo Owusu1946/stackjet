@@ -153,7 +153,7 @@ const drizzleBetterAuthMigration = `CREATE TABLE IF NOT EXISTS "user" ("id" text
 function makePrismaSchema(database: DatabaseAdapter) {
   const provider = database === "sqlite" ? "sqlite" : "postgresql";
   const directUrlLine =
-    database === "neon" || database === "postgres"
+    database === "neon" || database === "postgres" || database === "supabase"
       ? '  directUrl = env("DIRECT_DATABASE_URL")\n'
       : "";
 
@@ -243,7 +243,7 @@ export const drizzleOrmAdapter: Adapter = {
     }
 
     const isSqlite = input.database === "sqlite";
-    const isPostgres = input.database === "postgres";
+    const isPostgres = input.database === "postgres" || input.database === "supabase";
     const isNeon = input.database === "neon";
     const isBetterAuth = input.auth === "better-auth";
 

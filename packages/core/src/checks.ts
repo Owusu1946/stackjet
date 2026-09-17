@@ -89,7 +89,7 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
     const leaked = treeContains(
       mobile,
-      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|DIRECT_DATABASE_URL|(?<!EXPO_PUBLIC_)DATABASE_URL/,
+      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL/,
     );
     checks.push({
       name: "Mobile secret boundary",
