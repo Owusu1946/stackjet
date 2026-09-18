@@ -13,6 +13,7 @@ import {
   styleAdapters,
 } from "@expojet/schemas";
 import { ZodError } from "zod";
+import { renderHeroBanner } from "./banner.js";
 import { CliError } from "./errors.js";
 import { generateCreatePlan } from "./generation.js";
 import { initGitRepository, installDependencies } from "./install.js";
@@ -123,6 +124,7 @@ async function promptCreate(
   config: CreateConfig,
   cwd: string,
 ) {
+  renderHeroBanner();
   p.intro("Create an Expo application");
   const projectName =
     projectNameArgument ??
