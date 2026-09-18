@@ -2,6 +2,7 @@ import {
   authAdapter,
   databaseAdapter,
   monorepoPlatformAdapter,
+  navigationAdapter,
   ormAdapter,
   styleAdapter,
   themeAdapter,
@@ -12,6 +13,7 @@ import type { CreateInput } from "@expojet/schemas";
 import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
 
 export function buildCreatePlan(input: CreateInput): GenerationPlan {
+  const navigation = input.navigation ?? "router";
   const backend =
     input.structure === "standalone"
       ? (input.backend ?? "none")
@@ -21,18 +23,29 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   const database =
     input.database ?? (input.structure === "standalone" || backend === "convex" ? "none" : "neon");
   const orm = input.orm ?? (database === "none" || backend === "convex" ? "none" : "drizzle");
-  const normalizedInput: CreateInput = { ...input, backend, database, orm };
+  const normalizedInput: CreateInput = { ...input, navigation, backend, database, orm };
 
   const owner = `sdk-57:${sdk57FilesSha256.slice(0, 12)}`;
   const mobileRoot = normalizedInput.structure === "standalone" ? "" : "apps/mobile/";
+  const isReactNav = normalizedInput.navigation === "react-navigation";
+
   const operations: Operation[] = Object.entries(sdk57Files)
-    .filter(
-      ([path]) =>
-        path !== "pnpm-lock.yaml" ||
-        (input.structure === "standalone" &&
+    .filter(([path]) => {
+      if (
+        path === "pnpm-lock.yaml" &&
+        !(
+          input.structure === "standalone" &&
           input.packageManager === "pnpm" &&
-          input.style === "stylesheet"),
-    )
+          input.style === "stylesheet"
+        )
+      ) {
+        return false;
+      }
+      if (isReactNav && path.startsWith("app/")) {
+        return false;
+      }
+      return true;
+    })
     .map(([path, content]) => ({
       type: "write-file",
       path: `${mobileRoot}${path}`,
@@ -80,6 +93,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           structure: normalizedInput.structure,
           packageManager: normalizedInput.packageManager,
           adapters: {
+            navigation: normalizedInput.navigation,
             backend: normalizedInput.backend,
             auth: normalizedInput.auth,
             style: normalizedInput.style,
@@ -109,6 +123,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       owner: commandName,
     },
   );
+  operations.push(...navigationAdapter(normalizedInput.navigation).plan(normalizedInput, {}));
   operations.push(...authAdapter(normalizedInput.auth).plan(normalizedInput, {}));
   operations.push(...styleAdapter(normalizedInput.style).plan(normalizedInput, {}));
   operations.push(...themeAdapter.plan(normalizedInput, {}));

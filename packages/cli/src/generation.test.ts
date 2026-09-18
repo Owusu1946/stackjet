@@ -12,6 +12,7 @@ function input(destination: string): CreateInput {
     destination,
     structure: "standalone",
     packageManager: "pnpm",
+    navigation: "router",
     backend: "none",
     auth: "none",
     style: "stylesheet",
@@ -528,5 +529,122 @@ describe("Phase 2 generation", () => {
 
     const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
     expect(apiPkg.scripts.dev).toBe("convex dev");
+  });
+
+  it("generates a standalone app with React Navigation and Uniwind", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-react-nav-")), "react-nav-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        style: "uniwind",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.navigation).toBe("react-navigation");
+    expect(project?.manifest.adapters.style).toBe("uniwind");
+
+    const checks = runDoctorChecks(project);
+    const navCheck = checks.find((c) => c.name === "React Navigation entrypoint");
+    expect(navCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "index.js"))).toBe(true);
+    expect(existsSync(join(destination, "src/App.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/navigation/RootNavigator.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/navigation/AppNavigator.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/navigation/AuthNavigator.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/screens/HomeScreen.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/screens/ProfileScreen.tsx"))).toBe(true);
+
+    // app/ folder should be omitted in react-navigation mode
+    expect(existsSync(join(destination, "app/index.tsx"))).toBe(false);
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.main).toBe("index.js");
+    expect(pkg.dependencies["@react-navigation/native"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/native-stack"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeDefined();
+  });
+
+  it("generates a standalone app with Custom JWT authentication", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-jwt-")), "jwt-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        auth: "jwt",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.auth).toBe("jwt");
+
+    const checks = runDoctorChecks(project);
+    const jwtCheck = checks.find((c) => c.name === "JWT auth client");
+    expect(jwtCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "src/auth/jwt-client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/session/provider.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(public)/sign-in.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(public)/sign-up.tsx"))).toBe(true);
+    expect(existsSync(join(destination, ".maestro/jwt-auth.yaml"))).toBe(true);
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["expo-secure-store"]).toBeDefined();
+  });
+
+  it("generates a monorepo with React Navigation and Custom JWT Auth on Hono", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-mono-jwt-nav-")), "mono-jwt-nav");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        navigation: "react-navigation",
+        auth: "jwt",
+        backend: "hono",
+        database: "none",
+        orm: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.navigation).toBe("react-navigation");
+    expect(project?.manifest.adapters.auth).toBe("jwt");
+
+    const checks = runDoctorChecks(project);
+    const secretCheck = checks.find((c) => c.name === "Mobile secret boundary");
+    expect(secretCheck?.status).toBe("pass");
+    const navCheck = checks.find((c) => c.name === "React Navigation entrypoint");
+    expect(navCheck?.status).toBe("pass");
+    const jwtCheck = checks.find((c) => c.name === "JWT auth client");
+    expect(jwtCheck?.status).toBe("pass");
+
+    // Check mobile files
+    expect(existsSync(join(destination, "apps/mobile/src/App.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/index.js"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/src/navigation/RootNavigator.tsx"))).toBe(
+      true,
+    );
+    expect(existsSync(join(destination, "apps/mobile/src/auth/jwt-client.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/app/index.tsx"))).toBe(false);
+
+    // Check backend files
+    const envFile = readFileSync(join(destination, "apps/api/src/env.ts"), "utf8");
+    expect(envFile).toContain("JWT_SECRET");
+    expect(envFile).toContain("JWT_REFRESH_SECRET");
+
+    const appFile = readFileSync(join(destination, "apps/api/src/app.ts"), "utf8");
+    expect(appFile).toContain("/auth/register");
+    expect(appFile).toContain("/auth/login");
+    expect(appFile).toContain("/auth/refresh");
   });
 });

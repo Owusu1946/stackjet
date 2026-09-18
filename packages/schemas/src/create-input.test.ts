@@ -17,6 +17,7 @@ describe("createInputSchema", () => {
     destination: "my-app",
     structure: "standalone" as const,
     packageManager: "pnpm" as const,
+    navigation: "router" as const,
     auth: "clerk" as const,
     style: "uniwind" as const,
     database: "none" as const,
@@ -272,6 +273,43 @@ describe("createInputSchema", () => {
           orm: "drizzle",
         }).success,
       ).toBe(false);
+    });
+  });
+
+  describe("navigation adapters", () => {
+    it("defaults to router", () => {
+      const { navigation: _nav, ...withoutNav } = base;
+      const result = createInputSchema.parse(withoutNav);
+      expect(result.navigation).toBe("router");
+    });
+
+    it("accepts react-navigation", () => {
+      const result = createInputSchema.parse({ ...base, navigation: "react-navigation" });
+      expect(result.navigation).toBe("react-navigation");
+    });
+
+    it("rejects unknown navigation adapter", () => {
+      expect(
+        createInputSchema.safeParse({
+          ...base,
+          navigation: "invalid-nav" as unknown as "router",
+        }).success,
+      ).toBe(false);
+    });
+  });
+
+  describe("jwt authentication", () => {
+    it("accepts jwt auth in standalone and monorepo", () => {
+      const standalone = createInputSchema.parse({ ...base, auth: "jwt" });
+      expect(standalone.auth).toBe("jwt");
+
+      const monorepo = createInputSchema.parse({
+        ...base,
+        structure: "monorepo",
+        auth: "jwt",
+        backend: "hono",
+      });
+      expect(monorepo.auth).toBe("jwt");
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   authAdapters,
   backendAdapters,
   databaseAdapters,
+  navigationAdapters,
   ormAdapters,
   packageManagers,
   structures,
@@ -43,6 +44,7 @@ export function createProgram(io: CliIo) {
     .option("--destination <path>", "target directory")
     .addOption(new Option("--structure <type>").choices([...structures]))
     .addOption(new Option("--package-manager <name>").choices([...packageManagers]))
+    .addOption(new Option("--navigation <adapter>").choices([...navigationAdapters]))
     .addOption(new Option("--backend <adapter>").choices([...backendAdapters]))
     .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))

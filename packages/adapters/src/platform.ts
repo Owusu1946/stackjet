@@ -420,6 +420,29 @@ export function useMe() {
 }
 `;
 
+const useMeJwt = `import { useQuery } from "@tanstack/react-query";
+import { getAccessToken } from "../auth/jwt-client";
+import { useSession } from "../session/provider";
+import { createApiClient } from "./api";
+
+export function useMe() {
+  const { status } = useSession();
+  const getToken = async () => {
+    return await getAccessToken();
+  };
+
+  return useQuery({
+    queryKey: ["me"],
+    enabled: status === "authenticated",
+    queryFn: async () => {
+      const response = await createApiClient(getToken).v1.me.$get();
+      if (!response.ok) throw new Error("Unable to load profile");
+      return response.json();
+    },
+  });
+}
+`;
+
 const readme = `# Expojet app
 
 Expo SDK 57 mobile app with modern authentication and a typed API.
@@ -606,6 +629,27 @@ export const monorepoPlatformAdapter: Adapter = {
             type: "write-file",
             path: "apps/mobile/src/data/use-me.ts",
             content: useMeFirebase,
+            owner: this.id,
+          },
+        );
+      } else if (input.auth === "jwt") {
+        operations.push(
+          {
+            type: "add-env",
+            workspace: "apps/api",
+            variable: { name: "JWT_SECRET", classification: "server-secret" },
+            owner: this.id,
+          },
+          {
+            type: "add-env",
+            workspace: "apps/api",
+            variable: { name: "JWT_REFRESH_SECRET", classification: "server-secret" },
+            owner: this.id,
+          },
+          {
+            type: "write-file",
+            path: "apps/mobile/src/data/use-me.ts",
+            content: useMeJwt,
             owner: this.id,
           },
         );

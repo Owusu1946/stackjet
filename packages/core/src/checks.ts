@@ -89,7 +89,7 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
     const leaked = treeContains(
       mobile,
-      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL/,
+      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL/,
     );
     checks.push({
       name: "Mobile secret boundary",
@@ -169,6 +169,32 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
       message: hasConvexSchema
         ? `${isStandalone ? "convex" : "apps/api/convex"}/schema.ts found`
         : "Convex schema.ts missing",
+    });
+  }
+
+  const navigation = project.manifest.adapters.navigation ?? "router";
+  const mobileRoot =
+    project.manifest.structure === "standalone" ? project.root : join(project.root, "apps/mobile");
+
+  if (navigation === "react-navigation") {
+    const hasRootNav = existsSync(join(mobileRoot, "src/navigation/RootNavigator.tsx"));
+    const hasApp = existsSync(join(mobileRoot, "src/App.tsx"));
+    checks.push({
+      name: "React Navigation entrypoint",
+      status: hasRootNav && hasApp ? "pass" : "fail",
+      message:
+        hasRootNav && hasApp
+          ? "src/App.tsx and RootNavigator.tsx found"
+          : "React Navigation entrypoints missing in mobile workspace",
+    });
+  }
+
+  if (project.manifest.adapters.auth === "jwt") {
+    const hasClient = existsSync(join(mobileRoot, "src/auth/jwt-client.ts"));
+    checks.push({
+      name: "JWT auth client",
+      status: hasClient ? "pass" : "fail",
+      message: hasClient ? "src/auth/jwt-client.ts found" : "JWT auth client missing",
     });
   }
 

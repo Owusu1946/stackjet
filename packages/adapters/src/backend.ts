@@ -17,6 +17,7 @@ export function makeApiEnv(input: CreateInput) {
   const hasClerk = input.auth === "clerk";
   const hasSupabase = input.auth === "supabase";
   const hasFirebase = input.auth === "firebase";
+  const hasJwt = input.auth === "jwt";
 
   const lines: string[] = [];
   if (hasPostgres) {
@@ -36,6 +37,9 @@ export function makeApiEnv(input: CreateInput) {
     lines.push("SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),");
   } else if (hasFirebase) {
     lines.push("FIREBASE_PROJECT_ID: z.string().min(1),");
+  } else if (hasJwt) {
+    lines.push("JWT_SECRET: z.string().min(32),");
+    lines.push("JWT_REFRESH_SECRET: z.string().min(32),");
   }
 
   lines.push("PORT: z.coerce.number().int().positive().default(3000),");
@@ -137,6 +141,7 @@ export type AppType = ReturnType<typeof createApp>;
   const isClerk = input.auth === "clerk";
   const isSupabase = input.auth === "supabase";
   const isFirebase = input.auth === "firebase";
+  const isJwt = input.auth === "jwt";
 
   let authHeader = "";
   let authHelpers = "";
@@ -174,6 +179,12 @@ function getSupabaseAdmin() {
     const decoded = await getFirebaseAdmin().auth().verifyIdToken(token);
     return { sub: decoded.uid };
   }`;
+  } else if (isJwt) {
+    authHeader = 'import { sign, verify } from "hono/jwt";\n';
+    verifyCall = `async (token) => {
+    const payload = await verify(token, getEnv().JWT_SECRET, "HS256");
+    return { sub: payload.sub as string };
+  }`;
   }
 
   let dbImports = "";
@@ -192,6 +203,39 @@ import { profiles, type Profile } from "./db/schema.js";
   } else {
     dbImports = `type Profile = { id: string; clerkUserId: string; displayName: string | null };\n`;
   }
+
+  const jwtRoutes = isJwt
+    ? `\n    .post("/auth/register", async (c) => {
+      const body = await c.req.json().catch(() => ({}));
+      const email = body.email || "user@example.com";
+      const name = body.name || email.split("@")[0];
+      const userId = "jwt_user_" + Math.random().toString(36).substring(2, 9);
+      const accessToken = await sign({ sub: userId, email, name, exp: Math.floor(Date.now() / 1000) + 60 * 15 }, getEnv().JWT_SECRET, "HS256");
+      const refreshToken = await sign({ sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 }, getEnv().JWT_REFRESH_SECRET, "HS256");
+      return c.json({ user: { id: userId, email, displayName: name }, accessToken, refreshToken });
+    })
+    .post("/auth/login", async (c) => {
+      const body = await c.req.json().catch(() => ({}));
+      const email = body.email || "user@example.com";
+      const userId = "jwt_user_1";
+      const accessToken = await sign({ sub: userId, email, exp: Math.floor(Date.now() / 1000) + 60 * 15 }, getEnv().JWT_SECRET, "HS256");
+      const refreshToken = await sign({ sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 }, getEnv().JWT_REFRESH_SECRET, "HS256");
+      return c.json({ user: { id: userId, email, displayName: email.split("@")[0] }, accessToken, refreshToken });
+    })
+    .post("/auth/refresh", async (c) => {
+      const body = await c.req.json().catch(() => ({}));
+      if (!body.refreshToken) return c.json(failure("BAD_REQUEST", "Missing refresh token", c.get("requestId")), 400);
+      try {
+        const payload = await verify(body.refreshToken, getEnv().JWT_REFRESH_SECRET, "HS256");
+        const userId = (payload.sub as string) || "jwt_user_1";
+        const accessToken = await sign({ sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 15 }, getEnv().JWT_SECRET, "HS256");
+        const refreshToken = await sign({ sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 }, getEnv().JWT_REFRESH_SECRET, "HS256");
+        return c.json({ accessToken, refreshToken });
+      } catch {
+        return c.json(failure("UNAUTHORIZED", "Invalid refresh token", c.get("requestId")), 401);
+      }
+    })`
+    : "";
 
   return `${authHeader}${dbImports}import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -242,7 +286,7 @@ export function createApp(overrides: Partial<Dependencies> = {}) {
         return allowed.includes(origin) ? origin : allowed[0]!;
       },
       credentials: true,
-    }))
+    }))${jwtRoutes}
     .get("/health", (c) => c.json({ ok: true, service: "expojet-api" }))
     .get("/v1/me", auth, async (c) => {
       const userId = c.get("userId");
@@ -335,12 +379,17 @@ export function createApiClient(getToken: () => Promise<string | null>) {
 
 function makeExpressPackage(auth: CreateInput["auth"]) {
   const authDeps: Record<string, string> = {};
+  const authDevDeps: Record<string, string> = {};
   if (auth === "clerk") authDeps["@clerk/backend"] = "^2.14.0";
   if (auth === "supabase") authDeps["@supabase/supabase-js"] = "^2.49.1";
   if (auth === "firebase") authDeps["firebase-admin"] = "^13.1.0";
   if (auth === "better-auth") {
     authDeps["@better-auth/expo"] = "^1.7.5";
     authDeps["better-auth"] = "^1.7.5";
+  }
+  if (auth === "jwt") {
+    authDeps.jsonwebtoken = "^9.0.2";
+    authDevDeps["@types/jsonwebtoken"] = "^9.0.8";
   }
 
   return `${JSON.stringify(
@@ -372,6 +421,7 @@ function makeExpressPackage(auth: CreateInput["auth"]) {
         tsx: "^4.20.5",
         typescript: "~6.0.3",
         vitest: "^3.2.4",
+        ...authDevDeps,
       },
     },
     null,
@@ -383,6 +433,7 @@ function makeExpressAppSource(input: CreateInput) {
   const isClerk = input.auth === "clerk";
   const isSupabase = input.auth === "supabase";
   const isFirebase = input.auth === "firebase";
+  const isJwt = input.auth === "jwt";
 
   let authHeader = "";
   let authHelpers = "";
@@ -421,6 +472,16 @@ function getSupabaseAdmin() {
     const decoded = await getFirebaseAdmin().auth().verifyIdToken(token);
     return { sub: decoded.uid };
   }`;
+  } else if (isJwt) {
+    authHeader = 'import jwt from "jsonwebtoken";\n';
+    verifyCall = `(token: string) => {
+    try {
+      const decoded = jwt.verify(token, getEnv().JWT_SECRET) as { sub?: string };
+      return Promise.resolve({ sub: decoded.sub ?? "jwt-user" });
+    } catch {
+      return Promise.reject(new Error("Invalid token"));
+    }
+  }`;
   }
 
   let dbImports = "";
@@ -439,6 +500,41 @@ import { profiles, type Profile } from "./db/schema.js";
   } else {
     dbImports = `export type Profile = { id: string; clerkUserId: string; displayName: string | null };\n`;
   }
+
+  const expressJwtRoutes = isJwt
+    ? `
+  app.post("/auth/register", (req: Request, res: Response) => {
+    const email = req.body?.email || "user@example.com";
+    const name = req.body?.name || email.split("@")[0];
+    const userId = "jwt_user_" + Math.random().toString(36).substring(2, 9);
+    const accessToken = jwt.sign({ sub: userId, email, name }, getEnv().JWT_SECRET, { expiresIn: "15m" });
+    const refreshToken = jwt.sign({ sub: userId }, getEnv().JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    res.json({ user: { id: userId, email, displayName: name }, accessToken, refreshToken });
+  });
+
+  app.post("/auth/login", (req: Request, res: Response) => {
+    const email = req.body?.email || "user@example.com";
+    const userId = "jwt_user_1";
+    const accessToken = jwt.sign({ sub: userId, email }, getEnv().JWT_SECRET, { expiresIn: "15m" });
+    const refreshToken = jwt.sign({ sub: userId }, getEnv().JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    res.json({ user: { id: userId, email, displayName: email.split("@")[0] }, accessToken, refreshToken });
+  });
+
+  app.post("/auth/refresh", (req: Request, res: Response) => {
+    const refreshToken = req.body?.refreshToken;
+    if (!refreshToken) return res.status(400).json({ error: { code: "BAD_REQUEST", message: "Missing refresh token" } });
+    try {
+      const decoded = jwt.verify(refreshToken, getEnv().JWT_REFRESH_SECRET) as { sub?: string };
+      const userId = decoded.sub || "jwt_user_1";
+      const accessToken = jwt.sign({ sub: userId }, getEnv().JWT_SECRET, { expiresIn: "15m" });
+      const newRefreshToken = jwt.sign({ sub: userId }, getEnv().JWT_REFRESH_SECRET, { expiresIn: "7d" });
+      res.json({ accessToken, refreshToken: newRefreshToken });
+    } catch {
+      res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Invalid refresh token" } });
+    }
+  });
+`
+    : "";
 
   return `import cors from "cors";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
@@ -479,7 +575,7 @@ export function createApp(overrides: Partial<Dependencies> = {}): Express {
     (req as any).requestId = reqId;
     res.setHeader("x-request-id", reqId);
     next();
-  });
+  });${expressJwtRoutes}
 
   app.get("/health", (_req: Request, res: Response) => {
     res.json({ ok: true, service: "expojet-api" });
@@ -578,6 +674,7 @@ function makeNestPackage(auth: CreateInput["auth"]) {
   if (auth === "clerk") authDeps["@clerk/backend"] = "^2.14.0";
   if (auth === "supabase") authDeps["@supabase/supabase-js"] = "^2.49.1";
   if (auth === "firebase") authDeps["firebase-admin"] = "^13.1.0";
+  if (auth === "jwt") authDeps.jsonwebtoken = "^9.0.2";
 
   return `${JSON.stringify(
     {
@@ -722,6 +819,7 @@ function makeNestAuthService(input: CreateInput) {
   const isClerk = input.auth === "clerk";
   const isSupabase = input.auth === "supabase";
   const isFirebase = input.auth === "firebase";
+  const isJwt = input.auth === "jwt";
 
   let authImport = "";
   let verifyBody = 'return { sub: "local-user" };';
@@ -741,6 +839,10 @@ function makeNestAuthService(input: CreateInput) {
     verifyBody = `if (!admin.apps.length) admin.initializeApp({ projectId: getEnv().FIREBASE_PROJECT_ID });
     const decoded = await admin.auth().verifyIdToken(token);
     return { sub: decoded.uid };`;
+  } else if (isJwt) {
+    authImport = 'import jwt from "jsonwebtoken";\n';
+    verifyBody = `const decoded = jwt.verify(token, getEnv().JWT_SECRET) as { sub?: string };
+    return { sub: decoded.sub ?? "jwt-user" };`;
   }
 
   let dbImport = "";

@@ -8,6 +8,7 @@ function makeInput(overrides: Partial<CreateInput>): CreateInput {
     destination: "/tmp/my-app",
     structure: "standalone",
     packageManager: "pnpm",
+    navigation: "router",
     backend: "none",
     auth: "clerk",
     style: "uniwind",

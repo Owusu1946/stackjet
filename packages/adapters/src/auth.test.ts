@@ -5,6 +5,7 @@ import {
   betterAuthAdapter,
   clerkAuthAdapter,
   firebaseAuthAdapter,
+  jwtAuthAdapter,
   noneAuthAdapter,
   supabaseAuthAdapter,
 } from "./auth.js";
@@ -15,6 +16,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     destination: "/tmp/my-app",
     structure: "monorepo",
     packageManager: "pnpm",
+    navigation: "router",
     backend: "hono",
     auth: "clerk",
     style: "uniwind",
@@ -36,6 +38,7 @@ describe("auth adapters", () => {
     expect(authAdapter("better-auth")).toBe(betterAuthAdapter);
     expect(authAdapter("supabase")).toBe(supabaseAuthAdapter);
     expect(authAdapter("firebase")).toBe(firebaseAuthAdapter);
+    expect(authAdapter("jwt")).toBe(jwtAuthAdapter);
     expect(authAdapter("none")).toBe(noneAuthAdapter);
   });
 
@@ -169,6 +172,43 @@ describe("auth adapters", () => {
         .filter((op) => op.type === "write-file")
         .map((op) => op.type === "write-file" && op.path);
       expect(paths).toContain("src/session/provider.tsx");
+    });
+  });
+
+  describe("jwtAuthAdapter", () => {
+    it("plans jwt client, session provider, sign-in/up screens, and maestro in standalone", () => {
+      const ops = jwtAuthAdapter.plan(makeInput({ structure: "standalone", auth: "jwt" }), {});
+      const paths = ops
+        .filter((op) => op.type === "write-file")
+        .map((op) => op.type === "write-file" && op.path);
+      expect(paths).toContain("src/auth/jwt-client.ts");
+      expect(paths).toContain("src/session/provider.tsx");
+      expect(paths).toContain("app/(public)/sign-in.tsx");
+      expect(paths).toContain("app/(public)/sign-up.tsx");
+      expect(paths).toContain(".maestro/jwt-auth.yaml");
+    });
+
+    it("omits app/ routes when navigation is react-navigation", () => {
+      const ops = jwtAuthAdapter.plan(
+        makeInput({ structure: "standalone", auth: "jwt", navigation: "react-navigation" }),
+        {},
+      );
+      const paths = ops
+        .filter((op) => op.type === "write-file")
+        .map((op) => op.type === "write-file" && op.path);
+      expect(paths).toContain("src/auth/jwt-client.ts");
+      expect(paths).toContain("src/session/provider.tsx");
+      expect(paths).not.toContain("app/(public)/sign-in.tsx");
+      expect(paths).not.toContain("app/(public)/sign-up.tsx");
+    });
+
+    it("plans mobile workspace paths in monorepo", () => {
+      const ops = jwtAuthAdapter.plan(makeInput({ structure: "monorepo", auth: "jwt" }), {});
+      const paths = ops
+        .filter((op) => op.type === "write-file")
+        .map((op) => op.type === "write-file" && op.path);
+      expect(paths).toContain("apps/mobile/src/auth/jwt-client.ts");
+      expect(paths).toContain("apps/mobile/src/session/provider.tsx");
     });
   });
 });

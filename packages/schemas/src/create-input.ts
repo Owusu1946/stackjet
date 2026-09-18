@@ -2,12 +2,21 @@ import { z } from "zod";
 
 export const structures = ["standalone", "monorepo", "monorepo-web"] as const;
 export const packageManagers = ["pnpm", "npm", "bun"] as const;
+export const navigationAdapters = ["router", "react-navigation"] as const;
 export const backendAdapters = ["hono", "express", "nestjs", "convex", "none"] as const;
-export const authAdapters = ["clerk", "better-auth", "supabase", "firebase", "none"] as const;
+export const authAdapters = [
+  "clerk",
+  "better-auth",
+  "supabase",
+  "firebase",
+  "jwt",
+  "none",
+] as const;
 export const styleAdapters = ["uniwind", "nativewind", "unistyles", "stylesheet"] as const;
 export const databaseAdapters = ["neon", "postgres", "sqlite", "supabase", "none"] as const;
 export const ormAdapters = ["drizzle", "prisma", "none"] as const;
 
+export type NavigationAdapter = (typeof navigationAdapters)[number];
 export type BackendAdapter = (typeof backendAdapters)[number];
 export type DatabaseAdapter = (typeof databaseAdapters)[number];
 export type OrmAdapter = (typeof ormAdapters)[number];
@@ -29,6 +38,7 @@ const createInputObjectSchema = z.object({
   destination: z.string().min(1),
   structure: z.enum(structures),
   packageManager: z.enum(packageManagers),
+  navigation: z.enum(navigationAdapters).default("router"),
   backend: z.enum(backendAdapters).optional(),
   auth: z.enum(authAdapters),
   style: z.enum(styleAdapters),

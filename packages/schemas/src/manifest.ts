@@ -3,6 +3,7 @@ import {
   authAdapters,
   backendAdapters,
   databaseAdapters,
+  navigationAdapters,
   ormAdapters,
   packageManagers,
   structures,
@@ -17,6 +18,7 @@ export const expojetManifestSchema = z.object({
   structure: z.enum(structures),
   packageManager: z.enum(packageManagers),
   adapters: z.object({
+    navigation: z.enum(navigationAdapters).optional(),
     backend: z.enum(backendAdapters).optional(),
     auth: z.enum(authAdapters),
     style: z.enum(styleAdapters),

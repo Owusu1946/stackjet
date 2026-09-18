@@ -23,6 +23,7 @@ export interface CreateFlags {
   destination?: string;
   structure?: string;
   packageManager?: string;
+  navigation?: string;
   backend?: string;
   auth?: string;
   style?: string;
@@ -78,6 +79,7 @@ export function normalizeNonInteractiveCreate(
   const structure = flags.structure ?? config.structure ?? "standalone";
   const defaultBackend = structure === "standalone" ? "none" : "hono";
   const backend = flags.backend ?? config.backend ?? defaultBackend;
+  const navigation = flags.navigation ?? config.navigation ?? "router";
   const defaultDatabase = structure === "standalone" || backend === "convex" ? "none" : "neon";
   const database = flags.database ?? config.database ?? defaultDatabase;
   const defaultOrm =
@@ -93,6 +95,7 @@ export function normalizeNonInteractiveCreate(
     destination: validatedPath.absolutePath,
     structure,
     packageManager: flags.packageManager ?? config.packageManager ?? "pnpm",
+    navigation,
     backend,
     auth: flags.auth ?? config.auth ?? "clerk",
     style: flags.style ?? config.style ?? "uniwind",
@@ -149,6 +152,18 @@ async function promptCreate(
     }));
   cancelled(packageManager);
 
+  const navigation =
+    flags.navigation ??
+    config.navigation ??
+    (await p.select({
+      message: "Navigation",
+      options: [
+        { value: "router", label: "Expo Router (File-based routing, recommended)" },
+        { value: "react-navigation", label: "React Navigation (Component-based routing)" },
+      ],
+    }));
+  cancelled(navigation);
+
   let backend = flags.backend ?? config.backend;
   if (!backend) {
     if (structure === "standalone") {
@@ -176,7 +191,7 @@ async function promptCreate(
   const availableAuth =
     structure !== "standalone"
       ? authAdapters.filter((value) => value !== "better-auth" || flags.experimental)
-      : (["clerk", "supabase", "firebase", "none"] as const);
+      : (["clerk", "supabase", "firebase", "jwt", "none"] as const);
   const auth =
     flags.auth ??
     config.auth ??
@@ -191,9 +206,11 @@ async function promptCreate(
               ? "Supabase Auth"
               : value === "firebase"
                 ? "Firebase Auth"
-                : value === "none"
-                  ? "None"
-                  : "Clerk",
+                : value === "jwt"
+                  ? "Custom JWT (Self-hosted)"
+                  : value === "none"
+                    ? "None"
+                    : "Clerk",
       })),
     }));
   cancelled(auth);
@@ -323,6 +340,7 @@ async function promptCreate(
     destination: validatedPath.absolutePath,
     structure,
     packageManager,
+    navigation,
     backend,
     auth,
     style,
