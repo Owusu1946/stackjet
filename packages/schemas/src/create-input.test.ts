@@ -31,7 +31,7 @@ describe("createInputSchema", () => {
 
   it("accepts a supported Clerk project and applies defaults", () => {
     const { install: _i, git: _g, ...withoutDefaults } = base;
-    expect(createInputSchema.parse(withoutDefaults)).toEqual(base);
+    expect(createInputSchema.parse(withoutDefaults)).toEqual({ ...base, backend: "none" });
   });
 
   it("accepts monorepo-web structure", () => {
@@ -196,4 +196,82 @@ describe("createInputSchema", () => {
       expect(result.style).toBe(style);
     },
   );
+
+  describe("backend adapters", () => {
+    it("defaults to none for standalone and hono for monorepo", () => {
+      const standalone = createInputSchema.parse(base);
+      expect(standalone.backend).toBe("none");
+
+      const monorepo = createInputSchema.parse({ ...base, structure: "monorepo" });
+      expect(monorepo.backend).toBe("hono");
+    });
+
+    it("accepts express and nestjs in monorepos", () => {
+      const expressResult = createInputSchema.parse({
+        ...base,
+        structure: "monorepo",
+        backend: "express",
+      });
+      expect(expressResult.backend).toBe("express");
+
+      const nestResult = createInputSchema.parse({
+        ...base,
+        structure: "monorepo",
+        backend: "nestjs",
+      });
+      expect(nestResult.backend).toBe("nestjs");
+    });
+
+    it("accepts convex in standalone and monorepo", () => {
+      const standaloneConvex = createInputSchema.parse({
+        ...base,
+        structure: "standalone",
+        backend: "convex",
+      });
+      expect(standaloneConvex.backend).toBe("convex");
+
+      const monorepoConvex = createInputSchema.parse({
+        ...base,
+        structure: "monorepo",
+        backend: "convex",
+      });
+      expect(monorepoConvex.backend).toBe("convex");
+    });
+
+    it("rejects express and nestjs in standalone mode", () => {
+      expect(
+        createInputSchema.safeParse({ ...base, structure: "standalone", backend: "express" })
+          .success,
+      ).toBe(false);
+      expect(
+        createInputSchema.safeParse({ ...base, structure: "standalone", backend: "nestjs" })
+          .success,
+      ).toBe(false);
+    });
+
+    it("rejects backend none in monorepos", () => {
+      expect(
+        createInputSchema.safeParse({ ...base, structure: "monorepo", backend: "none" }).success,
+      ).toBe(false);
+    });
+
+    it("rejects external database or ORM with convex", () => {
+      expect(
+        createInputSchema.safeParse({
+          ...base,
+          structure: "standalone",
+          backend: "convex",
+          database: "sqlite",
+        }).success,
+      ).toBe(false);
+      expect(
+        createInputSchema.safeParse({
+          ...base,
+          structure: "monorepo",
+          backend: "convex",
+          orm: "drizzle",
+        }).success,
+      ).toBe(false);
+    });
+  });
 });

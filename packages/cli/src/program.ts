@@ -2,6 +2,7 @@ import { commandName, productName, tagline } from "@expojet/brand";
 import { ExitCode, redactText } from "@expojet/core";
 import {
   authAdapters,
+  backendAdapters,
   databaseAdapters,
   ormAdapters,
   packageManagers,
@@ -42,6 +43,7 @@ export function createProgram(io: CliIo) {
     .option("--destination <path>", "target directory")
     .addOption(new Option("--structure <type>").choices([...structures]))
     .addOption(new Option("--package-manager <name>").choices([...packageManagers]))
+    .addOption(new Option("--backend <adapter>").choices([...backendAdapters]))
     .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))

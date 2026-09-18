@@ -15,6 +15,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     destination: "/tmp/my-app",
     structure: "monorepo",
     packageManager: "pnpm",
+    backend: "hono",
     auth: "clerk",
     style: "uniwind",
     database: "neon",

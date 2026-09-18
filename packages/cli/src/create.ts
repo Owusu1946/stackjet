@@ -23,6 +23,7 @@ export interface CreateFlags {
   destination?: string;
   structure?: string;
   packageManager?: string;
+  backend?: string;
   auth?: string;
   style?: string;
   database?: string;
@@ -75,10 +76,14 @@ export function normalizeNonInteractiveCreate(
   });
 
   const structure = flags.structure ?? config.structure ?? "standalone";
-  const defaultDatabase = structure === "standalone" ? "none" : "neon";
+  const defaultBackend = structure === "standalone" ? "none" : "hono";
+  const backend = flags.backend ?? config.backend ?? defaultBackend;
+  const defaultDatabase = structure === "standalone" || backend === "convex" ? "none" : "neon";
   const database = flags.database ?? config.database ?? defaultDatabase;
   const defaultOrm =
-    database === "none" || (structure === "standalone" && database === "supabase")
+    database === "none" ||
+    (structure === "standalone" && database === "supabase") ||
+    backend === "convex"
       ? "none"
       : "drizzle";
   const orm = flags.orm ?? config.orm ?? defaultOrm;
@@ -88,6 +93,7 @@ export function normalizeNonInteractiveCreate(
     destination: validatedPath.absolutePath,
     structure,
     packageManager: flags.packageManager ?? config.packageManager ?? "pnpm",
+    backend,
     auth: flags.auth ?? config.auth ?? "clerk",
     style: flags.style ?? config.style ?? "uniwind",
     database,
@@ -143,6 +149,30 @@ async function promptCreate(
     }));
   cancelled(packageManager);
 
+  let backend = flags.backend ?? config.backend;
+  if (!backend) {
+    if (structure === "standalone") {
+      backend = (await p.select({
+        message: "Backend API",
+        options: [
+          { value: "none", label: "None (Client only)" },
+          { value: "convex", label: "Convex (Reactive cloud backend)" },
+        ],
+      })) as string;
+    } else {
+      backend = (await p.select({
+        message: "Backend Framework",
+        options: [
+          { value: "hono", label: "Hono (Lightweight & typed RPC, recommended)" },
+          { value: "express", label: "Express (Classic enterprise REST API)" },
+          { value: "nestjs", label: "NestJS (Modular enterprise API)" },
+          { value: "convex", label: "Convex (Reactive cloud backend)" },
+        ],
+      })) as string;
+    }
+  }
+  cancelled(backend);
+
   const availableAuth =
     structure !== "standalone"
       ? authAdapters.filter((value) => value !== "better-auth" || flags.experimental)
@@ -188,7 +218,9 @@ async function promptCreate(
   cancelled(style);
 
   let database = flags.database ?? config.database;
-  if (!database) {
+  if (backend === "convex") {
+    database = "none";
+  } else if (!database) {
     if (structure === "standalone") {
       database = (await p.select({
         message: "Database",
@@ -223,10 +255,14 @@ async function promptCreate(
   cancelled(database);
 
   let orm = flags.orm ?? config.orm;
-  if (!orm) {
-    if (database === "none" || (structure === "standalone" && database === "supabase")) {
-      orm = "none";
-    } else if (auth === "better-auth") {
+  if (
+    backend === "convex" ||
+    database === "none" ||
+    (structure === "standalone" && database === "supabase")
+  ) {
+    orm = "none";
+  } else if (!orm) {
+    if (auth === "better-auth") {
       orm = "drizzle";
     } else if (structure === "standalone") {
       orm = (await p.select({
@@ -287,6 +323,7 @@ async function promptCreate(
     destination: validatedPath.absolutePath,
     structure,
     packageManager,
+    backend,
     auth,
     style,
     database,
@@ -298,8 +335,9 @@ async function promptCreate(
     git,
     sdk: 57,
   });
+  const backendLabel = backend !== "none" ? `, ${backend} backend` : "";
   const confirmed = await p.confirm({
-    message: `Plan ${input.projectName} with Expo SDK 57, ${input.auth}, ${input.style}, ${input.database} database, and ${input.orm} ORM?`,
+    message: `Plan ${input.projectName} with Expo SDK 57${backendLabel}, ${input.auth}, ${input.style}, ${input.database} database, and ${input.orm} ORM?`,
     initialValue: true,
   });
   cancelled(confirmed);
@@ -318,6 +356,7 @@ function printResult(
   io.stdout(`  Destination: ${input.destination}`);
   io.stdout(`  Structure: ${input.structure}`);
   io.stdout(`  Package manager: ${input.packageManager}`);
+  io.stdout(`  Backend: ${input.backend}`);
   io.stdout(`  Authentication: ${input.auth}`);
   io.stdout(`  Styling: ${input.style}`);
   io.stdout(`  Database: ${input.database}`);
@@ -337,6 +376,9 @@ function printResult(
       `2. Copy .env.example to .env and configure keys if needed`,
     ];
     let stepNum = 3;
+    if (input.backend === "convex") {
+      steps.push(`${stepNum++}. ${input.packageManager} run convex:dev (start Convex dev server)`);
+    }
     if (input.database === "postgres") {
       steps.push(`${stepNum++}. ${input.packageManager} run db:up (start PostgreSQL container)`);
     }

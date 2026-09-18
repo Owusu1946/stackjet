@@ -12,6 +12,7 @@ function input(destination: string): CreateInput {
     destination,
     structure: "standalone",
     packageManager: "pnpm",
+    backend: "none",
     auth: "none",
     style: "stylesheet",
     database: "none",
@@ -388,5 +389,144 @@ describe("Phase 2 generation", () => {
     // Check mobile files
     expect(existsSync(join(destination, "apps/mobile/src/firebase/client.ts"))).toBe(true);
     expect(existsSync(join(destination, "apps/mobile/src/data/use-me.ts"))).toBe(true);
+  });
+
+  it("generates a monorepo with Express backend", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-express-monorepo-")),
+      "express-mono",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "express",
+        auth: "clerk",
+        database: "neon",
+        orm: "drizzle",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.backend).toBe("express");
+
+    const checks = runDoctorChecks(project);
+    const expressCheck = checks.find((c) => c.name === "Express application entrypoint");
+    expect(expressCheck?.status).toBe("pass");
+
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.dependencies.express).toBeDefined();
+    expect(apiPkg.dependencies.cors).toBeDefined();
+    expect(apiPkg.devDependencies.supertest).toBeDefined();
+
+    const appSource = readFileSync(join(destination, "apps/api/src/app.ts"), "utf8");
+    expect(appSource).toContain('app.get("/health"');
+    expect(appSource).toContain('app.get("/v1/me"');
+
+    const mobileApi = readFileSync(join(destination, "apps/mobile/src/data/api.ts"), "utf8");
+    expect(mobileApi).toContain("createApiClient");
+    expect(mobileApi).toContain("fetch");
+  });
+
+  it("generates a monorepo with NestJS backend", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-nest-monorepo-")), "nest-mono");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "nestjs",
+        auth: "clerk",
+        database: "neon",
+        orm: "drizzle",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.backend).toBe("nestjs");
+
+    const checks = runDoctorChecks(project);
+    const nestCheck = checks.find((c) => c.name === "NestJS application bootstrap");
+    expect(nestCheck?.status).toBe("pass");
+
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.dependencies["@nestjs/core"]).toBeDefined();
+    expect(apiPkg.dependencies["@nestjs/common"]).toBeDefined();
+    expect(apiPkg.dependencies["reflect-metadata"]).toBeDefined();
+
+    expect(existsSync(join(destination, "apps/api/src/main.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/api/src/app.module.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/api/src/health.controller.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/api/src/me.controller.ts"))).toBe(true);
+  });
+
+  it("generates a standalone app with Convex backend", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-convex-standalone-")),
+      "convex-app",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "standalone",
+        backend: "convex",
+        database: "none",
+        orm: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.backend).toBe("convex");
+
+    const checks = runDoctorChecks(project);
+    const convexCheck = checks.find((c) => c.name === "Convex schema");
+    expect(convexCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "convex/schema.ts"))).toBe(true);
+    expect(existsSync(join(destination, "convex/users.ts"))).toBe(true);
+
+    const provider = readFileSync(join(destination, "src/data/provider.tsx"), "utf8");
+    expect(provider).toContain("ConvexProvider");
+    expect(provider).toContain("ConvexReactClient");
+  });
+
+  it("generates a monorepo with Convex backend", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-convex-monorepo-")),
+      "convex-mono",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "convex",
+        database: "none",
+        orm: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.backend).toBe("convex");
+
+    const checks = runDoctorChecks(project);
+    const convexCheck = checks.find((c) => c.name === "Convex schema");
+    expect(convexCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "apps/api/convex/schema.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/api/convex/users.ts"))).toBe(true);
+
+    const apiPkg = JSON.parse(readFileSync(join(destination, "apps/api/package.json"), "utf8"));
+    expect(apiPkg.scripts.dev).toBe("convex dev");
   });
 });

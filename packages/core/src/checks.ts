@@ -138,6 +138,40 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
   }
 
+  const backend = project.manifest.adapters.backend;
+  if (backend === "express") {
+    const hasExpressApp = existsSync(join(project.root, "apps/api/src/app.ts"));
+    checks.push({
+      name: "Express application entrypoint",
+      status: hasExpressApp ? "pass" : "fail",
+      message: hasExpressApp ? "apps/api/src/app.ts found" : "apps/api/src/app.ts missing",
+    });
+  } else if (backend === "nestjs") {
+    const hasNestMain = existsSync(join(project.root, "apps/api/src/main.ts"));
+    const hasNestModule = existsSync(join(project.root, "apps/api/src/app.module.ts"));
+    checks.push({
+      name: "NestJS application bootstrap",
+      status: hasNestMain && hasNestModule ? "pass" : "fail",
+      message:
+        hasNestMain && hasNestModule
+          ? "apps/api/src/main.ts and app.module.ts found"
+          : "NestJS entrypoints missing in apps/api",
+    });
+  } else if (backend === "convex") {
+    const isStandalone = project.manifest.structure === "standalone";
+    const convexSchemaPath = isStandalone
+      ? join(project.root, "convex/schema.ts")
+      : join(project.root, "apps/api/convex/schema.ts");
+    const hasConvexSchema = existsSync(convexSchemaPath);
+    checks.push({
+      name: "Convex schema",
+      status: hasConvexSchema ? "pass" : "fail",
+      message: hasConvexSchema
+        ? `${isStandalone ? "convex" : "apps/api/convex"}/schema.ts found`
+        : "Convex schema.ts missing",
+    });
+  }
+
   return checks;
 }
 

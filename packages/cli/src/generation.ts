@@ -12,9 +12,16 @@ import type { CreateInput } from "@expojet/schemas";
 import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
 
 export function buildCreatePlan(input: CreateInput): GenerationPlan {
-  const database = input.database ?? (input.structure === "standalone" ? "none" : "neon");
-  const orm = input.orm ?? (database === "none" ? "none" : "drizzle");
-  const normalizedInput: CreateInput = { ...input, database, orm };
+  const backend =
+    input.structure === "standalone"
+      ? (input.backend ?? "none")
+      : !input.backend || input.backend === "none"
+        ? "hono"
+        : input.backend;
+  const database =
+    input.database ?? (input.structure === "standalone" || backend === "convex" ? "none" : "neon");
+  const orm = input.orm ?? (database === "none" || backend === "convex" ? "none" : "drizzle");
+  const normalizedInput: CreateInput = { ...input, backend, database, orm };
 
   const owner = `sdk-57:${sdk57FilesSha256.slice(0, 12)}`;
   const mobileRoot = normalizedInput.structure === "standalone" ? "" : "apps/mobile/";
@@ -73,6 +80,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           structure: normalizedInput.structure,
           packageManager: normalizedInput.packageManager,
           adapters: {
+            backend: normalizedInput.backend,
             auth: normalizedInput.auth,
             style: normalizedInput.style,
             database: normalizedInput.database,
