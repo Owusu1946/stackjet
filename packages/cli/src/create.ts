@@ -2,13 +2,22 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import * as p from "@clack/prompts";
 import { createPackageName } from "@expojet/brand";
-import { ExitCode, ProjectPathError, validateProjectPath } from "@expojet/core";
+import {
+  detectPackageManager,
+  ExitCode,
+  getPresetSync,
+  loadPresets,
+  ProjectPathError,
+  savePreset,
+  validateProjectPath,
+} from "@expojet/core";
 import {
   authAdapters,
   type CreateConfig,
   type CreateInput,
   createConfigSchema,
   createInputSchema,
+  type PackageManager,
   packageManagers,
   styleAdapters,
 } from "@expojet/schemas";
@@ -39,6 +48,9 @@ export interface CreateFlags {
   dryRun?: boolean;
   yes?: boolean;
   experimental?: boolean;
+  preset?: string;
+  savePreset?: string;
+  typescript?: boolean;
 }
 
 function readConfig(cwd: string, configPath?: string): CreateConfig {
@@ -61,7 +73,22 @@ export function normalizeNonInteractiveCreate(
   config: CreateConfig,
   cwd: string,
 ): CreateInput {
-  const projectName = projectNameArgument ?? config.projectName;
+  let presetConfig: CreateConfig | undefined;
+  if (flags.preset) {
+    const preset = getPresetSync(flags.preset);
+    if (!preset) {
+      throw new CliError(
+        `Preset "${flags.preset}" not found`,
+        ExitCode.InvalidInput,
+        `Run "${createPackageName.replace("create-", "")} preset list" to view available presets.`,
+      );
+    }
+    presetConfig = preset.config;
+  }
+
+  const effectiveConfig: CreateConfig = { ...presetConfig, ...config };
+
+  const projectName = projectNameArgument ?? effectiveConfig.projectName;
   if (!projectName) {
     throw new CliError(
       "Project name is required in --yes mode",
@@ -69,7 +96,7 @@ export function normalizeNonInteractiveCreate(
       `Pass a project name, for example: ${createPackageName} my-app --yes.`,
     );
   }
-  const destination = flags.destination ?? config.destination ?? projectName;
+  const destination = flags.destination ?? effectiveConfig.destination ?? projectName;
   const validatedPath = validateProjectPath({
     cwd,
     destination,
@@ -77,36 +104,40 @@ export function normalizeNonInteractiveCreate(
     allowCurrentDirectory: flags.allowCurrentDirectory ?? false,
   });
 
-  const structure = flags.structure ?? config.structure ?? "standalone";
+  const structure = flags.structure ?? effectiveConfig.structure ?? "standalone";
   const defaultBackend = structure === "standalone" ? "none" : "hono";
-  const backend = flags.backend ?? config.backend ?? defaultBackend;
-  const navigation = flags.navigation ?? config.navigation ?? "router";
+  const backend = flags.backend ?? effectiveConfig.backend ?? defaultBackend;
+  const navigation = flags.navigation ?? effectiveConfig.navigation ?? "router";
   const defaultDatabase = structure === "standalone" || backend === "convex" ? "none" : "neon";
-  const database = flags.database ?? config.database ?? defaultDatabase;
+  const database = flags.database ?? effectiveConfig.database ?? defaultDatabase;
   const defaultOrm =
     database === "none" ||
     (structure === "standalone" && database === "supabase") ||
     backend === "convex"
       ? "none"
       : "drizzle";
-  const orm = flags.orm ?? config.orm ?? defaultOrm;
+  const orm = flags.orm ?? effectiveConfig.orm ?? defaultOrm;
+
+  const detected = detectPackageManager();
+  const packageManager = flags.packageManager ?? effectiveConfig.packageManager ?? detected.manager;
 
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
     structure,
-    packageManager: flags.packageManager ?? config.packageManager ?? "pnpm",
+    packageManager,
     navigation,
     backend,
-    auth: flags.auth ?? config.auth ?? "clerk",
-    style: flags.style ?? config.style ?? "uniwind",
+    auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
+    style: flags.style ?? effectiveConfig.style ?? "uniwind",
     database,
     orm,
-    onboarding: flags.onboarding ?? config.onboarding ?? true,
-    darkMode: flags.darkMode ?? config.darkMode ?? true,
-    eas: flags.eas ?? config.eas ?? true,
-    install: flags.install ?? config.install ?? true,
-    git: flags.git ?? config.git ?? true,
+    onboarding: flags.onboarding ?? effectiveConfig.onboarding ?? true,
+    darkMode: flags.darkMode ?? effectiveConfig.darkMode ?? true,
+    eas: flags.eas ?? effectiveConfig.eas ?? true,
+    install: flags.install ?? effectiveConfig.install ?? true,
+    git: flags.git ?? effectiveConfig.git ?? true,
+    typescript: flags.typescript ?? effectiveConfig.typescript ?? true,
     sdk: 57,
   });
 }
@@ -126,15 +157,87 @@ async function promptCreate(
 ) {
   renderHeroBanner();
   p.intro("Create an Expo application");
+
+  let activeConfig = { ...config };
+  if (!flags.preset) {
+    const savedPresets = await loadPresets();
+    if (savedPresets.length > 0) {
+      const usePreset = await p.confirm({
+        message: "Would you like to use a saved preset?",
+        initialValue: false,
+      });
+      cancelled(usePreset);
+      if (usePreset) {
+        const selectedPresetName = await p.select({
+          message: "Select a saved preset",
+          options: savedPresets.map((pr) => ({
+            value: pr.name,
+            label: pr.name,
+            hint: [
+              pr.config.structure ?? "standalone",
+              pr.config.auth ?? "clerk",
+              pr.config.style ?? "uniwind",
+              pr.config.packageManager ?? "pnpm",
+            ].join(", "),
+          })),
+        });
+        cancelled(selectedPresetName);
+        const found = savedPresets.find((pr) => pr.name === selectedPresetName);
+        if (found) {
+          activeConfig = { ...found.config, ...activeConfig };
+        }
+      }
+    }
+  } else {
+    const found = getPresetSync(flags.preset);
+    if (!found) {
+      throw new CliError(
+        `Preset "${flags.preset}" not found`,
+        ExitCode.InvalidInput,
+        `Run "${createPackageName.replace("create-", "")} preset list" to view available presets.`,
+      );
+    }
+    activeConfig = { ...found.config, ...activeConfig };
+  }
+
   const projectName =
     projectNameArgument ??
-    config.projectName ??
+    activeConfig.projectName ??
     (await p.text({ message: "Project name", placeholder: "my-app" }));
   cancelled(projectName);
 
+  const typescript =
+    flags.typescript ??
+    activeConfig.typescript ??
+    (await p.confirm({
+      message: "Would you like to use TypeScript with this project?",
+      initialValue: true,
+    }));
+  cancelled(typescript);
+
+  let packageManager = flags.packageManager ?? activeConfig.packageManager;
+  if (!packageManager) {
+    const detected = detectPackageManager();
+    const useDetected = await p.confirm({
+      message: `We detected ${detected.manager}${detected.version ? ` v${detected.version}` : ""} as your preferred package manager. Would you like to continue using it?`,
+      initialValue: true,
+    });
+    cancelled(useDetected);
+    if (useDetected) {
+      packageManager = detected.manager;
+    } else {
+      packageManager = (await p.select({
+        message: "Which package manager would you like to use?",
+        options: packageManagers.map((value) => ({ value, label: value })),
+      })) as PackageManager;
+      cancelled(packageManager);
+    }
+  }
+  cancelled(packageManager);
+
   const structure =
     flags.structure ??
-    config.structure ??
+    activeConfig.structure ??
     (await p.select({
       message: "Project structure",
       options: [
@@ -145,18 +248,9 @@ async function promptCreate(
     }));
   cancelled(structure);
 
-  const packageManager =
-    flags.packageManager ??
-    config.packageManager ??
-    (await p.select({
-      message: "Package manager",
-      options: packageManagers.map((value) => ({ value, label: value })),
-    }));
-  cancelled(packageManager);
-
   const navigation =
     flags.navigation ??
-    config.navigation ??
+    activeConfig.navigation ??
     (await p.select({
       message: "Navigation",
       options: [
@@ -166,7 +260,7 @@ async function promptCreate(
     }));
   cancelled(navigation);
 
-  let backend = flags.backend ?? config.backend;
+  let backend = flags.backend ?? activeConfig.backend;
   if (!backend) {
     if (structure === "standalone") {
       backend = (await p.select({
@@ -196,7 +290,7 @@ async function promptCreate(
       : (["clerk", "supabase", "firebase", "jwt", "none"] as const);
   const auth =
     flags.auth ??
-    config.auth ??
+    activeConfig.auth ??
     (await p.select({
       message: "Authentication",
       options: availableAuth.map((value) => ({
@@ -219,7 +313,7 @@ async function promptCreate(
 
   const style =
     flags.style ??
-    config.style ??
+    activeConfig.style ??
     (await p.select({
       message: "Styling",
       options: styleAdapters.map((value) => ({
@@ -236,7 +330,7 @@ async function promptCreate(
     }));
   cancelled(style);
 
-  let database = flags.database ?? config.database;
+  let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
   } else if (!database) {
@@ -273,7 +367,7 @@ async function promptCreate(
   }
   cancelled(database);
 
-  let orm = flags.orm ?? config.orm;
+  let orm = flags.orm ?? activeConfig.orm;
   if (
     backend === "convex" ||
     database === "none" ||
@@ -306,31 +400,33 @@ async function promptCreate(
 
   const onboarding =
     flags.onboarding ??
-    config.onboarding ??
+    activeConfig.onboarding ??
     (await p.confirm({ message: "Include onboarding?", initialValue: true }));
   cancelled(onboarding);
   const darkMode =
     flags.darkMode ??
-    config.darkMode ??
+    activeConfig.darkMode ??
     (await p.confirm({ message: "Include dark mode?", initialValue: true }));
   cancelled(darkMode);
   const eas =
-    flags.eas ?? config.eas ?? (await p.confirm({ message: "Configure EAS?", initialValue: true }));
+    flags.eas ??
+    activeConfig.eas ??
+    (await p.confirm({ message: "Configure EAS?", initialValue: true }));
   cancelled(eas);
 
   const install =
     flags.install ??
-    config.install ??
+    activeConfig.install ??
     (await p.confirm({ message: "Install dependencies?", initialValue: true }));
   cancelled(install);
 
   const git =
     flags.git ??
-    config.git ??
+    activeConfig.git ??
     (await p.confirm({ message: "Initialize a git repository?", initialValue: true }));
   cancelled(git);
 
-  const destination = flags.destination ?? config.destination ?? String(projectName);
+  const destination = flags.destination ?? activeConfig.destination ?? String(projectName);
   const validatedPath = validateProjectPath({
     cwd,
     destination,
@@ -353,6 +449,7 @@ async function promptCreate(
     eas,
     install,
     git,
+    typescript,
     sdk: 57,
   });
   const backendLabel = backend !== "none" ? `, ${backend} backend` : "";
@@ -362,6 +459,42 @@ async function promptCreate(
   });
   cancelled(confirmed);
   if (!confirmed) throw new CliError("Cancelled", ExitCode.Cancelled);
+
+  const shouldSavePreset = await p.confirm({
+    message: "Would you like to save this configuration as a preset for future use?",
+    initialValue: false,
+  });
+  cancelled(shouldSavePreset);
+  if (shouldSavePreset) {
+    const presetName = await p.text({
+      message: "Preset name",
+      placeholder: "my-stack",
+    });
+    cancelled(presetName);
+    const validPresetName = String(presetName).trim();
+    if (validPresetName) {
+      await savePreset({
+        name: validPresetName,
+        createdAt: new Date().toISOString(),
+        config: {
+          structure: input.structure,
+          packageManager: input.packageManager,
+          navigation: input.navigation,
+          backend: input.backend,
+          auth: input.auth,
+          style: input.style,
+          database: input.database,
+          orm: input.orm,
+          onboarding: input.onboarding,
+          darkMode: input.darkMode,
+          eas: input.eas,
+          typescript: input.typescript,
+        },
+      });
+      p.log.success(`Preset "${validPresetName}" saved!`);
+    }
+  }
+
   return input;
 }
 
@@ -468,6 +601,28 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           `Dependency install warning: ${instRes.error ?? "Installation returned non-zero exit code."}`,
         );
       }
+    }
+
+    if (flags.savePreset) {
+      await savePreset({
+        name: flags.savePreset,
+        createdAt: new Date().toISOString(),
+        config: {
+          structure: input.structure,
+          packageManager: input.packageManager,
+          navigation: input.navigation,
+          backend: input.backend,
+          auth: input.auth,
+          style: input.style,
+          database: input.database,
+          orm: input.orm,
+          onboarding: input.onboarding,
+          darkMode: input.darkMode,
+          eas: input.eas,
+          typescript: input.typescript,
+        },
+      });
+      io.stdout(`✓ Preset "${flags.savePreset}" saved.`);
     }
 
     printResult(input, result, io, { git: gitInitialized, install: installCompleted });

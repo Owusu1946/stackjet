@@ -5,11 +5,14 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   deletePreset,
   getPreset,
+  getPresetSync,
   getPresetsDirectory,
   getPresetsFilePath,
   listPresets,
   loadPresets,
+  loadPresetsSync,
   savePreset,
+  savePresetSync,
 } from "./presets.js";
 
 describe("presets engine", () => {
@@ -126,5 +129,30 @@ describe("presets engine", () => {
 
     const presets = await loadPresets(tempDir);
     expect(presets).toEqual([]);
+  });
+
+  it("supports synchronous loadPresetsSync, savePresetSync, and getPresetSync", () => {
+    const preset = {
+      name: "sync-preset",
+      description: "Synchronous preset test",
+      createdAt: "2026-09-19T11:00:00.000Z",
+      config: {
+        structure: "standalone" as const,
+        auth: "clerk" as const,
+        style: "uniwind" as const,
+      },
+    };
+
+    savePresetSync(preset, tempDir);
+    const loaded = loadPresetsSync(tempDir);
+    expect(loaded).toHaveLength(1);
+    expect(loaded[0]?.name).toBe("sync-preset");
+
+    const found = getPresetSync("sync-preset", tempDir);
+    expect(found?.name).toBe("sync-preset");
+    expect(found?.description).toBe("Synchronous preset test");
+
+    const missing = getPresetSync("non-existent", tempDir);
+    expect(missing).toBeUndefined();
   });
 });

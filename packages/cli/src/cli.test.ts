@@ -63,6 +63,25 @@ describe("non-interactive create", () => {
     );
     expect(input.structure).toBe("monorepo-web");
   });
+
+  it("supports typescript flag toggling", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
+    const inputTs = normalizeNonInteractiveCreate(
+      "ts-app",
+      { yes: true, typescript: true },
+      {},
+      cwd,
+    );
+    expect(inputTs.typescript).toBe(true);
+
+    const inputNoTs = normalizeNonInteractiveCreate(
+      "no-ts-app",
+      { yes: true, typescript: false },
+      {},
+      cwd,
+    );
+    expect(inputNoTs.typescript).toBe(false);
+  });
 });
 
 describe("commands", () => {

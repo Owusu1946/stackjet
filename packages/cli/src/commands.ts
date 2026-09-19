@@ -66,3 +66,60 @@ export function runInfo(io: CliIo, version: string) {
   io.stdout(`Checks: ${checks.map((check) => `${check.name}=${check.status}`).join(", ")}`);
   return ExitCode.Success;
 }
+
+export async function runPresetList(io: CliIo, customDir?: string): Promise<number> {
+  const { loadPresets } = await import("@expojet/core");
+  const presets = await loadPresets(customDir);
+  if (presets.length === 0) {
+    io.stdout("No saved presets found.");
+    io.stdout(
+      `Save a preset interactively during '${productName.toLowerCase()} create' or with '--save-preset <name>'.`,
+    );
+    return ExitCode.Success;
+  }
+  io.stdout("Saved Presets:");
+  for (const preset of presets) {
+    const summary = [
+      preset.config.structure ?? "standalone",
+      preset.config.navigation ?? "router",
+      preset.config.auth ?? "clerk",
+      preset.config.style ?? "uniwind",
+      preset.config.packageManager ?? "pnpm",
+    ].join(", ");
+    io.stdout(`  • ${preset.name} (${summary})`);
+    if (preset.description) {
+      io.stdout(`    ${preset.description}`);
+    }
+  }
+  return ExitCode.Success;
+}
+
+export async function runPresetShow(name: string, io: CliIo, customDir?: string): Promise<number> {
+  const { getPreset } = await import("@expojet/core");
+  const preset = await getPreset(name, customDir);
+  if (!preset) {
+    io.stderr(`Preset "${name}" not found.`);
+    return ExitCode.InvalidInput;
+  }
+  io.stdout(`Preset: ${preset.name}`);
+  if (preset.description) io.stdout(`Description: ${preset.description}`);
+  io.stdout(`Created at: ${preset.createdAt}`);
+  io.stdout("Configuration:");
+  io.stdout(JSON.stringify(preset.config, null, 2));
+  return ExitCode.Success;
+}
+
+export async function runPresetRemove(
+  name: string,
+  io: CliIo,
+  customDir?: string,
+): Promise<number> {
+  const { deletePreset } = await import("@expojet/core");
+  const deleted = await deletePreset(name, customDir);
+  if (!deleted) {
+    io.stderr(`Preset "${name}" not found.`);
+    return ExitCode.InvalidInput;
+  }
+  io.stdout(`Preset "${name}" removed successfully.`);
+  return ExitCode.Success;
+}

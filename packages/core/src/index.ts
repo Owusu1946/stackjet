@@ -4,6 +4,7 @@ export * from "./conflicts.js";
 export * from "./executor.js";
 export * from "./exit-codes.js";
 export * from "./operations.js";
+export * from "./package-manager.js";
 export * from "./plan-path.js";
 export * from "./presets.js";
 export * from "./project.js";

@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs";
+import { promises as fs, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { type Preset, presetSchema } from "@expojet/schemas";
@@ -95,4 +95,55 @@ export async function deletePreset(name: string, customDir?: string): Promise<bo
 
 export async function listPresets(customDir?: string): Promise<Preset[]> {
   return loadPresets(customDir);
+}
+
+export function loadPresetsSync(customDir?: string): Preset[] {
+  const filePath = getPresetsFilePath(customDir);
+  try {
+    const raw = readFileSync(filePath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    const validPresets: Preset[] = [];
+    for (const item of parsed) {
+      const validated = presetSchema.safeParse(item);
+      if (validated.success) {
+        validPresets.push(validated.data);
+      }
+    }
+    return validPresets;
+  } catch {
+    return [];
+  }
+}
+
+export function getPresetSync(name: string, customDir?: string): Preset | undefined {
+  const presets = loadPresetsSync(customDir);
+  return presets.find((p) => p.name.toLowerCase() === name.toLowerCase());
+}
+
+export function savePresetSync(preset: Preset, customDir?: string): void {
+  const validated = presetSchema.parse(preset);
+  const dir = getPresetsDirectory(customDir);
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch (error: unknown) {
+    if (getErrorCode(error) !== "EEXIST") {
+      throw error;
+    }
+  }
+
+  const presets = loadPresetsSync(customDir);
+  const existingIndex = presets.findIndex(
+    (p) => p.name.toLowerCase() === validated.name.toLowerCase(),
+  );
+
+  if (existingIndex >= 0) {
+    presets[existingIndex] = validated;
+  } else {
+    presets.push(validated);
+  }
+
+  const filePath = getPresetsFilePath(customDir);
+  writeFileSync(filePath, `${JSON.stringify(presets, null, 2)}\n`, "utf8");
 }

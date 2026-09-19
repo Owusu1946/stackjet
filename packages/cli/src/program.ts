@@ -11,7 +11,14 @@ import {
   styleAdapters,
 } from "@expojet/schemas";
 import { Command, Option } from "commander";
-import { runDoctor, runEnvCheck, runInfo } from "./commands.js";
+import {
+  runDoctor,
+  runEnvCheck,
+  runInfo,
+  runPresetList,
+  runPresetRemove,
+  runPresetShow,
+} from "./commands.js";
 import { type CreateFlags, runCreate } from "./create.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
@@ -64,8 +71,35 @@ export function createProgram(io: CliIo) {
     .option("--dry-run", "validate and preview the file plan without writing the destination")
     .option("--yes", "accept defaults and disable prompts")
     .option("--experimental", "show and allow experimental adapters")
+    .option("--preset <name>", "load defaults from a saved preset")
+    .option("--save-preset <name>", "save resulting configuration as a preset")
+    .option("--typescript", "use TypeScript (default: true)")
+    .option("--no-typescript", "disable TypeScript")
     .action(async (projectName: string | undefined, flags: CreateFlags) => {
       process.exitCode = await runCreate(projectName, flags, io);
+    });
+
+  const preset = program
+    .command("preset")
+    .description("Manage saved project configuration presets");
+
+  decorateCommand(preset.command("list"))
+    .description("List all saved configuration presets")
+    .action(async () => {
+      process.exitCode = await runPresetList(io);
+    });
+
+  decorateCommand(preset.command("show <name>"))
+    .description("Display details of a saved configuration preset")
+    .action(async (name: string) => {
+      process.exitCode = await runPresetShow(name, io);
+    });
+
+  decorateCommand(preset.command("remove <name>"))
+    .alias("delete")
+    .description("Delete a saved configuration preset")
+    .action(async (name: string) => {
+      process.exitCode = await runPresetRemove(name, io);
     });
 
   decorateCommand(program.command("doctor"))
