@@ -850,4 +850,102 @@ describe("Phase 2 generation", () => {
     expect(pkg.dependencies["@react-navigation/drawer"]).toBeUndefined();
     expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeUndefined();
   });
+
+  it("generates a standalone app with Lucide icons", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-icon-lucide-")), "lucide-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        icons: "lucide",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const iconFile = join(destination, "src/components/ui/icon.tsx");
+    expect(existsSync(iconFile)).toBe(true);
+    const content = readFileSync(iconFile, "utf8");
+    expect(content).toContain("lucide-react-native");
+    expect(content).toContain("export function Icon(");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["lucide-react-native"]).toBeDefined();
+    expect(pkg.dependencies["react-native-svg"]).toBeDefined();
+
+    // Verify tabs layout imports and uses <Icon />
+    const layout = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
+    expect(layout).toContain('import { Icon } from "../../src/components/ui/icon"');
+    expect(layout).toContain('tabBarIcon: ({ color, size }) => <Icon name="home"');
+  });
+
+  it("generates an app with Hugeicons", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-icon-hugeicons-")),
+      "hugeicons-app",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        icons: "hugeicons",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const iconFile = join(destination, "src/components/ui/icon.tsx");
+    expect(existsSync(iconFile)).toBe(true);
+    const content = readFileSync(iconFile, "utf8");
+    expect(content).toContain("@hugeicons/react-native");
+    expect(content).toContain("@hugeicons/core-free-icons");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@hugeicons/react-native"]).toBeDefined();
+    expect(pkg.dependencies["@hugeicons/core-free-icons"]).toBeDefined();
+    expect(pkg.dependencies["react-native-svg"]).toBeDefined();
+  });
+
+  it("generates an app with Expo Vector Icons", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-icon-expo-")), "expo-icons-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        icons: "expo",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const iconFile = join(destination, "src/components/ui/icon.tsx");
+    expect(existsSync(iconFile)).toBe(true);
+    const content = readFileSync(iconFile, "utf8");
+    expect(content).toContain("@expo/vector-icons");
+    expect(content).toContain("Ionicons");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@expo/vector-icons"]).toBeDefined();
+    expect(pkg.dependencies["react-native-svg"]).toBeUndefined();
+  });
+
+  it("generates icon component in mobile workspace within monorepo", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-icon-monorepo-")), "monorepo-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        icons: "lucide",
+        backend: "hono",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const iconFile = join(destination, "apps/mobile/src/components/ui/icon.tsx");
+    expect(existsSync(iconFile)).toBe(true);
+
+    const mobilePkg = JSON.parse(
+      readFileSync(join(destination, "apps/mobile/package.json"), "utf8"),
+    );
+    expect(mobilePkg.dependencies["lucide-react-native"]).toBeDefined();
+    expect(mobilePkg.dependencies["react-native-svg"]).toBeDefined();
+  });
 });

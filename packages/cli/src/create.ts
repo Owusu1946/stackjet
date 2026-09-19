@@ -17,6 +17,7 @@ import {
   type CreateInput,
   createConfigSchema,
   createInputSchema,
+  type IconLibrary,
   type PackageManager,
   packageManagers,
   styleAdapters,
@@ -38,6 +39,10 @@ export interface CreateFlags {
   backend?: string;
   auth?: string;
   style?: string;
+  icons?: string;
+  lucide?: boolean;
+  hugeicons?: boolean;
+  expoIcons?: boolean;
   database?: string;
   orm?: string;
   onboarding?: boolean;
@@ -123,6 +128,14 @@ export function normalizeNonInteractiveCreate(
   const detected = detectPackageManager();
   const packageManager = flags.packageManager ?? effectiveConfig.packageManager ?? detected.manager;
 
+  let iconsFlag = flags.icons;
+  if (!iconsFlag) {
+    if (flags.hugeicons) iconsFlag = "hugeicons";
+    else if (flags.expoIcons) iconsFlag = "expo";
+    else if (flags.lucide) iconsFlag = "lucide";
+  }
+  const icons = iconsFlag ?? effectiveConfig.icons ?? "lucide";
+
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
@@ -130,6 +143,7 @@ export function normalizeNonInteractiveCreate(
     packageManager,
     navigation,
     navigationType,
+    icons,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -347,6 +361,24 @@ async function promptCreate(
     }));
   cancelled(style);
 
+  let icons = flags.icons ?? activeConfig.icons;
+  if (!icons) {
+    if (flags.hugeicons) icons = "hugeicons";
+    else if (flags.expoIcons) icons = "expo";
+    else if (flags.lucide) icons = "lucide";
+  }
+  if (!icons) {
+    icons = (await p.select({
+      message: "Icons",
+      options: [
+        { value: "lucide", label: "Lucide (Clean, modern, tree-shakeable, recommended)" },
+        { value: "hugeicons", label: "Hugeicons (Sharp stroke & rich collection)" },
+        { value: "expo", label: "Expo Vector Icons (Classic built-in Ionicons)" },
+      ],
+    })) as string;
+  }
+  cancelled(icons);
+
   let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
@@ -460,6 +492,7 @@ async function promptCreate(
     backend,
     auth,
     style,
+    icons: icons as IconLibrary,
     database,
     orm,
     onboarding,
@@ -502,6 +535,7 @@ async function promptCreate(
           backend: input.backend,
           auth: input.auth,
           style: input.style,
+          icons: input.icons,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,
@@ -635,6 +669,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           backend: input.backend,
           auth: input.auth,
           style: input.style,
+          icons: input.icons,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,

@@ -4,6 +4,7 @@ import {
   authAdapters,
   backendAdapters,
   databaseAdapters,
+  iconLibraries,
   navigationAdapters,
   navigationTypes,
   ormAdapters,
@@ -57,6 +58,12 @@ export function createProgram(io: CliIo) {
     .addOption(new Option("--backend <adapter>").choices([...backendAdapters]))
     .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
+    .addOption(
+      new Option("--icons <library>", "icon library to include").choices([...iconLibraries]),
+    )
+    .option("--lucide", "use Lucide icons (default)")
+    .option("--hugeicons", "use Hugeicons")
+    .option("--expo-icons", "use Expo vector icons")
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
     .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")

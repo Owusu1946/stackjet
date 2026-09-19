@@ -8,11 +8,25 @@ description: Stable create options and experimental gating.
 | `--destination <path>` | Output directory |
 | `--structure <type>` | `standalone` or `monorepo` |
 | `--package-manager <name>` | `pnpm`, `npm`, or `bun` |
-| `--auth <adapter>` | `clerk`, `none`, or experimental `better-auth` |
-| `--style <adapter>` | `uniwind` or `stylesheet` |
+| `--navigation <adapter>` | `router` (Expo Router) or `react-navigation` |
+| `--navigation-type <type>` | `tabs`, `drawer`, `both` (drawer + tabs), or `stack` |
+| `--auth <adapter>` | `clerk`, `supabase`, `firebase`, `jwt`, `none`, or experimental `better-auth` |
+| `--style <adapter>` | `uniwind`, `nativewind`, `unistyles`, or `stylesheet` |
+| `--icons <library>` | `lucide` (default), `hugeicons`, or `expo` |
+| `--lucide` | Select Lucide React Native icon set |
+| `--hugeicons` | Select Hugeicons React Native icon set |
+| `--expo-icons` | Select Expo Vector Icons set |
+| `--database <adapter>` | `neon`, `postgres`, `sqlite`, `supabase`, or `none` |
+| `--orm <adapter>` | `drizzle`, `prisma`, or `none` |
+| `--preset <name>` | Load options from a saved preset |
+| `--save-preset <name>` | Save resulting configuration as a preset |
+| `--typescript` / `--no-typescript` | Toggle TypeScript support |
 | `--onboarding` / `--no-onboarding` | Toggle onboarding |
+| `--dark-mode` / `--no-dark-mode` | Toggle dark mode theme engine |
 | `--eas` / `--no-eas` | Toggle EAS profiles |
-| `--config <path>` | Read JSON defaults |
+| `--install` / `--no-install` | Toggle dependency installation |
+| `--git` / `--no-git` | Toggle git initialization |
+| `--config <path>` | Read JSON defaults from file |
 | `--yes` | Disable prompts and accept defaults |
 | `--dry-run` | Preview without committing |
 | `--experimental` | Permit experimental adapters |

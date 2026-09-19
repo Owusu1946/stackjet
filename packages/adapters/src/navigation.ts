@@ -42,6 +42,7 @@ function makeRouterProtectedLayout(navigationType: NavigationType) {
     return `import { Redirect } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -67,6 +68,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Home",
           drawerLabel: "Home",
+          drawerIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -74,6 +76,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Profile",
           drawerLabel: "Profile",
+          drawerIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
         }}
       />
     </Drawer>
@@ -90,6 +93,7 @@ const styles = StyleSheet.create({
     return `import { Redirect } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -115,6 +119,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Tabs",
           drawerLabel: "Tabs",
+          drawerIcon: ({ color, size }) => <Icon name="menu" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -122,6 +127,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Settings",
           drawerLabel: "Settings",
+          drawerIcon: ({ color, size }) => <Icon name="settings" color={color} size={size} />,
           headerShown: true,
         }}
       />
@@ -182,6 +188,7 @@ const styles = StyleSheet.create({
 
   return `import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -207,6 +214,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Home",
           tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -214,6 +222,7 @@ export default function ProtectedLayout() {
         options={{
           title: "Profile",
           tabBarLabel: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
         }}
       />
     </Tabs>
@@ -227,6 +236,7 @@ const styles = StyleSheet.create({
 }
 
 const routerTabLayoutSource = `import { Tabs } from "expo-router";
+import { Icon } from "../../../src/components/ui/icon";
 
 export default function TabLayout() {
   return (
@@ -241,6 +251,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -248,6 +259,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarLabel: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
         }}
       />
     </Tabs>
@@ -480,6 +492,7 @@ const styles = StyleSheet.create({
 function makeReactNavAppNavigator(navigationType: NavigationType) {
   if (navigationType === "drawer") {
     return `import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -493,8 +506,22 @@ export function AppNavigator() {
         drawerActiveTintColor: "#315efb",
       }}
     >
-      <Drawer.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+      <Drawer.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: "Home",
+          drawerIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          drawerIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -503,6 +530,7 @@ export function AppNavigator() {
 
   if (navigationType === "both") {
     return `import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Icon } from "../components/ui/icon";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { TabNavigator } from "./TabNavigator";
 
@@ -516,8 +544,23 @@ export function AppNavigator() {
         drawerActiveTintColor: "#315efb",
       }}
     >
-      <Drawer.Screen name="Main" component={TabNavigator} options={{ title: "Home", drawerLabel: "Home" }} />
-      <Drawer.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
+      <Drawer.Screen
+        name="Main"
+        component={TabNavigator}
+        options={{
+          title: "Home",
+          drawerLabel: "Home",
+          drawerIcon: ({ color, size }) => <Icon name="menu" color={color} size={size} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: "Settings",
+          drawerIcon: ({ color, size }) => <Icon name="settings" color={color} size={size} />,
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -548,6 +591,7 @@ export function AppNavigator() {
   }
 
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -561,8 +605,22 @@ export function AppNavigator() {
         tabBarActiveTintColor: "#315efb",
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -570,6 +628,7 @@ export function AppNavigator() {
 }
 
 const reactNavTabNavigatorSource = `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -583,8 +642,22 @@ export function TabNavigator() {
         tabBarActiveTintColor: "#315efb",
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+      />
     </Tab.Navigator>
   );
 }

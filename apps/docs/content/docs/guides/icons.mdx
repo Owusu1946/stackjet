@@ -1,0 +1,126 @@
+---
+title: Icons
+description: Unified icon ecosystem adapter supporting Lucide, Hugeicons, and Expo Vector Icons.
+---
+
+Expojet provides a unified icon ecosystem adapter inspired by modern Expo generators like `create-expo-stack`. Every generated project includes a typed `<Icon />` abstraction located at `src/components/ui/icon.tsx`, pre-wired into your navigation layouts (tabs, drawer) and UI cards.
+
+## Supported Icon Sets
+
+| Library | Key | Dependencies | Description |
+|---|---|---|---|
+| **Lucide Icons** (Default) | `lucide` | `lucide-react-native`, `react-native-svg` | Modern, clean, tree-shakeable SVG icons. Recommended for most apps. |
+| **Hugeicons** | `hugeicons` | `@hugeicons/react-native`, `@hugeicons/core-free-icons`, `react-native-svg` | Sharp strokes, duotone options, and a vast collection of free icons. |
+| **Expo Vector Icons** | `expo` | `@expo/vector-icons` | Classic built-in Expo icon font library (Ionicons, Feather, MaterialIcons). |
+
+## Usage via CLI
+
+You can choose your icon set interactively or specify it using flags:
+
+```bash
+# Explicit adapter name
+npx create-expojet@latest my-app --icons lucide
+npx create-expojet@latest my-app --icons hugeicons
+npx create-expojet@latest my-app --icons expo
+
+# Shorthand flags
+npx create-expojet@latest my-app --lucide
+npx create-expojet@latest my-app --hugeicons
+npx create-expojet@latest my-app --expo-icons
+```
+
+## The `<Icon />` Abstraction
+
+Regardless of the underlying icon set selected, your project provides a unified `<Icon />` component:
+
+```tsx
+import { Icon } from "@/components/ui/icon";
+
+export function ExampleCard() {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+      <Icon name="home" size={24} color="#315efb" />
+      <Icon name="user" size={24} color="#52606d" />
+      <Icon name="settings" size={24} color="#52606d" />
+      <Icon name="bell" size={24} color="#52606d" />
+      <Icon name="menu" size={24} color="#52606d" />
+      <Icon name="chevron-right" size={24} color="#52606d" />
+      <Icon name="check" size={24} color="#16a34a" />
+      <Icon name="compass" size={24} color="#315efb" />
+    </View>
+  );
+}
+```
+
+### Component Props
+
+- `name`: One of `"home" | "user" | "settings" | "bell" | "menu" | "chevron-right" | "check" | "compass" | "info"`
+- `size` (optional, default: `24`): Icon size in density-independent pixels.
+- `color` (optional, default: `"#000"`): Icon stroke or fill color.
+- `strokeWidth` (optional, default: `2` / `1.5`): Line width for stroke-based icons.
+
+## Navigation Integration
+
+Tab and Drawer navigators in both Expo Router and React Navigation automatically hook into `<Icon />`:
+
+### Expo Router
+
+```tsx
+// app/(app)/_layout.tsx
+import { Icon } from "../../src/components/ui/icon";
+import { Tabs } from "expo-router";
+
+export default function ProtectedLayout() {
+  return (
+    <Tabs screenOptions={{ tabBarActiveTintColor: "#315efb" }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+      />
+    </Tabs>
+  );
+}
+```
+
+### React Navigation
+
+```tsx
+// src/navigation/AppNavigator.tsx
+import { Icon } from "../components/ui/icon";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+const Tab = createBottomTabNavigator();
+
+export function AppNavigator() {
+  return (
+    <Tab.Navigator screenOptions={{ tabBarActiveTintColor: "#315efb" }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+```

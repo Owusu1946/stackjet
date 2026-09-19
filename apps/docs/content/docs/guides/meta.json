@@ -3,6 +3,7 @@
   "pages": [
     "...authentication",
     "...styling",
+    "icons",
     "...navigation",
     "...database",
     "...backend",

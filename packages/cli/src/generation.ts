@@ -1,6 +1,7 @@
 import {
   authAdapter,
   databaseAdapter,
+  iconAdapter,
   monorepoPlatformAdapter,
   navigationAdapter,
   ormAdapter,
@@ -145,6 +146,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
     },
   );
   operations.push(...navigationAdapter(normalizedInput.navigation).plan(normalizedInput, {}));
+  operations.push(...iconAdapter(normalizedInput.icons).plan(normalizedInput, {}));
   operations.push(...authAdapter(normalizedInput.auth).plan(normalizedInput, {}));
   operations.push(...styleAdapter(normalizedInput.style).plan(normalizedInput, {}));
   operations.push(...themeAdapter.plan(normalizedInput, {}));
