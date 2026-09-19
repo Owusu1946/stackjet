@@ -125,6 +125,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
             darkMode: normalizedInput.darkMode,
             liquidGlass: normalizedInput.liquidGlass,
             typescript: normalizedInput.typescript,
+            eas: normalizedInput.eas,
           },
         },
         null,
@@ -141,6 +142,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           darkMode: normalizedInput.darkMode,
           liquidGlass: normalizedInput.liquidGlass,
           typescript: normalizedInput.typescript,
+          eas: normalizedInput.eas,
         },
         null,
         2,
@@ -163,7 +165,37 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
     operations.push({
       type: "write-file",
       path: `${mobileRoot}eas.json`,
-      content: `${JSON.stringify({ cli: { version: ">= 16.0.0" }, build: { development: { developmentClient: true, distribution: "internal" }, preview: { distribution: "internal" }, production: { autoIncrement: true } }, submit: { production: {} } }, null, 2)}\n`,
+      content: `${JSON.stringify(
+        {
+          $schema: "https://json.schemastore.org/eas-json",
+          cli: {
+            version: ">= 16.0.0",
+            appVersionSource: "remote",
+          },
+          build: {
+            development: {
+              developmentClient: true,
+              distribution: "internal",
+              ios: {
+                simulator: true,
+              },
+            },
+            preview: {
+              distribution: "internal",
+              channel: "preview",
+            },
+            production: {
+              autoIncrement: true,
+              channel: "production",
+            },
+          },
+          submit: {
+            production: {},
+          },
+        },
+        null,
+        2,
+      )}\n`,
       owner: `${commandName}:eas`,
     });
   }

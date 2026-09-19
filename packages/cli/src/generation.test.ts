@@ -1232,4 +1232,92 @@ describe("Phase 2 generation", () => {
     expect(pkg.dependencies["posthog-react-native"]).toBeUndefined();
     expect(pkg.dependencies["@aptabase/react-native"]).toBeUndefined();
   });
+
+  it("generates a standalone app with EAS Build configuration and passes doctor check", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-eas-")), "eas-standalone");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        eas: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const easPath = join(destination, "eas.json");
+    expect(existsSync(easPath)).toBe(true);
+
+    const easConfig = JSON.parse(readFileSync(easPath, "utf8"));
+    expect(easConfig.$schema).toBe("https://json.schemastore.org/eas-json");
+    expect(easConfig.cli).toMatchObject({
+      version: ">= 16.0.0",
+      appVersionSource: "remote",
+    });
+    expect(easConfig.build.development).toMatchObject({
+      developmentClient: true,
+      distribution: "internal",
+      ios: { simulator: true },
+    });
+    expect(easConfig.build.preview).toMatchObject({
+      distribution: "internal",
+      channel: "preview",
+    });
+    expect(easConfig.build.production).toMatchObject({
+      autoIncrement: true,
+      channel: "production",
+    });
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.eas).toBe(true);
+
+    const checks = runDoctorChecks(project);
+    const easCheck = checks.find((c) => c.name === "EAS Build configuration");
+    expect(easCheck?.status).toBe("pass");
+    expect(easCheck?.message).toContain("development, preview, and production");
+  });
+
+  it("generates a monorepo app with EAS in apps/mobile and passes doctor check", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-eas-mono-")), "eas-monorepo");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "hono",
+        eas: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const easPath = join(destination, "apps/mobile/eas.json");
+    expect(existsSync(easPath)).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.eas).toBe(true);
+
+    const checks = runDoctorChecks(project);
+    const easCheck = checks.find((c) => c.name === "EAS Build configuration");
+    expect(easCheck?.status).toBe("pass");
+  });
+
+  it("omits eas.json and skips EAS doctor check when eas is false", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-no-eas-")), "no-eas");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        eas: false,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "eas.json"))).toBe(false);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.eas).toBe(false);
+
+    const checks = runDoctorChecks(project);
+    const easCheck = checks.find((c) => c.name === "EAS Build configuration");
+    expect(easCheck).toBeUndefined();
+  });
 });

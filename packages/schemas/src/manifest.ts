@@ -39,6 +39,7 @@ export const expojetManifestSchema = z.object({
       darkMode: z.boolean().optional(),
       liquidGlass: z.boolean().optional(),
       typescript: z.boolean().optional(),
+      eas: z.boolean().optional(),
     })
     .optional(),
 });

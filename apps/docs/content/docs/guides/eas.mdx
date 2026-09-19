@@ -1,0 +1,146 @@
+---
+title: EAS Production Pipeline
+description: Production-ready Expo Application Services (EAS) configuration, profiles, and deployment workflows for Expo SDK 57.
+---
+
+Expojet provides a certified, production-grade **EAS (Expo Application Services)** configuration out of the box for Expo SDK 57 applications, supporting both standalone projects and full-stack monorepos.
+
+---
+
+## What is EAS?
+
+Expo Application Services (EAS) is a suite of cloud services tailored for Expo and React Native applications:
+
+- **EAS Build**: Cloud-hosted builds for iOS and Android with managed credentials and environment secrets.
+- **EAS Submit**: Automated app store submissions to Apple App Store Connect and Google Play Console.
+- **EAS Update**: Instant over-the-air (OTA) bug fixes and runtime updates deployed to specific channels.
+- **EAS Metadata**: Automated App Store metadata, screenshots, and localized copy synchronization.
+
+---
+
+## Configuration (`eas.json`)
+
+When `--eas` is enabled (default in interactive mode), Expojet generates a fully structured `eas.json` conforming to the official schema:
+
+```json
+{
+  "$schema": "https://json.schemastore.org/eas-json",
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "production": {
+      "autoIncrement": true,
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
+```
+
+---
+
+## Build Profiles Explained
+
+| Profile | Target | Distribution | Channels | Purpose |
+|---|---|---|---|---|
+| `development` | Debug build | Internal (Simulator/Device) | — | Running development client (`expo-dev-client`) locally and on simulators |
+| `preview` | Release-like build | Internal distribution | `preview` | Team testing, QA verification, PR branch previews, and internal testing |
+| `production` | Store-ready bundle | App Store / Play Store | `production` | Production release with remote version increment and signed credentials |
+
+### Simulator Builds
+
+The `development` profile is pre-configured with `"ios": { "simulator": true }`. This enables building an `.app` binary that runs directly on the macOS iOS Simulator without requiring an Apple Developer signing certificate.
+
+```bash
+# Build for iOS Simulator locally or on EAS
+npx eas build --profile development --platform ios
+```
+
+---
+
+## Monorepo Placement
+
+In full-stack monorepos (`monorepo` or `monorepo-web`), `eas.json` is generated directly inside the mobile workspace:
+
+```text
+my-monorepo/
+├── apps/
+│   ├── api/
+│   ├── mobile/
+│   │   ├── eas.json            <-- Scoped to mobile workspace
+│   │   ├── app.json
+│   │   └── package.json
+│   └── web/
+├── packages/
+└── package.json
+```
+
+When building a monorepo workspace with EAS CLI, EAS automatically detects the root `package.json` and runs workspace dependency installation before bundling `apps/mobile`.
+
+---
+
+## Common Workflows
+
+### 1. Linking EAS Project
+
+Before triggering cloud builds, initialize your Expo project link:
+
+```bash
+# Log in to your Expo account
+npx eas login
+
+# Initialize EAS project ID
+npx eas project:init
+```
+
+This sets the `extra.eas.projectId` field in `app.json`.
+
+### 2. Building Previews for QA
+
+Generate an installable APK or iOS internal distribution build:
+
+```bash
+npx eas build --profile preview --platform all
+```
+
+EAS generates shareable QR codes and install links for team members.
+
+### 3. Deploying Production Builds
+
+```bash
+# Build for store submission
+npx eas build --profile production --platform all
+
+# Automatically submit to stores upon build completion
+npx eas build --profile production --platform all --auto-submit
+```
+
+---
+
+## Doctor Diagnostics
+
+Expojet includes automated diagnostic checks for EAS integrity. Run:
+
+```bash
+node packages/cli/dist/cli.js doctor
+```
+
+When `features.eas` is enabled in `expojet-manifest.json`, the doctor check validates:
+1. `eas.json` is present in the mobile root (`.` or `apps/mobile/`).
+2. Valid JSON syntax.
+3. Presence of `development`, `preview`, and `production` build profiles.

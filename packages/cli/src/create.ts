@@ -650,6 +650,7 @@ function printResult(
   io.stdout(`  Database: ${input.database}`);
   io.stdout(`  ORM: ${input.orm}`);
   io.stdout(`  Dark mode: ${input.darkMode ? "enabled" : "disabled"}`);
+  if (input.eas) io.stdout("  EAS Build: configured (development, preview, production profiles)");
   io.stdout(`  Files: ${result.files.length}`);
   io.stdout("  Foundation: Expo SDK 57, Expo Router, strict TypeScript, tests");
   if (status?.git) io.stdout("  Git: initialized");
@@ -675,6 +676,9 @@ function printResult(
     }
     if (input.database !== "none" && input.orm !== "none") {
       steps.push(`${stepNum++}. ${input.packageManager} run db:migrate`);
+    }
+    if (input.eas) {
+      steps.push(`${stepNum++}. npx eas build --profile preview`);
     }
     steps.push(`${stepNum++}. ${input.packageManager} run dev`);
 

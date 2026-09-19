@@ -289,6 +289,43 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
   }
 
+  if (project.manifest.features?.eas) {
+    const easJsonPath = join(mobileRoot, "eas.json");
+    const hasEasJson = existsSync(easJsonPath);
+    if (!hasEasJson) {
+      checks.push({
+        name: "EAS Build configuration",
+        status: "fail",
+        message: "eas.json missing from mobile root",
+      });
+    } else {
+      try {
+        const easContent = JSON.parse(readFileSync(easJsonPath, "utf8"));
+        const hasBuild =
+          typeof easContent === "object" && easContent !== null && "build" in easContent;
+        const hasProfiles =
+          hasBuild &&
+          "development" in easContent.build &&
+          "preview" in easContent.build &&
+          "production" in easContent.build;
+
+        checks.push({
+          name: "EAS Build configuration",
+          status: hasProfiles ? "pass" : "fail",
+          message: hasProfiles
+            ? "eas.json valid with development, preview, and production build profiles"
+            : "eas.json missing required build profiles (development, preview, production)",
+        });
+      } catch {
+        checks.push({
+          name: "EAS Build configuration",
+          status: "fail",
+          message: "eas.json is not valid JSON",
+        });
+      }
+    }
+  }
+
   return checks;
 }
 
