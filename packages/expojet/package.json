@@ -1,0 +1,25 @@
+{
+  "name": "expojet",
+  "version": "0.4.0",
+  "description": "A production-ready Expo stack in one command.",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "bin": {
+    "expojet": "./cli.js",
+    "create-expojet": "./cli.js"
+  },
+  "files": [
+    "cli.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "create-expojet": "workspace:*"
+  }
+}

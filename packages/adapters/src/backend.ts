@@ -1095,15 +1095,81 @@ const convexTsConfig = `{
 
 const convexProvider = `import { ConvexProvider, ConvexReactClient } from "convex/react";
 import type { PropsWithChildren } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { env } from "../env";
 
-const convex = new ConvexReactClient(env.EXPO_PUBLIC_CONVEX_URL, {
-  unsavedChangesWarning: false,
-});
+const convexUrl =
+  (env as Record<string, string | undefined>).EXPO_PUBLIC_CONVEX_URL ||
+  process.env.EXPO_PUBLIC_CONVEX_URL;
+
+const convex = convexUrl
+  ? new ConvexReactClient(convexUrl, {
+      unsavedChangesWarning: false,
+    })
+  : null;
 
 export function DataProvider({ children }: PropsWithChildren) {
+  if (!convex) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Convex Setup Required</Text>
+        <Text style={styles.body}>
+          No Convex deployment URL was found in your environment.
+        </Text>
+        <View style={styles.card}>
+          <Text style={styles.stepTitle}>Next steps:</Text>
+          <Text style={styles.step}>1. Run: npx convex dev</Text>
+          <Text style={styles.step}>2. Set EXPO_PUBLIC_CONVEX_URL in .env</Text>
+          <Text style={styles.step}>3. Reload this app</Text>
+        </View>
+      </View>
+    );
+  }
+
   return <ConvexProvider client={convex}>{children}</ConvexProvider>;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    backgroundColor: "#09090b",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#f43f5e",
+    marginBottom: 8,
+  },
+  body: {
+    fontSize: 14,
+    color: "#a1a1aa",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  card: {
+    width: "100%",
+    backgroundColor: "#18181b",
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#27272a",
+    gap: 8,
+  },
+  stepTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fafafa",
+    marginBottom: 4,
+  },
+  step: {
+    fontSize: 13,
+    color: "#d4d4d8",
+    fontFamily: "monospace",
+  },
+});
 `;
 
 // ---------------------------------------------------------------------------

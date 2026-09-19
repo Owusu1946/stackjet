@@ -86,7 +86,7 @@ export default async function HomePage() {
             <div>
               <pre className="ascii-logo">{asciiLogo}</pre>
               <p className="console-lede">
-                Build the Expo app you meant to build—not the setup around it.
+                Build the Expo app you meant to build; not the setup around it.
               </p>
               <p className="console-copy">
                 Choose your stack. Expojet connects the pieces and hands you a clean project ready
