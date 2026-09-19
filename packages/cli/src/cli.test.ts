@@ -82,6 +82,33 @@ describe("non-interactive create", () => {
     );
     expect(inputNoTs.typescript).toBe(false);
   });
+
+  it("supports navigation-type flag", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
+    const inputDrawer = normalizeNonInteractiveCreate(
+      "drawer-app",
+      { yes: true, navigationType: "drawer" },
+      {},
+      cwd,
+    );
+    expect(inputDrawer.navigationType).toBe("drawer");
+
+    const inputBoth = normalizeNonInteractiveCreate(
+      "both-app",
+      { yes: true, navigationType: "both" },
+      {},
+      cwd,
+    );
+    expect(inputBoth.navigationType).toBe("both");
+
+    const inputStack = normalizeNonInteractiveCreate(
+      "stack-app",
+      { yes: true, navigationType: "stack" },
+      {},
+      cwd,
+    );
+    expect(inputStack.navigationType).toBe("stack");
+  });
 });
 
 describe("commands", () => {
@@ -142,5 +169,28 @@ describe("commands", () => {
       ),
     ).toBe(0);
     expect(capture.stdout.join("\n")).toContain("Dry run validated");
+  });
+
+  it("runs create with --navigation-type drawer --dry-run", async () => {
+    process.exitCode = 0;
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
+    expect(
+      await runProgram(
+        [
+          "node",
+          "expojet",
+          "create",
+          "drawer-app",
+          "--yes",
+          "--navigation-type",
+          "drawer",
+          "--dry-run",
+          "--no-install",
+          "--no-git",
+        ],
+        capture.io,
+      ),
+    ).toBe(0);
+    expect(capture.stdout.join("\n")).toContain("Navigation: router (drawer)");
   });
 });

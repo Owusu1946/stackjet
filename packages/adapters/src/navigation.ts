@@ -1,5 +1,5 @@
 import type { Operation } from "@expojet/core";
-import type { CreateInput, NavigationAdapter } from "@expojet/schemas";
+import type { CreateInput, NavigationAdapter, NavigationType } from "@expojet/schemas";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
@@ -10,7 +10,404 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
   return { workspace, root: workspace === "." ? "" : `${workspace}/` };
 }
 
-const rootAppSource = `import { NavigationContainer } from "@react-navigation/native";
+function makeRouterRootLayout() {
+  return `import "../src/style-entry";
+import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { DataProvider } from "../src/data/provider";
+import { OnboardingProvider } from "../src/onboarding/provider";
+import { SessionProvider } from "../src/session/provider";
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar style="auto" />
+      <SessionProvider>
+        <DataProvider>
+          <OnboardingProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </OnboardingProvider>
+        </DataProvider>
+      </SessionProvider>
+    </GestureHandlerRootView>
+  );
+}
+`;
+}
+
+function makeRouterProtectedLayout(navigationType: NavigationType) {
+  if (navigationType === "drawer") {
+    return `import { Redirect } from "expo-router";
+import { Drawer } from "expo-router/drawer";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+
+export default function ProtectedLayout() {
+  const session = useSession();
+  if (session.status === "loading") {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
+
+  return (
+    <Drawer
+      screenOptions={{
+        headerShown: true,
+        drawerActiveTintColor: "#315efb",
+      }}
+    >
+      <Drawer.Screen
+        name="index"
+        options={{
+          title: "Home",
+          drawerLabel: "Home",
+        }}
+      />
+      <Drawer.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          drawerLabel: "Profile",
+        }}
+      />
+    </Drawer>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+});
+`;
+  }
+
+  if (navigationType === "both") {
+    return `import { Redirect } from "expo-router";
+import { Drawer } from "expo-router/drawer";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+
+export default function ProtectedLayout() {
+  const session = useSession();
+  if (session.status === "loading") {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
+
+  return (
+    <Drawer
+      screenOptions={{
+        headerShown: false,
+        drawerActiveTintColor: "#315efb",
+      }}
+    >
+      <Drawer.Screen
+        name="(tabs)"
+        options={{
+          title: "Tabs",
+          drawerLabel: "Tabs",
+        }}
+      />
+      <Drawer.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          drawerLabel: "Settings",
+          headerShown: true,
+        }}
+      />
+    </Drawer>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+});
+`;
+  }
+
+  if (navigationType === "stack") {
+    return `import { Redirect, Stack } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+
+export default function ProtectedLayout() {
+  const session = useSession();
+  if (session.status === "loading") {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: true,
+        headerTintColor: "#315efb",
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Home",
+        }}
+      />
+      <Stack.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+        }}
+      />
+    </Stack>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+});
+`;
+  }
+
+  return `import { Redirect, Tabs } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+
+export default function ProtectedLayout() {
+  const session = useSession();
+  if (session.status === "loading") {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: true,
+        tabBarActiveTintColor: "#315efb",
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarLabel: "Home",
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarLabel: "Profile",
+        }}
+      />
+    </Tabs>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+});
+`;
+}
+
+const routerTabLayoutSource = `import { Tabs } from "expo-router";
+
+export default function TabLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: true,
+        tabBarActiveTintColor: "#315efb",
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          tabBarLabel: "Home",
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarLabel: "Profile",
+        }}
+      />
+    </Tabs>
+  );
+}
+`;
+
+function makeRouterHomeScreen(navigationType: NavigationType, isNestedTabs: boolean = false) {
+  const prefix = isNestedTabs ? "../../../" : "../../";
+  if (navigationType === "stack") {
+    return `import { Link } from "expo-router";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { BrandCard } from "${prefix}src/components/brand-card";
+import { useSession } from "${prefix}src/session/provider";
+
+export default function AppHomeScreen() {
+  const session = useSession();
+  return (
+    <View style={styles.container} testID="home-screen">
+      <BrandCard />
+      {session.user ? (
+        <Text style={styles.welcome} testID="welcome-text">
+          Welcome, {session.user.displayName ?? session.user.id}!
+        </Text>
+      ) : null}
+      <Link href="/profile" asChild>
+        <Button title="Go to Profile" />
+      </Link>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
+});
+`;
+  }
+
+  return `import { StyleSheet, Text, View } from "react-native";
+import { BrandCard } from "${prefix}src/components/brand-card";
+import { useSession } from "${prefix}src/session/provider";
+
+export default function AppHomeScreen() {
+  const session = useSession();
+  return (
+    <View style={styles.container} testID="home-screen">
+      <BrandCard />
+      {session.user ? (
+        <Text style={styles.welcome} testID="welcome-text">
+          Welcome, {session.user.displayName ?? session.user.id}!
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
+});
+`;
+}
+
+function makeRouterProfileScreen(isNestedTabs: boolean = false) {
+  const prefix = isNestedTabs ? "../../../" : "../../";
+  return `import { Button, StyleSheet, Text, View } from "react-native";
+import { useSession } from "${prefix}src/session/provider";
+import { useTheme } from "${prefix}src/theme/provider";
+
+export default function ProfileScreen() {
+  const session = useSession();
+  const { mode, setMode } = useTheme();
+
+  return (
+    <View style={styles.container} testID="profile-screen">
+      <Text style={styles.title}>Profile</Text>
+      <Text style={styles.detail}>User: {session.user?.displayName ?? session.user?.id ?? "Guest"}</Text>
+      <Text style={styles.detail}>Theme: {mode}</Text>
+      <Button
+        title={\`Switch to \${mode === "dark" ? "light" : "dark"} mode\`}
+        onPress={() => setMode(mode === "dark" ? "light" : "dark")}
+      />
+      <Button title="Sign out" onPress={session.signOut} color="#b42318" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  title: { fontSize: 24, fontWeight: "700" },
+  detail: { fontSize: 16, color: "#52606d" },
+});
+`;
+}
+
+const routerSettingsScreenSource = `import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../../src/theme/provider";
+
+export default function SettingsScreen() {
+  const { mode } = useTheme();
+
+  return (
+    <View style={styles.container} testID="settings-screen">
+      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.detail}>Theme: {mode}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  title: { fontSize: 24, fontWeight: "700" },
+  detail: { fontSize: 16, color: "#52606d" },
+});
+`;
+
+function makeReactNavApp(hasGesture: boolean) {
+  if (hasGesture) {
+    return `import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { DataProvider } from "./data/provider";
+import { RootNavigator } from "./navigation/RootNavigator";
+import { SessionProvider } from "./session/provider";
+import { ThemeProvider, useTheme } from "./theme/provider";
+
+function AppContent() {
+  const { isDark } = useTheme();
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            <DataProvider>
+              <AppContent />
+            </DataProvider>
+          </SessionProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+`;
+  }
+
+  return `import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DataProvider } from "./data/provider";
@@ -44,6 +441,7 @@ export default function App() {
   );
 }
 `;
+}
 
 const rootIndexSource = `import { registerRootComponent } from "expo";
 import App from "./src/App";
@@ -79,7 +477,77 @@ const styles = StyleSheet.create({
 });
 `;
 
-const appNavigatorSource = `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+function makeReactNavAppNavigator(navigationType: NavigationType) {
+  if (navigationType === "drawer") {
+    return `import { createDrawerNavigator } from "@react-navigation/drawer";
+import { HomeScreen } from "../screens/HomeScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+
+const Drawer = createDrawerNavigator();
+
+export function AppNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerShown: true,
+        drawerActiveTintColor: "#315efb",
+      }}
+    >
+      <Drawer.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+    </Drawer.Navigator>
+  );
+}
+`;
+  }
+
+  if (navigationType === "both") {
+    return `import { createDrawerNavigator } from "@react-navigation/drawer";
+import { SettingsScreen } from "../screens/SettingsScreen";
+import { TabNavigator } from "./TabNavigator";
+
+const Drawer = createDrawerNavigator();
+
+export function AppNavigator() {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerShown: true,
+        drawerActiveTintColor: "#315efb",
+      }}
+    >
+      <Drawer.Screen name="Main" component={TabNavigator} options={{ title: "Home", drawerLabel: "Home" }} />
+      <Drawer.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
+    </Drawer.Navigator>
+  );
+}
+`;
+  }
+
+  if (navigationType === "stack") {
+    return `import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { HomeScreen } from "../screens/HomeScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+
+const Stack = createNativeStackNavigator();
+
+export function AppNavigator() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,
+        headerTintColor: "#315efb",
+      }}
+    >
+      <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+    </Stack.Navigator>
+  );
+}
+`;
+  }
+
+  return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -90,6 +558,28 @@ export function AppNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: true,
+        tabBarActiveTintColor: "#315efb",
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+    </Tab.Navigator>
+  );
+}
+`;
+}
+
+const reactNavTabNavigatorSource = `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { HomeScreen } from "../screens/HomeScreen";
+import { ProfileScreen } from "../screens/ProfileScreen";
+
+const Tab = createBottomTabNavigator();
+
+export function TabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: "#315efb",
       }}
     >
@@ -116,11 +606,11 @@ export function AuthNavigator() {
 }
 `;
 
-const homeScreenSource = `import { StyleSheet, Text, View } from "react-native";
+const reactNavHomeScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
 import { useSession } from "../session/provider";
 
-export function HomeScreen() {
+export function HomeScreen({ navigation }: { navigation?: any }) {
   const session = useSession();
   return (
     <View style={styles.container} testID="home-screen">
@@ -129,6 +619,9 @@ export function HomeScreen() {
         <Text style={styles.welcome} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
+      ) : null}
+      {navigation?.navigate ? (
+        <Button title="Go to Profile" onPress={() => navigation.navigate("Profile")} />
       ) : null}
     </View>
   );
@@ -140,7 +633,7 @@ const styles = StyleSheet.create({
 });
 `;
 
-const profileScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
+const reactNavProfileScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../session/provider";
 import { useTheme } from "../theme/provider";
 
@@ -158,6 +651,27 @@ export function ProfileScreen() {
         onPress={() => setMode(mode === "dark" ? "light" : "dark")}
       />
       <Button title="Sign out" onPress={session.signOut} color="#b42318" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  title: { fontSize: 24, fontWeight: "700" },
+  detail: { fontSize: 16, color: "#52606d" },
+});
+`;
+
+const reactNavSettingsScreenSource = `import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../theme/provider";
+
+export function SettingsScreen() {
+  const { mode } = useTheme();
+
+  return (
+    <View style={styles.container} testID="settings-screen">
+      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.detail}>Theme: {mode}</Text>
     </View>
   );
 }
@@ -304,8 +818,90 @@ export const routerNavigationAdapter: Adapter = {
   displayName: "Expo Router",
   capabilities: () => ({ sdk: [57], requires: [], conflicts: [] }),
   optionsSchema: () => noOptions,
-  plan() {
-    return [];
+  plan(input) {
+    const { workspace, root } = location(input.structure);
+    const navType = input.navigationType ?? "tabs";
+    const operations: Operation[] = [];
+
+    if (navType === "drawer" || navType === "both") {
+      operations.push(
+        {
+          type: "add-dependency",
+          workspace,
+          name: "@react-navigation/drawer",
+          version: "^7.0.14",
+          kind: "dependencies",
+          owner: this.id,
+        },
+        {
+          type: "add-dependency",
+          workspace,
+          name: "react-native-gesture-handler",
+          version: "~2.28.0",
+          kind: "dependencies",
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}app/_layout.tsx`,
+          content: makeRouterRootLayout(),
+          owner: this.id,
+        },
+      );
+    }
+
+    operations.push({
+      type: "write-file",
+      path: `${root}app/(app)/_layout.tsx`,
+      content: makeRouterProtectedLayout(navType),
+      owner: this.id,
+    });
+
+    if (navType === "both") {
+      operations.push(
+        {
+          type: "write-file",
+          path: `${root}app/(app)/(tabs)/_layout.tsx`,
+          content: routerTabLayoutSource,
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}app/(app)/(tabs)/index.tsx`,
+          content: makeRouterHomeScreen(navType, true),
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}app/(app)/(tabs)/profile.tsx`,
+          content: makeRouterProfileScreen(true),
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}app/(app)/settings.tsx`,
+          content: routerSettingsScreenSource,
+          owner: this.id,
+        },
+      );
+    } else {
+      operations.push(
+        {
+          type: "write-file",
+          path: `${root}app/(app)/index.tsx`,
+          content: makeRouterHomeScreen(navType, false),
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}app/(app)/profile.tsx`,
+          content: makeRouterProfileScreen(false),
+          owner: this.id,
+        },
+      );
+    }
+
+    return operations;
   },
 };
 
@@ -318,6 +914,9 @@ export const reactNavigationAdapter: Adapter = {
   optionsSchema: () => noOptions,
   plan(input) {
     const { workspace, root } = location(input.structure);
+    const navType = input.navigationType ?? "tabs";
+    const hasGesture = navType === "drawer" || navType === "both";
+
     const operations: Operation[] = [
       {
         type: "add-dependency",
@@ -335,14 +934,41 @@ export const reactNavigationAdapter: Adapter = {
         kind: "dependencies",
         owner: this.id,
       },
-      {
+    ];
+
+    if (navType === "tabs" || navType === "both") {
+      operations.push({
         type: "add-dependency",
         workspace,
         name: "@react-navigation/bottom-tabs",
         version: "^7.0.14",
         kind: "dependencies",
         owner: this.id,
-      },
+      });
+    }
+
+    if (hasGesture) {
+      operations.push(
+        {
+          type: "add-dependency",
+          workspace,
+          name: "@react-navigation/drawer",
+          version: "^7.0.14",
+          kind: "dependencies",
+          owner: this.id,
+        },
+        {
+          type: "add-dependency",
+          workspace,
+          name: "react-native-gesture-handler",
+          version: "~2.28.0",
+          kind: "dependencies",
+          owner: this.id,
+        },
+      );
+    }
+
+    operations.push(
       {
         type: "patch-json",
         path: `${root}package.json`,
@@ -363,7 +989,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/App.tsx`,
-        content: rootAppSource,
+        content: makeReactNavApp(hasGesture),
         owner: this.id,
       },
       {
@@ -375,7 +1001,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/navigation/AppNavigator.tsx`,
-        content: appNavigatorSource,
+        content: makeReactNavAppNavigator(navType),
         owner: this.id,
       },
       {
@@ -387,13 +1013,13 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/screens/HomeScreen.tsx`,
-        content: homeScreenSource,
+        content: reactNavHomeScreenSource,
         owner: this.id,
       },
       {
         type: "write-file",
         path: `${root}src/screens/ProfileScreen.tsx`,
-        content: profileScreenSource,
+        content: reactNavProfileScreenSource,
         owner: this.id,
       },
       {
@@ -408,7 +1034,24 @@ export const reactNavigationAdapter: Adapter = {
         content: makeDefaultSignUpScreen(),
         owner: this.id,
       },
-    ];
+    );
+
+    if (navType === "both") {
+      operations.push(
+        {
+          type: "write-file",
+          path: `${root}src/navigation/TabNavigator.tsx`,
+          content: reactNavTabNavigatorSource,
+          owner: this.id,
+        },
+        {
+          type: "write-file",
+          path: `${root}src/screens/SettingsScreen.tsx`,
+          content: reactNavSettingsScreenSource,
+          owner: this.id,
+        },
+      );
+    }
 
     return operations;
   },

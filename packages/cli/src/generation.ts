@@ -44,6 +44,18 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       if (isReactNav && path.startsWith("app/")) {
         return false;
       }
+      if (!isReactNav) {
+        if (path === "app/(app)/_layout.tsx" || path === "app/(app)/index.tsx") {
+          return false;
+        }
+        if (
+          (normalizedInput.navigationType === "drawer" ||
+            normalizedInput.navigationType === "both") &&
+          path === "app/_layout.tsx"
+        ) {
+          return false;
+        }
+      }
       return true;
     })
     .map(([path, content]) => ({

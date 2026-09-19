@@ -653,4 +653,201 @@ describe("Phase 2 generation", () => {
     expect(appFile).toContain("/auth/login");
     expect(appFile).toContain("/auth/refresh");
   });
+
+  it("generates an Expo Router app with drawer layout", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-router-drawer-")),
+      "router-drawer",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "router",
+        navigationType: "drawer",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.navigationType).toBe("drawer");
+
+    const checks = runDoctorChecks(project);
+    const layoutCheck = checks.find((c) => c.name === "Expo Router protected layout");
+    expect(layoutCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "app/_layout.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/_layout.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/index.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/profile.tsx"))).toBe(true);
+
+    const rootLayout = readFileSync(join(destination, "app/_layout.tsx"), "utf8");
+    expect(rootLayout).toContain("GestureHandlerRootView");
+
+    const appLayout = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
+    expect(appLayout).toContain("<Drawer");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@react-navigation/drawer"]).toBeDefined();
+    expect(pkg.dependencies["react-native-gesture-handler"]).toBeDefined();
+  });
+
+  it("generates an Expo Router app with both (drawer + tabs) layout", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-router-both-")), "router-both");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "router",
+        navigationType: "both",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project).not.toBeNull();
+    expect(project?.manifest.adapters.navigationType).toBe("both");
+
+    const checks = runDoctorChecks(project);
+    const nestedCheck = checks.find((c) => c.name === "Expo Router nested tabs layout");
+    expect(nestedCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "app/_layout.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/_layout.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/(tabs)/_layout.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/(tabs)/index.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/(tabs)/profile.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/settings.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "app/(app)/index.tsx"))).toBe(false);
+
+    const appLayout = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
+    expect(appLayout).toContain('name="(tabs)"');
+    expect(appLayout).toContain('name="settings"');
+  });
+
+  it("generates an Expo Router app with stack layout", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-router-stack-")), "router-stack");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "router",
+        navigationType: "stack",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.navigationType).toBe("stack");
+
+    const appLayout = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
+    expect(appLayout).toContain("<Stack");
+
+    const indexContent = readFileSync(join(destination, "app/(app)/index.tsx"), "utf8");
+    expect(indexContent).toContain('href="/profile"');
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@react-navigation/drawer"]).toBeUndefined();
+  });
+
+  it("generates a React Navigation app with drawer layout", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-react-nav-drawer-")), "rn-drawer");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        navigationType: "drawer",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.navigationType).toBe("drawer");
+
+    const checks = runDoctorChecks(project);
+    const navCheck = checks.find((c) => c.name === "React Navigation entrypoint");
+    expect(navCheck?.status).toBe("pass");
+
+    const appContent = readFileSync(join(destination, "src/App.tsx"), "utf8");
+    expect(appContent).toContain("GestureHandlerRootView");
+
+    const appNavContent = readFileSync(
+      join(destination, "src/navigation/AppNavigator.tsx"),
+      "utf8",
+    );
+    expect(appNavContent).toContain("createDrawerNavigator");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@react-navigation/drawer"]).toBeDefined();
+    expect(pkg.dependencies["react-native-gesture-handler"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeUndefined();
+  });
+
+  it("generates a React Navigation app with both (drawer + tabs) layout", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-react-nav-both-")), "rn-both");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        navigationType: "both",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.navigationType).toBe("both");
+
+    const checks = runDoctorChecks(project);
+    const tabCheck = checks.find((c) => c.name === "React Navigation TabNavigator");
+    expect(tabCheck?.status).toBe("pass");
+
+    expect(existsSync(join(destination, "src/navigation/TabNavigator.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/screens/SettingsScreen.tsx"))).toBe(true);
+
+    const appNavContent = readFileSync(
+      join(destination, "src/navigation/AppNavigator.tsx"),
+      "utf8",
+    );
+    expect(appNavContent).toContain("createDrawerNavigator");
+    expect(appNavContent).toContain("TabNavigator");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@react-navigation/drawer"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeDefined();
+    expect(pkg.dependencies["react-native-gesture-handler"]).toBeDefined();
+  });
+
+  it("generates a React Navigation app with stack layout", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-react-nav-stack-")), "rn-stack");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        navigationType: "stack",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.navigationType).toBe("stack");
+
+    const appNavContent = readFileSync(
+      join(destination, "src/navigation/AppNavigator.tsx"),
+      "utf8",
+    );
+    expect(appNavContent).toContain("createNativeStackNavigator");
+
+    const homeContent = readFileSync(join(destination, "src/screens/HomeScreen.tsx"), "utf8");
+    expect(homeContent).toContain('navigation.navigate("Profile")');
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@react-navigation/native"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/native-stack"]).toBeDefined();
+    expect(pkg.dependencies["@react-navigation/drawer"]).toBeUndefined();
+    expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeUndefined();
+  });
 });

@@ -173,6 +173,7 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
   }
 
   const navigation = project.manifest.adapters.navigation ?? "router";
+  const navigationType = project.manifest.adapters.navigationType ?? "tabs";
   const mobileRoot =
     project.manifest.structure === "standalone" ? project.root : join(project.root, "apps/mobile");
 
@@ -187,6 +188,37 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
           ? "src/App.tsx and RootNavigator.tsx found"
           : "React Navigation entrypoints missing in mobile workspace",
     });
+
+    if (navigationType === "both") {
+      const hasTabNav = existsSync(join(mobileRoot, "src/navigation/TabNavigator.tsx"));
+      checks.push({
+        name: "React Navigation TabNavigator",
+        status: hasTabNav ? "pass" : "fail",
+        message: hasTabNav
+          ? "src/navigation/TabNavigator.tsx found"
+          : "src/navigation/TabNavigator.tsx missing for 'both' layout",
+      });
+    }
+  } else {
+    const hasProtectedLayout = existsSync(join(mobileRoot, "app/(app)/_layout.tsx"));
+    checks.push({
+      name: "Expo Router protected layout",
+      status: hasProtectedLayout ? "pass" : "fail",
+      message: hasProtectedLayout
+        ? "app/(app)/_layout.tsx found"
+        : "app/(app)/_layout.tsx missing in mobile workspace",
+    });
+
+    if (navigationType === "both") {
+      const hasNestedTabs = existsSync(join(mobileRoot, "app/(app)/(tabs)/_layout.tsx"));
+      checks.push({
+        name: "Expo Router nested tabs layout",
+        status: hasNestedTabs ? "pass" : "fail",
+        message: hasNestedTabs
+          ? "app/(app)/(tabs)/_layout.tsx found"
+          : "app/(app)/(tabs)/_layout.tsx missing for 'both' layout",
+      });
+    }
   }
 
   if (project.manifest.adapters.auth === "jwt") {

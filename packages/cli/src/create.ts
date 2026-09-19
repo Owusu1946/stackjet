@@ -34,6 +34,7 @@ export interface CreateFlags {
   structure?: string;
   packageManager?: string;
   navigation?: string;
+  navigationType?: string;
   backend?: string;
   auth?: string;
   style?: string;
@@ -108,6 +109,7 @@ export function normalizeNonInteractiveCreate(
   const defaultBackend = structure === "standalone" ? "none" : "hono";
   const backend = flags.backend ?? effectiveConfig.backend ?? defaultBackend;
   const navigation = flags.navigation ?? effectiveConfig.navigation ?? "router";
+  const navigationType = flags.navigationType ?? effectiveConfig.navigationType ?? "tabs";
   const defaultDatabase = structure === "standalone" || backend === "convex" ? "none" : "neon";
   const database = flags.database ?? effectiveConfig.database ?? defaultDatabase;
   const defaultOrm =
@@ -127,6 +129,7 @@ export function normalizeNonInteractiveCreate(
     structure,
     packageManager,
     navigation,
+    navigationType,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -259,6 +262,20 @@ async function promptCreate(
       ],
     }));
   cancelled(navigation);
+
+  const navigationType =
+    flags.navigationType ??
+    activeConfig.navigationType ??
+    (await p.select({
+      message: "Navigation type",
+      options: [
+        { value: "tabs", label: "Tabs (Bottom tabs, recommended)" },
+        { value: "drawer", label: "Drawer (Side menu drawer)" },
+        { value: "both", label: "Both (Drawer containing tabs)" },
+        { value: "stack", label: "Stack (Header-driven stack navigation)" },
+      ],
+    }));
+  cancelled(navigationType);
 
   let backend = flags.backend ?? activeConfig.backend;
   if (!backend) {
@@ -439,6 +456,7 @@ async function promptCreate(
     structure,
     packageManager,
     navigation,
+    navigationType,
     backend,
     auth,
     style,
@@ -480,6 +498,7 @@ async function promptCreate(
           structure: input.structure,
           packageManager: input.packageManager,
           navigation: input.navigation,
+          navigationType: input.navigationType,
           backend: input.backend,
           auth: input.auth,
           style: input.style,
@@ -509,6 +528,7 @@ function printResult(
   io.stdout(`  Destination: ${input.destination}`);
   io.stdout(`  Structure: ${input.structure}`);
   io.stdout(`  Package manager: ${input.packageManager}`);
+  io.stdout(`  Navigation: ${input.navigation} (${input.navigationType})`);
   io.stdout(`  Backend: ${input.backend}`);
   io.stdout(`  Authentication: ${input.auth}`);
   io.stdout(`  Styling: ${input.style}`);
@@ -611,6 +631,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           structure: input.structure,
           packageManager: input.packageManager,
           navigation: input.navigation,
+          navigationType: input.navigationType,
           backend: input.backend,
           auth: input.auth,
           style: input.style,
