@@ -2,9 +2,12 @@
   "files": {
     "includes": [
       "packages/**",
+      "apps/**",
       "!packages/**/dist",
       "!packages/sdk-packs/**/pack.json",
       "!packages/sdk-packs/**/src/template.generated.ts",
+      "!apps/**/node_modules",
+      "!apps/**/.next",
       "*.json",
       "*.jsonc",
       "*.yaml"

@@ -1,0 +1,41 @@
+---
+title: AI Agents
+description: Give ChatGPT, Cursor, Codex, OpenCode, Antigravity, T3 Chat, and other agents clean Expojet context.
+---
+
+Every documentation page has **Copy Markdown** and an **Open** menu. The menu
+opens supported web agents directly, while Copy Markdown is the universal path
+for local and desktop agents such as Codex, Cursor, OpenCode, and Antigravity.
+
+## Machine-readable endpoints
+
+| Endpoint | Best for |
+|---|---|
+| `/llms.txt` | A compact index that helps an agent find the right page |
+| `/llms-full.txt` | The complete documentation in one request |
+| `/llms.mdx/docs/<path>/content.md` | Clean Markdown for one documentation page |
+
+Use the smallest source that contains the needed context. A focused page is
+faster and less likely to distract an agent than the full documentation dump.
+
+## Example prompt
+
+```text
+Read https://expojet.dev/llms.txt, then use only the relevant linked Expojet
+documentation to generate an Expo SDK 57 project. Do not expose server secrets
+to the mobile bundle, and verify the result with expojet doctor.
+```
+
+Replace the production host with `http://localhost:3000` while developing this
+site locally.
+
+## Agent compatibility
+
+- **ChatGPT and other supported web agents:** choose the agent from **Open**.
+- **Cursor, Codex, OpenCode, and Antigravity:** copy the page Markdown or point
+  the agent at its `content.md` URL.
+- **T3 Chat and other chat clients:** paste the copied Markdown with your
+  request, or attach `llms.txt` when URL access is available.
+
+No proprietary integration is required. These endpoints are plain text and
+Markdown, so they remain portable across current and future AI tools.

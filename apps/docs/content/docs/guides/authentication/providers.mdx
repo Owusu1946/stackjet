@@ -1,0 +1,14 @@
+---
+title: Authentication providers
+description: Choose the auth adapter that matches your project and deployment model.
+---
+
+Expojet exposes `clerk`, `better-auth`, `supabase`, `firebase`, `jwt`, and `none`.
+
+Clerk is the stable hosted Expo flow. Better Auth requires a monorepo and the `--experimental` flag. Supabase and Firebase generate provider setup with public mobile configuration; JWT generates a minimal token boundary for teams that own the identity service. Use `none` when authentication is managed elsewhere.
+
+```bash
+npx create-expojet@latest my-app --experimental --auth better-auth --structure monorepo
+```
+
+Never put server secrets in `EXPO_PUBLIC_*` variables.

@@ -1,0 +1,12 @@
+---
+title: Reproducible configuration
+description: Use flags and config files to recreate the same Expojet stack.
+---
+
+Expojet supports interactive prompts, explicit flags, and a JSON config file. Named global presets are not yet part of the stable CLI.
+
+```bash
+npx create-expojet@latest my-app --yes --structure monorepo --auth clerk --style uniwind
+```
+
+For automation, pass JSON defaults with `--config`; command-line flags override them. Commit `expojet.jsonc` so diagnostics and future migrations can identify the SDK pack and adapters.

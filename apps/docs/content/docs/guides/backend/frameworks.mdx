@@ -1,0 +1,13 @@
+---
+title: Backend frameworks
+description: Choose Hono, Express, NestJS, Convex, or no generated backend.
+---
+
+Monorepos support `hono`, `express`, `nestjs`, and `convex`. Standalone projects support `none` or `convex`.
+
+```bash
+npx create-expojet@latest my-app --structure monorepo --backend express
+npx create-expojet@latest my-app --backend convex --database none --orm none
+```
+
+Hono is the default typed API path. Express and NestJS generate conventional server modules; Convex generates a reactive schema and functions without an external database or ORM.

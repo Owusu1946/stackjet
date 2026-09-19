@@ -1,0 +1,15 @@
+{
+  "title": "Expojet Docs",
+  "pages": [
+    "---Getting Started---",
+    "index",
+    "installation",
+    "quick-start",
+    "folder-structure",
+    "ai-agents",
+    "---Guides---",
+    "...guides",
+    "---CLI Reference---",
+    "...cli"
+  ]
+}

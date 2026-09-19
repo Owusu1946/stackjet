@@ -1,0 +1,16 @@
+---
+title: expojet create
+description: Generate an Expo app or full-stack monorepo atomically.
+---
+
+```bash
+npx create-expojet@latest my-app
+```
+
+The interactive flow selects structure, package manager, authentication, styling, onboarding, and EAS profiles. Generation happens in a sibling staging directory and commits only after validation succeeds.
+
+```bash
+npx create-expojet@latest my-app --yes --structure monorepo --auth clerk --style uniwind
+```
+
+Better Auth is intentionally gated with `--experimental`.

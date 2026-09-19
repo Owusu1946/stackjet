@@ -1,0 +1,12 @@
+---
+title: Convex
+description: Generate a reactive Convex backend for standalone apps or monorepos.
+---
+
+Convex is a supported backend adapter. It generates a schema, query/mutation functions, a typed client provider, and the `convex dev` workflow. It owns the data layer, so pair it with `--database none --orm none`.
+
+```bash
+npx create-expojet@latest my-app --backend convex --database none --orm none
+```
+
+The generated `EXPO_PUBLIC_CONVEX_URL` is safe for the client. Keep deployment credentials and server-only integrations outside the mobile bundle.

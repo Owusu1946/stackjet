@@ -1,0 +1,16 @@
+---
+title: Neon and Drizzle
+description: Pooled runtime queries, direct migrations, and committed SQL.
+---
+
+Monorepos use Neon Postgres through Drizzle ORM. Two URLs have intentionally different jobs:
+
+```bash
+DATABASE_URL=postgresql://...-pooler.../app
+DIRECT_DATABASE_URL=postgresql://.../app
+```
+
+- `DATABASE_URL` is pooled and serves normal API traffic.
+- `DIRECT_DATABASE_URL` is unpooled and runs schema migrations.
+
+Apply committed migrations with `pnpm db:migrate`. Schema code lives in `apps/api/src/db/schema.ts`; SQL migrations live in `apps/api/drizzle`.

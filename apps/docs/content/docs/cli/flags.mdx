@@ -1,0 +1,21 @@
+---
+title: Flags
+description: Stable create options and experimental gating.
+---
+
+| Flag | Values or behavior |
+|---|---|
+| `--destination <path>` | Output directory |
+| `--structure <type>` | `standalone` or `monorepo` |
+| `--package-manager <name>` | `pnpm`, `npm`, or `bun` |
+| `--auth <adapter>` | `clerk`, `none`, or experimental `better-auth` |
+| `--style <adapter>` | `uniwind` or `stylesheet` |
+| `--onboarding` / `--no-onboarding` | Toggle onboarding |
+| `--eas` / `--no-eas` | Toggle EAS profiles |
+| `--config <path>` | Read JSON defaults |
+| `--yes` | Disable prompts and accept defaults |
+| `--dry-run` | Preview without committing |
+| `--experimental` | Permit experimental adapters |
+| `--allow-current-directory` | Permit an empty current directory |
+
+Run `npx create-expojet@latest create --help` for the installed version's authoritative list.

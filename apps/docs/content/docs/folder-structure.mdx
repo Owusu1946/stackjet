@@ -1,0 +1,95 @@
+---
+title: Folder Structure
+description: Understand the anatomy of a generated Expojet project.
+---
+
+## Standalone Structure
+
+When you choose `--structure standalone`, Expojet generates a single Expo app:
+
+```text
+my-app/
+├── app/                    # Expo Router file-based routing
+│   ├── (app)/              # Authenticated application routes
+│   ├── (onboarding)/       # Optional onboarding flow
+│   ├── _layout.tsx         # Root layout and providers
+│   └── index.tsx           # Initial route
+├── src/
+│   ├── components/         # Shared UI components
+│   ├── features/           # Optional feature integrations
+│   ├── lib/                # Shared clients and utilities
+│   ├── session/            # Session provider and hooks
+│   └── expojet-features.ts # Feature manifest
+├── assets/                 # Images, fonts, icons
+├── .maestro/               # E2E test flows
+├── app.json                # Expo config
+├── package.json
+├── tsconfig.json
+└── .env.example
+```
+
+## Monorepo Structure
+
+With `--structure monorepo`, Expojet generates a full-stack workspace:
+
+```text
+my-app/
+├── apps/
+│   ├── mobile/             # Expo SDK 57 mobile app
+│   │   ├── app/            # Expo Router routes
+│   │   ├── src/            # Source code
+│   │   ├── app.json        # Expo config
+│   │   └── package.json
+│   └── api/                # Backend server
+│       ├── src/
+│       │   ├── index.ts    # Server entrypoint
+│       │   ├── app.ts      # API application
+│       │   ├── db/         # Database client and schema
+│       ├── drizzle/        # Migrations (if using Drizzle)
+│       └── package.json
+├── packages/
+│   └── api-contract/       # Shared API types and contracts
+├── expojet.jsonc           # Project manifest
+├── package.json            # Workspace root
+├── pnpm-workspace.yaml
+└── turbo.json
+```
+
+## Navigation Variants
+
+### Expo Router (default)
+
+Uses file-based routing under `app/`. Layout types:
+
+- **tabs** — `app/(tabs)/_layout.tsx` with bottom tab navigator
+- **drawer** — `app/(drawer)/_layout.tsx` with side drawer
+- **both** — Drawer wrapping tabs
+- **stack** — Simple stack navigation
+
+### React Navigation
+
+Uses component-based navigation under `src/navigation/`:
+
+```text
+src/
+├── App.tsx                     # Root component
+├── navigation/
+│   ├── RootNavigator.tsx       # Auth state routing
+│   ├── AppNavigator.tsx        # Main app (tabs/drawer)
+│   └── AuthNavigator.tsx       # Auth flow stack
+└── screens/
+    ├── HomeScreen.tsx
+    ├── ExploreScreen.tsx
+    ├── SignInScreen.tsx
+    └── SignUpScreen.tsx
+```
+
+## Key Files
+
+| File | Purpose |
+|---|---|
+| `expojet.jsonc` | Project manifest with generator version, SDK, and feature selections |
+| `.env.example` | Template for environment variables |
+| `expojet-features.ts` | Runtime feature flags matching your selections |
+| `drizzle.config.ts` | Drizzle ORM migration config (if applicable) |
+| `.maestro/*.yaml` | Maestro E2E test flows |

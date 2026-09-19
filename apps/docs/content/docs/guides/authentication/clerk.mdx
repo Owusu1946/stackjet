@@ -1,0 +1,41 @@
+---
+title: Clerk authentication
+description: Hosted authentication, secure sessions, protected routes, and Hono verification.
+---
+
+Clerk is Expojet's stable authentication adapter. It uses Clerk's hosted flow so the generated app works in Expo Go, while `@clerk/expo/token-cache` stores the session in SecureStore.
+
+```bash
+npx create-expojet@latest my-app --auth clerk
+```
+
+## Environment
+
+```bash title="apps/mobile/.env"
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+EXPO_PUBLIC_API_URL=http://192.168.1.20:3000
+```
+
+```bash title="apps/api/.env"
+CLERK_SECRET_KEY=sk_test_...
+DATABASE_URL=postgresql://...-pooler.../app
+DIRECT_DATABASE_URL=postgresql://.../app
+ALLOWED_ORIGINS=http://localhost:8081
+```
+
+Never place a Clerk secret or database URL under `apps/mobile`.
+
+## What is generated
+
+- a `ClerkProvider` with Clerk's secure Expo token cache;
+- hosted sign-in and sign-up actions;
+- Expo Router redirects for public and protected groups;
+- bearer-token verification in Hono;
+- an authenticated `GET /v1/me` route;
+- a Maestro physical-device flow.
+
+## Verify on a device
+
+Start the API, then run Expo with LAN discovery. Complete sign-in in the hosted browser, verify the deep link returns to Expo Go, call `/v1/me`, then sign out and confirm the protected route redirects.
+
+Better Auth is available only with `--experimental` and must not be treated as stable until its SDK 57 device gate passes.

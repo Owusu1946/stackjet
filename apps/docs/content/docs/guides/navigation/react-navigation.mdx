@@ -1,0 +1,12 @@
+---
+title: React Navigation
+description: Generate native navigators when Expo Router is not the right fit.
+---
+
+Set `--navigation react-navigation` and choose `tabs`, `drawer`, `both`, or `stack` with `--navigation-type`.
+
+```bash
+npx create-expojet@latest my-app --navigation react-navigation --navigation-type drawer
+```
+
+The generated root navigator includes loading and auth boundaries, while screen files stay ordinary React Native components.

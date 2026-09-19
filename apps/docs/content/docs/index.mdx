@@ -1,0 +1,86 @@
+---
+title: Introduction
+description: Expojet — A production-ready Expo stack in one command.
+---
+
+## What is Expojet?
+
+Expojet is a CLI tool that generates **production-ready Expo SDK 57 mobile applications** and full-stack monorepos in a single command. Unlike starter templates, Expojet lets you compose exactly the stack you need — authentication, database, styling, navigation, and backend — all wired together with type-safe contracts and best practices baked in.
+
+```bash
+npx create-expojet my-app
+```
+
+## Core Philosophy
+
+### Ship Fast, Ship Right
+
+Expojet eliminates the boilerplate maze. Every generated project comes with proper TypeScript types, secure secret handling, and tested integration patterns. You focus on your product — not on wiring libraries together.
+
+### Compatibility Tested
+
+Every combination of adapters (auth × database × styling × navigation × backend) is tested against Expo SDK 57. You won't hit "works in isolation, breaks together" surprises.
+
+### Type Safety is Non-Negotiable
+
+Every generated project is fully typed. API contracts between your mobile app and backend use shared schemas (tRPC with Hono, typed fetch with Express/NestJS, or reactive queries with Convex).
+
+### Strict Security Boundary
+
+Server secrets (`DATABASE_URL`, `CLERK_SECRET_KEY`, etc.) **never** leak into your mobile bundle. All mobile-accessible variables use the `EXPO_PUBLIC_` prefix. This is enforced at generation time and validated by the `doctor` command.
+
+## What You Get
+
+<Cards>
+  <Card title="Authentication" href="/docs/guides/authentication" icon="shield">
+    Clerk, Better Auth, Supabase Auth, Firebase Auth, or Custom JWT
+  </Card>
+  <Card title="Database" href="/docs/guides/database" icon="database">
+    Neon Serverless Postgres, PostgreSQL, or SQLite with Drizzle or Prisma ORM
+  </Card>
+  <Card title="Styling" href="/docs/guides/styling" icon="palette">
+    NativeWind, Unistyles, Uniwind, or plain StyleSheet
+  </Card>
+  <Card title="Navigation" href="/docs/guides/navigation" icon="navigation">
+    Expo Router or React Navigation with tabs, drawer, both, or stack layouts
+  </Card>
+  <Card title="Backend" href="/docs/guides/backend" icon="server">
+    Hono (default), Express, NestJS, or Convex
+  </Card>
+  <Card title="CLI Tools" href="/docs/cli/commands" icon="terminal">
+    doctor, env check, info, presets, and more
+  </Card>
+</Cards>
+
+## Quick Start
+
+```bash
+# Create a new project with interactive prompts
+npx create-expojet my-app
+
+# Or use flags for non-interactive setup
+npx create-expojet my-app \
+  --auth clerk \
+  --database neon \
+  --orm drizzle \
+  --style nativewind \
+  --navigation router \
+  --navigation-type tabs \
+  --backend hono \
+  --structure monorepo \
+  --typescript
+```
+
+## Next Steps
+
+<Cards>
+  <Card title="Installation" href="/docs/installation">
+    Install Expojet and create your first project
+  </Card>
+  <Card title="Quick Start Guide" href="/docs/quick-start">
+    Walk through building your first app
+  </Card>
+  <Card title="Folder Structure" href="/docs/folder-structure">
+    Understand the generated project anatomy
+  </Card>
+</Cards>

@@ -1,0 +1,14 @@
+---
+title: Expo Router
+description: Public, onboarding, and protected routes generated for Expo SDK 57.
+---
+
+Every Expojet project uses Expo Router with three route groups.
+
+| Group | Purpose |
+|---|---|
+| `(public)` | Sign-in and unauthenticated screens |
+| `(onboarding)` | Optional first-run experience |
+| `(app)` | Authenticated application screens |
+
+Session and onboarding providers expose loading states before redirects run, preventing route flicker. The generated app scheme matches the project name and enables hosted-auth deep links.

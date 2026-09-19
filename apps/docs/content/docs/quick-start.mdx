@@ -1,0 +1,46 @@
+---
+title: Quick start
+description: Generate, verify, and run a production-ready Expo SDK 57 project.
+---
+
+## Generate
+
+```bash
+npx create-expojet@latest my-app
+cd my-app
+pnpm install
+```
+
+## Configure
+
+Copy the generated examples. A standalone app has one example; a monorepo separates mobile and API configuration.
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env
+cp apps/api/.env.example apps/api/.env
+```
+
+Only `EXPO_PUBLIC_*` values belong in mobile. Keep authentication secrets and both Neon URLs in `apps/api/.env`.
+
+## Verify
+
+```bash
+npx expojet doctor
+pnpm typecheck
+pnpm test
+```
+
+For a monorepo, migrate the database and start both workspaces:
+
+```bash
+pnpm db:migrate
+pnpm dev
+```
+
+For a standalone app:
+
+```bash
+pnpm start --lan
+```
+
+Open the QR code in Expo Go. Clerk projects should complete hosted sign-in, return through the project deep link, retain the session after restart, and redirect to the public route after sign-out.

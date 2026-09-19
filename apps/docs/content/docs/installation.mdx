@@ -1,0 +1,50 @@
+---
+title: Installation
+description: Requirements and supported ways to run Expojet.
+---
+
+## Requirements
+
+- Node.js 22.12 or newer
+- pnpm, npm, or Bun
+- Expo Go for physical-device testing
+
+Run the latest published CLI without installing it globally:
+
+```bash
+npx create-expojet@latest my-app
+```
+
+Or use pnpm:
+
+```bash
+pnpm create expojet my-app
+```
+
+## Interactive choices
+
+Expojet asks for the project structure, package manager, authentication adapter, styling adapter, onboarding, and EAS profiles. Stable authentication choices are Clerk and none. Better Auth appears only when the CLI is started with `--experimental`.
+
+## Non-interactive generation
+
+```bash
+npx create-expojet@latest my-app --yes \
+  --structure monorepo \
+  --package-manager pnpm \
+  --auth clerk \
+  --style uniwind \
+  --onboarding \
+  --eas
+```
+
+Use `--dry-run` to validate and list the file plan without creating the target.
+
+## Local tarball testing
+
+Contributors can test the exact publish artifact:
+
+```bash
+pnpm smoke:pack
+pnpm --filter create-expojet pack --pack-destination .artifacts
+pnpm dlx .artifacts/create-expojet-0.3.0.tgz create
+```

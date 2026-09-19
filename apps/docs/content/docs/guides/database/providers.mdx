@@ -1,0 +1,12 @@
+---
+title: Database and ORM options
+description: Select a database and ORM that fit standalone or monorepo projects.
+---
+
+Databases are `neon`, `postgres`, `sqlite`, `supabase`, and `none`. ORMs are `drizzle`, `prisma`, and `none`.
+
+Neon and Postgres require a monorepo API. SQLite is suitable for standalone apps. Convex supplies its own database and must use `--database none --orm none`.
+
+```bash
+npx create-expojet@latest my-app --database postgres --orm drizzle --structure monorepo
+```

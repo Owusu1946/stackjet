@@ -1,0 +1,12 @@
+{
+  "title": "Guides",
+  "pages": [
+    "...authentication",
+    "...styling",
+    "...navigation",
+    "...database",
+    "...backend",
+    "...managed-cloud",
+    "presets"
+  ]
+}

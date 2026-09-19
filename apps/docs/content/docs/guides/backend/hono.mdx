@@ -1,0 +1,15 @@
+---
+title: Hono API
+description: A typed, tested API shared safely with the Expo client.
+---
+
+Monorepo projects generate a Node-hosted Hono API in `apps/api` and a type-only contract in `packages/api-contract`.
+
+```text
+GET /health   public service health
+GET /v1/me    authenticated user and profile
+```
+
+The Expo app creates an `hc<AppType>` client and uses TanStack Query for caching. Only the contract crosses the mobile boundary—server environment modules and secrets do not.
+
+Errors use a consistent `{ error: { code, message, requestId } }` envelope.
