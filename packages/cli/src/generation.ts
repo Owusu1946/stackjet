@@ -99,7 +99,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       content: `${JSON.stringify(
         {
           $schema: "https://expojet.dev/schemas/project.schema.json",
-          generatorVersion: "0.2.1",
+          generatorVersion: "0.3.0",
           sdk: 57,
           sdkPackSha256: sdk57FilesSha256,
           structure: normalizedInput.structure,

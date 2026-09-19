@@ -1,5 +1,25 @@
 # create-expojet
 
+## 0.3.0
+
+### Minor Changes
+
+- **Phase 8: Core Schemas, Types & Preset Engine**
+  - Add ecosystem Zod schemas (`packageManagers`, `navigationTypes`, `iconLibraries`, `stateAdapters`, `analyticsAdapters`, `presetSchema`).
+  - Add local preset CRUD engine in `@expojet/core/src/presets.ts` (`loadPresets`, `savePreset`, `deletePreset`, `getPreset`, and synchronous helpers) persisting into `~/.expojet/presets.json`.
+  - Extend manifest features with backwards compatibility.
+- **Phase 9: Intelligent Package Manager Detection & Interactive UX**
+  - Add environment auto-detection engine in `@expojet/core/src/package-manager.ts` parsing `process.env.npm_config_user_agent` and PATH binaries for pnpm, bun, npm, and yarn.
+  - Add interactive CLI prompts: start-of-CLI saved preset loader, explicit TypeScript prompt, package manager confirmation with detected version hint, and end-of-CLI preset save prompt.
+  - Add CLI preset subcommands: `expojet preset list`, `expojet preset show <name>`, and `expojet preset remove <name>`.
+  - Add CLI flags: `--preset <name>`, `--save-preset <name>`, `--typescript`, `--no-typescript`, `--package-manager <name>`.
+- **Phase 10: Advanced Navigation Layout Matrix**
+  - Add complete layout matrix across both Expo Router (Expo SDK 57) and React Navigation supporting `tabs`, `drawer`, `both` (drawer + tabs), and `stack`.
+  - Add automatic dependency injection for `@react-navigation/drawer` (`^7.0.14`), `react-native-gesture-handler` (`~2.28.0`), and `@react-navigation/bottom-tabs` (`^7.0.14`).
+  - Add root layout wrapping in `<GestureHandlerRootView>` when drawer or both is selected.
+  - Add CLI flag `--navigation-type <tabs|drawer|both|stack>` and interactive selection prompt.
+  - Add doctor diagnostics validating Expo Router protected layout, nested tabs layout, and React Navigation navigators.
+
 ## 0.2.1
 
 ### Patch Changes
