@@ -1,5 +1,18 @@
 # create-expojet
 
+## 0.4.0
+
+### Minor Changes
+
+- - **EAS Production Pipeline**: Automated EAS Build configuration (`eas.json`) with `development` (iOS simulator), `preview` (internal distribution), and `production` profiles.
+  - **Mobile Icon Adapters**: Support for Lucide, Iconsax, Hugeicons, Ionicons, and FontAwesome with unified type-safe icon wrappers.
+  - **State Management Adapters**: Added Zustand, MobX, and TanStack Query adapters with persistent stores and hydration.
+  - **Liquid Glass Design System**: Glassmorphism UI components (`GlassCard`, `GlassTabBarBackground`) with native blur effects.
+  - **Theme Engine**: Semantic dark mode and light mode tokens with persistent switching.
+  - **CLI Presets Workflow**: Save and manage project configurations via `preset list`, `preset show`, `preset remove`, `--preset`, and `--save-preset`.
+  - **Mobile Analytics**: Privacy-first telemetry and product analytics via PostHog and Aptabase adapters with strict secret boundary isolation.
+  - **Reliable Package Manager Installation**: Cross-platform child process execution with `--ignore-workspace` pnpm isolation and post-install validation.
+
 ## 0.3.0
 
 ### Minor Changes

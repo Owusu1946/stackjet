@@ -27,7 +27,7 @@ import { type CreateFlags, runCreate } from "./create.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
-export const cliVersion = "0.3.0";
+export const cliVersion = "0.4.0";
 
 function decorateCommand(command: Command) {
   return command.showHelpAfterError("Run with --help for usage.");
