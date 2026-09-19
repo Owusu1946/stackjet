@@ -21,7 +21,8 @@ export interface Adapter<TOptions extends object = object> {
     | "navigation"
     | "icons"
     | "state"
-    | "liquid-glass";
+    | "liquid-glass"
+    | "analytics";
   readonly displayName: string;
   capabilities(): CapabilityDeclaration;
   optionsSchema(): z.ZodType<TOptions>;

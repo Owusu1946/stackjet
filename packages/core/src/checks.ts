@@ -89,7 +89,7 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
     const leaked = treeContains(
       mobile,
-      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL/,
+      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET/,
     );
     checks.push({
       name: "Mobile secret boundary",
@@ -265,6 +265,27 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
       message: hasTabBarBg
         ? "src/components/ui/glass-tab-bar-background.tsx found"
         : "GlassTabBarBackground component missing",
+    });
+  }
+
+  const analytics = project.manifest.adapters?.analytics;
+  if (analytics && analytics !== "none") {
+    const hasAnalyticsModule = existsSync(join(mobileRoot, "src/analytics/index.ts"));
+    checks.push({
+      name: "Mobile analytics module",
+      status: hasAnalyticsModule ? "pass" : "fail",
+      message: hasAnalyticsModule
+        ? "src/analytics/index.ts found"
+        : "src/analytics/index.ts missing",
+    });
+
+    const hasAnalyticsProvider = existsSync(join(mobileRoot, "src/analytics/provider.tsx"));
+    checks.push({
+      name: "Mobile analytics provider",
+      status: hasAnalyticsProvider ? "pass" : "fail",
+      message: hasAnalyticsProvider
+        ? "src/analytics/provider.tsx found"
+        : "src/analytics/provider.tsx missing",
     });
   }
 

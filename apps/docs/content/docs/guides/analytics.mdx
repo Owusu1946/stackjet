@@ -1,0 +1,143 @@
+---
+title: Mobile Analytics
+description: Privacy-first and product analytics for Expo SDK 57 with PostHog and Aptabase.
+---
+
+Expojet provides production-ready, type-safe mobile analytics adapters for Expo SDK 57 apps. Choose between comprehensive product analytics with **PostHog**, lightweight privacy-first telemetry with **Aptabase**, or completely opt out with **None**.
+
+---
+
+## Adapter Matrix
+
+| Provider | Library | Privacy Model | Best For |
+|---|---|---|---|
+| **PostHog** | `posthog-react-native` | Configurable / Product Analytics | Autocapture, funnels, cohort analysis, session replay, and feature flags |
+| **Aptabase** | `@aptabase/react-native` | Privacy-First / Zero PII | Lightweight telemetry, crash rates, and privacy compliance (GDPR/CCPA) |
+| **None** | — | Zero Telemetry | Offline-first utilities or apps requiring zero external analytics |
+
+---
+
+## CLI Usage
+
+Select an analytics adapter interactively during scaffolding or via flags:
+
+```bash
+# PostHog analytics
+npx create-expojet@latest my-app --analytics posthog
+# Or using the shortcut:
+npx create-expojet@latest my-app --posthog
+
+# Aptabase analytics
+npx create-expojet@latest my-app --analytics aptabase
+# Or using the shortcut:
+npx create-expojet@latest my-app --aptabase
+
+# Explicitly disable analytics (default)
+npx create-expojet@latest my-app --analytics none
+```
+
+---
+
+## Architecture & Secret Boundary Isolation
+
+Expojet strictly enforces the **Mobile Secret Boundary** invariant. Mobile application bundles are public client code and must never contain server secret keys.
+
+All analytics keys in Expojet are scoped to the public environment:
+
+```text
+# Standalone: .env.example / .env
+# Monorepo: apps/mobile/.env.example / apps/mobile/.env
+
+# PostHog
+EXPO_PUBLIC_POSTHOG_KEY=phc_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EXPO_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+
+# Aptabase
+EXPO_PUBLIC_APTABASE_KEY=A-EU-0000000000
+EXPO_PUBLIC_APTABASE_HOST=https://api.aptabase.com
+```
+
+> [!CAUTION]
+> Never store server tokens or un-prefixed keys (such as `POSTHOG_SECRET` or `APTABASE_KEY`) in your mobile directory. Expojet's `doctor` command automatically scans for leaked secrets and fails verification if detected.
+
+---
+
+## Unified Typed Interface
+
+Both PostHog and Aptabase adapters generate a standardized, typed client in `src/analytics/index.ts`:
+
+```typescript
+import { useAnalytics, trackEvent, identifyUser, resetAnalytics } from "@/analytics";
+
+// 1. Using the React hook inside components
+export function CheckoutButton() {
+  const { track } = useAnalytics();
+
+  return (
+    <Button
+      title="Complete Purchase"
+      onPress={() => {
+        track("purchase_completed", { amount: 49.99, currency: "USD" });
+      }}
+    />
+  );
+}
+
+// 2. Standalone tracking outside React render loops
+trackEvent("app_launched", { platform: Platform.OS });
+```
+
+---
+
+## Provider Setup
+
+The analytics provider is automatically configured in your application tree (`src/analytics/provider.tsx`).
+
+### Expo Router
+
+Wrap your navigation hierarchy in `app/_layout.tsx`:
+
+```tsx
+import { AnalyticsProvider } from "@/analytics";
+import { Stack } from "expo-router";
+
+export default function RootLayout() {
+  return (
+    <AnalyticsProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </AnalyticsProvider>
+  );
+}
+```
+
+### React Navigation
+
+Wrap `RootNavigator` in `src/App.tsx`:
+
+```tsx
+import { AnalyticsProvider } from "./analytics";
+import { RootNavigator } from "./navigation/RootNavigator";
+
+export function App() {
+  return (
+    <AnalyticsProvider>
+      <RootNavigator />
+    </AnalyticsProvider>
+  );
+}
+```
+
+---
+
+## Doctor Verification
+
+Expojet's automated diagnostics verify that your analytics modules and configuration remain intact:
+
+```bash
+node packages/cli/dist/cli.js doctor
+```
+
+Checks executed:
+- **Mobile analytics module**: Validates presence of `src/analytics/index.ts`.
+- **Mobile analytics provider**: Validates presence of `src/analytics/provider.tsx`.
+- **Mobile secret boundary**: Confirms no server secret tokens are leaked into the mobile workspace.

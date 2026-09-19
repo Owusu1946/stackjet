@@ -6,6 +6,7 @@
     "icons",
     "state",
     "liquid-glass",
+    "analytics",
     "...navigation",
     "...database",
     "...backend",

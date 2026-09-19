@@ -1,6 +1,7 @@
 import { commandName, productName, tagline } from "@expojet/brand";
 import { ExitCode, redactText } from "@expojet/core";
 import {
+  analyticsAdapters,
   authAdapters,
   backendAdapters,
   databaseAdapters,
@@ -75,6 +76,13 @@ export function createProgram(io: CliIo) {
       "enable Liquid Glass UI engine with native iOS 26 and cross-platform blur fallback",
     )
     .option("--no-liquid-glass", "disable Liquid Glass UI engine")
+    .addOption(
+      new Option("--analytics <adapter>", "mobile analytics adapter").choices([
+        ...analyticsAdapters,
+      ]),
+    )
+    .option("--posthog", "use PostHog mobile analytics")
+    .option("--aptabase", "use Aptabase privacy-first mobile analytics")
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
     .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")

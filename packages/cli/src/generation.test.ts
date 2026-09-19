@@ -1150,4 +1150,86 @@ describe("Phase 2 generation", () => {
     expect(mobilePkg.dependencies["expo-glass-effect"]).toBeDefined();
     expect(mobilePkg.dependencies["expo-blur"]).toBeDefined();
   });
+
+  it("generates a standalone app with PostHog analytics and verifies doctor checks", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-posthog-")), "posthog-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        analytics: "posthog",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "src/analytics/posthog.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/analytics/provider.tsx"))).toBe(true);
+    expect(existsSync(join(destination, "src/analytics/index.ts"))).toBe(true);
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["posthog-react-native"]).toBeDefined();
+    expect(pkg.dependencies["expo-file-system"]).toBeDefined();
+    expect(pkg.dependencies["expo-application"]).toBeDefined();
+
+    const envExample = readFileSync(join(destination, ".env.example"), "utf8");
+    expect(envExample).toContain("EXPO_PUBLIC_POSTHOG_KEY");
+    expect(envExample).toContain("EXPO_PUBLIC_POSTHOG_HOST");
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.analytics).toBe("posthog");
+    const checks = runDoctorChecks(project);
+    const modCheck = checks.find((c) => c.name === "Mobile analytics module");
+    expect(modCheck?.status).toBe("pass");
+    const provCheck = checks.find((c) => c.name === "Mobile analytics provider");
+    expect(provCheck?.status).toBe("pass");
+  });
+
+  it("generates a monorepo app with Aptabase analytics in apps/mobile", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-aptabase-")), "aptabase-mono");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "hono",
+        analytics: "aptabase",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const mobileAnalytics = join(destination, "apps/mobile/src/analytics/aptabase.ts");
+    expect(existsSync(mobileAnalytics)).toBe(true);
+
+    const mobilePkg = JSON.parse(
+      readFileSync(join(destination, "apps/mobile/package.json"), "utf8"),
+    );
+    expect(mobilePkg.dependencies["@aptabase/react-native"]).toBeDefined();
+
+    const mobileEnv = readFileSync(join(destination, "apps/mobile/.env.example"), "utf8");
+    expect(mobileEnv).toContain("EXPO_PUBLIC_APTABASE_KEY");
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.analytics).toBe("aptabase");
+    const checks = runDoctorChecks(project);
+    const modCheck = checks.find((c) => c.name === "Mobile analytics module");
+    expect(modCheck?.status).toBe("pass");
+  });
+
+  it("generates an app with none analytics having zero analytics overhead", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-no-analytics-")), "no-analytics");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        analytics: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "src/analytics"))).toBe(false);
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["posthog-react-native"]).toBeUndefined();
+    expect(pkg.dependencies["@aptabase/react-native"]).toBeUndefined();
+  });
 });

@@ -12,6 +12,7 @@ import {
   validateProjectPath,
 } from "@expojet/core";
 import {
+  type AnalyticsAdapter,
   authAdapters,
   type CreateConfig,
   type CreateInput,
@@ -48,6 +49,9 @@ export interface CreateFlags {
   zustand?: boolean;
   mobx?: boolean;
   liquidGlass?: boolean;
+  analytics?: string;
+  posthog?: boolean;
+  aptabase?: boolean;
   database?: string;
   orm?: string;
   onboarding?: boolean;
@@ -148,6 +152,13 @@ export function normalizeNonInteractiveCreate(
   }
   const state = stateFlag ?? effectiveConfig.state ?? "none";
 
+  let analyticsFlag = flags.analytics;
+  if (!analyticsFlag) {
+    if (flags.posthog) analyticsFlag = "posthog";
+    else if (flags.aptabase) analyticsFlag = "aptabase";
+  }
+  const analytics = analyticsFlag ?? effectiveConfig.analytics ?? "none";
+
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
@@ -158,6 +169,7 @@ export function normalizeNonInteractiveCreate(
     icons,
     state,
     liquidGlass: flags.liquidGlass ?? effectiveConfig.liquidGlass ?? false,
+    analytics,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -419,6 +431,29 @@ async function promptCreate(
   }
   cancelled(liquidGlass);
 
+  let analytics = flags.analytics ?? activeConfig.analytics;
+  if (!analytics) {
+    if (flags.posthog) analytics = "posthog";
+    else if (flags.aptabase) analytics = "aptabase";
+  }
+  if (!analytics) {
+    analytics = (await p.select({
+      message: "Mobile analytics",
+      options: [
+        { value: "none", label: "None (Zero telemetry / offline)" },
+        {
+          value: "posthog",
+          label: "PostHog (Full product analytics, autocapture, session replays, recommended)",
+        },
+        {
+          value: "aptabase",
+          label: "Aptabase (Privacy-first, lightweight, open-source analytics)",
+        },
+      ],
+    })) as string;
+  }
+  cancelled(analytics);
+
   let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
@@ -535,6 +570,7 @@ async function promptCreate(
     icons: icons as IconLibrary,
     state: state as StateAdapter,
     liquidGlass,
+    analytics: analytics as AnalyticsAdapter,
     database,
     orm,
     onboarding,
@@ -580,6 +616,7 @@ async function promptCreate(
           icons: input.icons,
           state: input.state,
           liquidGlass: input.liquidGlass,
+          analytics: input.analytics,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,

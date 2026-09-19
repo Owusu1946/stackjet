@@ -1,4 +1,5 @@
 import {
+  analyticsAdapter,
   authAdapter,
   databaseAdapter,
   getLiquidGlassAdapter,
@@ -157,6 +158,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
+  operations.push(...analyticsAdapter(normalizedInput.analytics).plan(normalizedInput, {}));
   if (normalizedInput.eas) {
     operations.push({
       type: "write-file",

@@ -1,3 +1,4 @@
+export * from "./analytics.js";
 export * from "./auth.js";
 export * from "./backend.js";
 export * from "./contract.js";
