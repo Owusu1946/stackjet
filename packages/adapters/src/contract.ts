@@ -11,7 +11,16 @@ export interface CapabilityDeclaration {
 export interface Adapter<TOptions extends object = object> {
   readonly id: string;
   readonly version: string;
-  readonly kind: "auth" | "style" | "api" | "database" | "orm" | "feature" | "navigation" | "icons";
+  readonly kind:
+    | "auth"
+    | "style"
+    | "api"
+    | "database"
+    | "orm"
+    | "feature"
+    | "navigation"
+    | "icons"
+    | "state";
   readonly displayName: string;
   capabilities(): CapabilityDeclaration;
   optionsSchema(): z.ZodType<TOptions>;

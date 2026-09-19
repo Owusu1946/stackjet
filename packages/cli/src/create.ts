@@ -20,6 +20,7 @@ import {
   type IconLibrary,
   type PackageManager,
   packageManagers,
+  type StateAdapter,
   styleAdapters,
 } from "@expojet/schemas";
 import { ZodError } from "zod";
@@ -43,6 +44,9 @@ export interface CreateFlags {
   lucide?: boolean;
   hugeicons?: boolean;
   expoIcons?: boolean;
+  state?: string;
+  zustand?: boolean;
+  mobx?: boolean;
   database?: string;
   orm?: string;
   onboarding?: boolean;
@@ -136,6 +140,13 @@ export function normalizeNonInteractiveCreate(
   }
   const icons = iconsFlag ?? effectiveConfig.icons ?? "lucide";
 
+  let stateFlag = flags.state;
+  if (!stateFlag) {
+    if (flags.zustand) stateFlag = "zustand";
+    else if (flags.mobx) stateFlag = "mobx";
+  }
+  const state = stateFlag ?? effectiveConfig.state ?? "none";
+
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
@@ -144,6 +155,7 @@ export function normalizeNonInteractiveCreate(
     navigation,
     navigationType,
     icons,
+    state,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -379,6 +391,23 @@ async function promptCreate(
   }
   cancelled(icons);
 
+  let state = flags.state ?? activeConfig.state;
+  if (!state) {
+    if (flags.zustand) state = "zustand";
+    else if (flags.mobx) state = "mobx";
+  }
+  if (!state) {
+    state = (await p.select({
+      message: "State management",
+      options: [
+        { value: "none", label: "None (React state / Context)" },
+        { value: "zustand", label: "Zustand (Lightweight hooks-based store, recommended)" },
+        { value: "mobx", label: "MobX (Observable reactive store with mobx-react-lite)" },
+      ],
+    })) as string;
+  }
+  cancelled(state);
+
   let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
@@ -493,6 +522,7 @@ async function promptCreate(
     auth,
     style,
     icons: icons as IconLibrary,
+    state: state as StateAdapter,
     database,
     orm,
     onboarding,
@@ -536,6 +566,7 @@ async function promptCreate(
           auth: input.auth,
           style: input.style,
           icons: input.icons,
+          state: input.state,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,
@@ -670,6 +701,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           auth: input.auth,
           style: input.style,
           icons: input.icons,
+          state: input.state,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,

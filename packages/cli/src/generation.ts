@@ -5,6 +5,7 @@ import {
   monorepoPlatformAdapter,
   navigationAdapter,
   ormAdapter,
+  stateAdapter,
   styleAdapter,
   themeAdapter,
 } from "@expojet/adapters";
@@ -153,6 +154,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...monorepoPlatformAdapter.plan(normalizedInput, {}));
   operations.push(...databaseAdapter(normalizedInput.database).plan(normalizedInput, {}));
   operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
+  operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   if (normalizedInput.eas) {
     operations.push({
       type: "write-file",

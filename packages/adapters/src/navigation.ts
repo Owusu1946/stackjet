@@ -267,20 +267,28 @@ export default function TabLayout() {
 }
 `;
 
-function makeRouterHomeScreen(navigationType: NavigationType, isNestedTabs: boolean = false) {
+function makeRouterHomeScreen(
+  navigationType: NavigationType,
+  isNestedTabs: boolean = false,
+  state: CreateInput["state"] = "none",
+) {
   const prefix = isNestedTabs ? "../../../" : "../../";
+  const counterImport =
+    state !== "none" ? `import { CounterCard } from "${prefix}src/components/counter-card";\n` : "";
+  const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
+
   if (navigationType === "stack") {
     return `import { Link } from "expo-router";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "${prefix}src/components/brand-card";
-import { useSession } from "${prefix}src/session/provider";
+${counterImport}import { useSession } from "${prefix}src/session/provider";
 
 export default function AppHomeScreen() {
   const session = useSession();
   return (
     <View style={styles.container} testID="home-screen">
       <BrandCard />
-      {session.user ? (
+${counterComponent}      {session.user ? (
         <Text style={styles.welcome} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
@@ -301,14 +309,14 @@ const styles = StyleSheet.create({
 
   return `import { StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "${prefix}src/components/brand-card";
-import { useSession } from "${prefix}src/session/provider";
+${counterImport}import { useSession } from "${prefix}src/session/provider";
 
 export default function AppHomeScreen() {
   const session = useSession();
   return (
     <View style={styles.container} testID="home-screen">
       <BrandCard />
-      {session.user ? (
+${counterComponent}      {session.user ? (
         <Text style={styles.welcome} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
@@ -679,16 +687,21 @@ export function AuthNavigator() {
 }
 `;
 
-const reactNavHomeScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
+function makeReactNavHomeScreen(state: CreateInput["state"] = "none") {
+  const counterImport =
+    state !== "none" ? 'import { CounterCard } from "../components/counter-card";\n' : "";
+  const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
+
+  return `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
-import { useSession } from "../session/provider";
+${counterImport}import { useSession } from "../session/provider";
 
 export function HomeScreen({ navigation }: { navigation?: any }) {
   const session = useSession();
   return (
     <View style={styles.container} testID="home-screen">
       <BrandCard />
-      {session.user ? (
+${counterComponent}      {session.user ? (
         <Text style={styles.welcome} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
@@ -705,6 +718,7 @@ const styles = StyleSheet.create({
   welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
 });
 `;
+}
 
 const reactNavProfileScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
 import { useSession } from "../session/provider";
@@ -941,7 +955,7 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/(tabs)/index.tsx`,
-          content: makeRouterHomeScreen(navType, true),
+          content: makeRouterHomeScreen(navType, true, input.state),
           owner: this.id,
         },
         {
@@ -962,7 +976,7 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/index.tsx`,
-          content: makeRouterHomeScreen(navType, false),
+          content: makeRouterHomeScreen(navType, false, input.state),
           owner: this.id,
         },
         {
@@ -1086,7 +1100,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/screens/HomeScreen.tsx`,
-        content: reactNavHomeScreenSource,
+        content: makeReactNavHomeScreen(input.state),
         owner: this.id,
       },
       {

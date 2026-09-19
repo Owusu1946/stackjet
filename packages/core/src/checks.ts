@@ -230,6 +230,22 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
   }
 
+  if (project.manifest.adapters.state === "zustand") {
+    const hasStore = existsSync(join(mobileRoot, "src/store/use-app-store.ts"));
+    checks.push({
+      name: "Zustand store",
+      status: hasStore ? "pass" : "fail",
+      message: hasStore ? "src/store/use-app-store.ts found" : "Zustand store missing",
+    });
+  } else if (project.manifest.adapters.state === "mobx") {
+    const hasStore = existsSync(join(mobileRoot, "src/store/app-store.ts"));
+    checks.push({
+      name: "MobX store",
+      status: hasStore ? "pass" : "fail",
+      message: hasStore ? "src/store/app-store.ts found" : "MobX store missing",
+    });
+  }
+
   return checks;
 }
 

@@ -1,0 +1,172 @@
+---
+title: State Management
+description: Reactive state management adapters supporting Zustand and MobX.
+---
+
+Expojet provides first-class state management adapters inspired by modern React Native and Expo scaffolding patterns like `create-expo-stack`. Every configured project can generate typed, idiomatic stores for either **Zustand** or **MobX**, complete with an interactive counter component embedded into your home screen.
+
+## Supported State Adapters
+
+| Adapter | Flag | Dependencies | Description |
+|---|---|---|---|
+| **None** (Default) | `--state none` | None | Pure React state (`useState`, `useReducer`, React Context). Zero overhead. |
+| **Zustand** | `--state zustand` / `--zustand` | `zustand` | Lightweight, unopinionated, hooks-based state management. Recommended for most modern Expo apps. |
+| **MobX** | `--state mobx` / `--mobx` | `mobx`, `mobx-react-lite` | Battle-tested transparent reactive functional programming using observables and reactions. |
+
+## Usage via CLI
+
+You can pick state management during the interactive prompt or pass flags directly:
+
+```bash
+# Explicit adapter flag
+npx create-expojet@latest my-app --state zustand
+npx create-expojet@latest my-app --state mobx
+npx create-expojet@latest my-app --state none
+
+# Shorthand flags
+npx create-expojet@latest my-app --zustand
+npx create-expojet@latest my-app --mobx
+```
+
+## Zustand Architecture
+
+When `--state zustand` is selected, Expojet scaffolds:
+
+- **Store**: `src/store/use-app-store.ts` (or `apps/mobile/src/store/use-app-store.ts` in monorepo).
+- **Interactive Component**: `src/components/counter-card.tsx` pre-wired to the Zustand store.
+
+### Store Implementation
+
+```typescript
+// src/store/use-app-store.ts
+import { create } from "zustand";
+
+export interface AppState {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
+}
+
+export const useAppStore = create<AppState>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+  reset: () => set({ count: 0 }),
+}));
+```
+
+### Using Zustand in Components
+
+```tsx
+import React from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { useAppStore } from "../store/use-app-store";
+
+export function CounterCard() {
+  const { count, increment, decrement, reset } = useAppStore();
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.eyebrow}>Zustand Store</Text>
+      <Text style={styles.count}>{count}</Text>
+      <View style={styles.actions}>
+        <Button title="-" onPress={decrement} />
+        <Button title="Reset" onPress={reset} />
+        <Button title="+" onPress={increment} />
+      </View>
+    </View>
+  );
+}
+```
+
+## MobX Architecture
+
+When `--state mobx` is selected, Expojet scaffolds:
+
+- **Observable Store**: `src/store/app-store.ts` with `makeAutoObservable`.
+- **Context Provider**: `src/store/provider.tsx` exporting `<StoreProvider />` and `useAppStore()`.
+- **Interactive Component**: `src/components/counter-card.tsx` wrapped in `mobx-react-lite`'s `observer`.
+
+### Store Implementation
+
+```typescript
+// src/store/app-store.ts
+import { makeAutoObservable } from "mobx";
+
+export class AppStore {
+  count = 0;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  increment = () => {
+    this.count += 1;
+  };
+
+  decrement = () => {
+    this.count -= 1;
+  };
+
+  reset = () => {
+    this.count = 0;
+  };
+}
+
+export const appStore = new AppStore();
+```
+
+### Provider & Hook
+
+```tsx
+// src/store/provider.tsx
+import React, { createContext, useContext } from "react";
+import { AppStore, appStore } from "./app-store";
+
+const StoreContext = createContext<AppStore>(appStore);
+
+export function StoreProvider({ children }: { children: React.ReactNode }) {
+  return <StoreContext.Provider value={appStore}>{children}</StoreContext.Provider>;
+}
+
+export function useAppStore() {
+  return useContext(StoreContext);
+}
+```
+
+### Observer Component
+
+```tsx
+// src/components/counter-card.tsx
+import React from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { observer } from "mobx-react-lite";
+import { useAppStore } from "../store/provider";
+
+export const CounterCard = observer(function CounterCard() {
+  const store = useAppStore();
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.eyebrow}>MobX Store</Text>
+      <Text style={styles.count}>{store.count}</Text>
+      <View style={styles.actions}>
+        <Button title="-" onPress={store.decrement} />
+        <Button title="Reset" onPress={store.reset} />
+        <Button title="+" onPress={store.increment} />
+      </View>
+    </View>
+  );
+});
+```
+
+## Diagnostics
+
+Expojet's built-in diagnostic suite automatically checks for store integrity when running `doctor`:
+
+```bash
+npx create-expojet@latest doctor
+```
+
+If your project specifies a state adapter in its manifest, `doctor` validates that the appropriate store files are present and properly resolved.

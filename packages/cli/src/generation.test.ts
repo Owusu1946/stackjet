@@ -948,4 +948,122 @@ describe("Phase 2 generation", () => {
     expect(mobilePkg.dependencies["lucide-react-native"]).toBeDefined();
     expect(mobilePkg.dependencies["react-native-svg"]).toBeDefined();
   });
+
+  it("generates a standalone app with Zustand state management", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-state-zustand-")), "zustand-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        state: "zustand",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const storeFile = join(destination, "src/store/use-app-store.ts");
+    expect(existsSync(storeFile)).toBe(true);
+    const storeContent = readFileSync(storeFile, "utf8");
+    expect(storeContent).toContain('from "zustand"');
+    expect(storeContent).toContain("useAppStore = create<AppState>");
+
+    const counterFile = join(destination, "src/components/counter-card.tsx");
+    expect(existsSync(counterFile)).toBe(true);
+
+    // Verify HomeScreen renders CounterCard
+    const homeContent = readFileSync(join(destination, "app/(app)/index.tsx"), "utf8");
+    expect(homeContent).toContain("CounterCard");
+    expect(homeContent).toContain(
+      'import { CounterCard } from "../../src/components/counter-card"',
+    );
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies.zustand).toBeDefined();
+
+    // Verify doctor check
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.state).toBe("zustand");
+    const checks = runDoctorChecks(project);
+    const zustandCheck = checks.find((c) => c.name === "Zustand store");
+    expect(zustandCheck?.status).toBe("pass");
+  });
+
+  it("generates a standalone app with MobX state management", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-state-mobx-")), "mobx-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        state: "mobx",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const storeFile = join(destination, "src/store/app-store.ts");
+    expect(existsSync(storeFile)).toBe(true);
+    const storeContent = readFileSync(storeFile, "utf8");
+    expect(storeContent).toContain('from "mobx"');
+    expect(storeContent).toContain("makeAutoObservable(this)");
+
+    const providerFile = join(destination, "src/store/provider.tsx");
+    expect(existsSync(providerFile)).toBe(true);
+
+    const counterFile = join(destination, "src/components/counter-card.tsx");
+    expect(existsSync(counterFile)).toBe(true);
+    const counterContent = readFileSync(counterFile, "utf8");
+    expect(counterContent).toContain("mobx-react-lite");
+
+    // Verify HomeScreen renders CounterCard
+    const homeContent = readFileSync(join(destination, "app/(app)/index.tsx"), "utf8");
+    expect(homeContent).toContain("CounterCard");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies.mobx).toBeDefined();
+    expect(pkg.dependencies["mobx-react-lite"]).toBeDefined();
+
+    // Verify doctor check
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.state).toBe("mobx");
+    const checks = runDoctorChecks(project);
+    const mobxCheck = checks.find((c) => c.name === "MobX store");
+    expect(mobxCheck?.status).toBe("pass");
+  });
+
+  it("generates React Navigation app with state counter card", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-rn-state-")), "rn-state");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        state: "zustand",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const homeContent = readFileSync(join(destination, "src/screens/HomeScreen.tsx"), "utf8");
+    expect(homeContent).toContain("CounterCard");
+    expect(homeContent).toContain('import { CounterCard } from "../components/counter-card"');
+  });
+
+  it("generates monorepo app with Zustand store in mobile workspace", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-monorepo-state-")), "mono-state");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "hono",
+        state: "zustand",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const storeFile = join(destination, "apps/mobile/src/store/use-app-store.ts");
+    expect(existsSync(storeFile)).toBe(true);
+
+    const mobilePkg = JSON.parse(
+      readFileSync(join(destination, "apps/mobile/package.json"), "utf8"),
+    );
+    expect(mobilePkg.dependencies.zustand).toBeDefined();
+  });
 });

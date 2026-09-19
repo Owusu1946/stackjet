@@ -9,6 +9,7 @@ import {
   navigationTypes,
   ormAdapters,
   packageManagers,
+  stateAdapters,
   structures,
   styleAdapters,
 } from "@expojet/schemas";
@@ -64,6 +65,11 @@ export function createProgram(io: CliIo) {
     .option("--lucide", "use Lucide icons (default)")
     .option("--hugeicons", "use Hugeicons")
     .option("--expo-icons", "use Expo vector icons")
+    .addOption(
+      new Option("--state <adapter>", "state management adapter").choices([...stateAdapters]),
+    )
+    .option("--zustand", "use Zustand state management")
+    .option("--mobx", "use MobX state management")
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
     .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")
