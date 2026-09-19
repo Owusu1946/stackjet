@@ -70,6 +70,11 @@ export function createProgram(io: CliIo) {
     )
     .option("--zustand", "use Zustand state management")
     .option("--mobx", "use MobX state management")
+    .option(
+      "--liquid-glass",
+      "enable Liquid Glass UI engine with native iOS 26 and cross-platform blur fallback",
+    )
+    .option("--no-liquid-glass", "disable Liquid Glass UI engine")
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
     .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")

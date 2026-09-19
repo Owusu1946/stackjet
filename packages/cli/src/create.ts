@@ -47,6 +47,7 @@ export interface CreateFlags {
   state?: string;
   zustand?: boolean;
   mobx?: boolean;
+  liquidGlass?: boolean;
   database?: string;
   orm?: string;
   onboarding?: boolean;
@@ -156,6 +157,7 @@ export function normalizeNonInteractiveCreate(
     navigationType,
     icons,
     state,
+    liquidGlass: flags.liquidGlass ?? effectiveConfig.liquidGlass ?? false,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -408,6 +410,15 @@ async function promptCreate(
   }
   cancelled(state);
 
+  let liquidGlass = flags.liquidGlass ?? activeConfig.liquidGlass;
+  if (liquidGlass === undefined) {
+    liquidGlass = (await p.confirm({
+      message: "Enable Liquid Glass UI engine? (Native iOS 26 + cross-platform blur)",
+      initialValue: true,
+    })) as boolean;
+  }
+  cancelled(liquidGlass);
+
   let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
@@ -523,6 +534,7 @@ async function promptCreate(
     style,
     icons: icons as IconLibrary,
     state: state as StateAdapter,
+    liquidGlass,
     database,
     orm,
     onboarding,
@@ -567,6 +579,7 @@ async function promptCreate(
           style: input.style,
           icons: input.icons,
           state: input.state,
+          liquidGlass: input.liquidGlass,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,
@@ -702,6 +715,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           style: input.style,
           icons: input.icons,
           state: input.state,
+          liquidGlass: input.liquidGlass,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,

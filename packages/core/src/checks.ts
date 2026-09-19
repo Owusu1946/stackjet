@@ -246,6 +246,28 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     });
   }
 
+  if (project.manifest.features?.liquidGlass) {
+    const hasGlassCard = existsSync(join(mobileRoot, "src/components/ui/glass-card.tsx"));
+    checks.push({
+      name: "Liquid Glass card",
+      status: hasGlassCard ? "pass" : "fail",
+      message: hasGlassCard
+        ? "src/components/ui/glass-card.tsx found"
+        : "GlassCard component missing",
+    });
+
+    const hasTabBarBg = existsSync(
+      join(mobileRoot, "src/components/ui/glass-tab-bar-background.tsx"),
+    );
+    checks.push({
+      name: "Liquid Glass tab bar",
+      status: hasTabBarBg ? "pass" : "fail",
+      message: hasTabBarBg
+        ? "src/components/ui/glass-tab-bar-background.tsx found"
+        : "GlassTabBarBackground component missing",
+    });
+  }
+
   return checks;
 }
 

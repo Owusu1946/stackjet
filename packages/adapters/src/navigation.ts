@@ -37,7 +37,7 @@ export default function RootLayout() {
 `;
 }
 
-function makeRouterProtectedLayout(navigationType: NavigationType) {
+function makeRouterProtectedLayout(navigationType: NavigationType, liquidGlass: boolean = false) {
   if (navigationType === "drawer") {
     return `import { Redirect } from "expo-router";
 import { Drawer } from "expo-router/drawer";
@@ -186,9 +186,22 @@ const styles = StyleSheet.create({
 `;
   }
 
+  const glassImport = liquidGlass
+    ? 'import { GlassTabBarBackground } from "../../src/components/ui/glass-tab-bar-background";\n'
+    : "";
+  const glassOptions = liquidGlass
+    ? `        tabBarStyle: {
+          position: "absolute",
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarBackground: () => <GlassTabBarBackground />,`
+    : "";
+
   return `import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { Icon } from "../../src/components/ui/icon";
+${glassImport}import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -207,6 +220,7 @@ export default function ProtectedLayout() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
+${glassOptions}
       }}
     >
       <Tabs.Screen
@@ -235,8 +249,22 @@ const styles = StyleSheet.create({
 `;
 }
 
-const routerTabLayoutSource = `import { Tabs } from "expo-router";
-import { Icon } from "../../../src/components/ui/icon";
+function makeRouterTabLayout(liquidGlass: boolean = false) {
+  const glassImport = liquidGlass
+    ? 'import { GlassTabBarBackground } from "../../../src/components/ui/glass-tab-bar-background";\n'
+    : "";
+  const glassOptions = liquidGlass
+    ? `        tabBarStyle: {
+          position: "absolute",
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarBackground: () => <GlassTabBarBackground />,`
+    : "";
+
+  return `import { Tabs } from "expo-router";
+${glassImport}import { Icon } from "../../../src/components/ui/icon";
 
 export default function TabLayout() {
   return (
@@ -244,6 +272,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
+${glassOptions}
       }}
     >
       <Tabs.Screen
@@ -266,16 +295,20 @@ export default function TabLayout() {
   );
 }
 `;
+}
 
 function makeRouterHomeScreen(
   navigationType: NavigationType,
   isNestedTabs: boolean = false,
   state: CreateInput["state"] = "none",
+  liquidGlass: boolean = false,
 ) {
   const prefix = isNestedTabs ? "../../../" : "../../";
   const counterImport =
     state !== "none" ? `import { CounterCard } from "${prefix}src/components/counter-card";\n` : "";
   const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
+  const containerPadding =
+    liquidGlass && navigationType !== "stack" ? "\n    paddingBottom: 90," : "";
 
   if (navigationType === "stack") {
     return `import { Link } from "expo-router";
@@ -326,7 +359,7 @@ ${counterComponent}      {session.user ? (
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb"${containerPadding} },
   welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
 });
 `;
@@ -497,7 +530,7 @@ const styles = StyleSheet.create({
 });
 `;
 
-function makeReactNavAppNavigator(navigationType: NavigationType) {
+function makeReactNavAppNavigator(navigationType: NavigationType, liquidGlass: boolean = false) {
   if (navigationType === "drawer") {
     return `import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Icon } from "../components/ui/icon";
@@ -598,8 +631,21 @@ export function AppNavigator() {
 `;
   }
 
+  const glassImport = liquidGlass
+    ? 'import { GlassTabBarBackground } from "../components/ui/glass-tab-bar-background";\n'
+    : "";
+  const glassOptions = liquidGlass
+    ? `        tabBarStyle: {
+          position: "absolute",
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarBackground: () => <GlassTabBarBackground />,`
+    : "";
+
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Icon } from "../components/ui/icon";
+${glassImport}import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -611,6 +657,7 @@ export function AppNavigator() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
+${glassOptions}
       }}
     >
       <Tab.Screen
@@ -635,8 +682,22 @@ export function AppNavigator() {
 `;
 }
 
-const reactNavTabNavigatorSource = `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Icon } from "../components/ui/icon";
+function makeReactNavTabNavigator(liquidGlass: boolean = false) {
+  const glassImport = liquidGlass
+    ? 'import { GlassTabBarBackground } from "../components/ui/glass-tab-bar-background";\n'
+    : "";
+  const glassOptions = liquidGlass
+    ? `        tabBarStyle: {
+          position: "absolute",
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarBackground: () => <GlassTabBarBackground />,`
+    : "";
+
+  return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+${glassImport}import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -648,6 +709,7 @@ export function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#315efb",
+${glassOptions}
       }}
     >
       <Tab.Screen
@@ -670,6 +732,7 @@ export function TabNavigator() {
   );
 }
 `;
+}
 
 const authNavigatorSource = `import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SignInScreen } from "../screens/SignInScreen";
@@ -687,10 +750,14 @@ export function AuthNavigator() {
 }
 `;
 
-function makeReactNavHomeScreen(state: CreateInput["state"] = "none") {
+function makeReactNavHomeScreen(
+  state: CreateInput["state"] = "none",
+  liquidGlass: boolean = false,
+) {
   const counterImport =
     state !== "none" ? 'import { CounterCard } from "../components/counter-card";\n' : "";
   const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
+  const containerPadding = liquidGlass ? "\n    paddingBottom: 90," : "";
 
   return `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
@@ -714,7 +781,13 @@ ${counterComponent}      {session.user ? (
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 24,
+    gap: 16,
+    backgroundColor: "#f4f6fb",${containerPadding}
+  },
   welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
 });
 `;
@@ -940,7 +1013,7 @@ export const routerNavigationAdapter: Adapter = {
     operations.push({
       type: "write-file",
       path: `${root}app/(app)/_layout.tsx`,
-      content: makeRouterProtectedLayout(navType),
+      content: makeRouterProtectedLayout(navType, input.liquidGlass),
       owner: this.id,
     });
 
@@ -949,13 +1022,13 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/(tabs)/_layout.tsx`,
-          content: routerTabLayoutSource,
+          content: makeRouterTabLayout(input.liquidGlass),
           owner: this.id,
         },
         {
           type: "write-file",
           path: `${root}app/(app)/(tabs)/index.tsx`,
-          content: makeRouterHomeScreen(navType, true, input.state),
+          content: makeRouterHomeScreen(navType, true, input.state, input.liquidGlass),
           owner: this.id,
         },
         {
@@ -976,7 +1049,7 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/index.tsx`,
-          content: makeRouterHomeScreen(navType, false, input.state),
+          content: makeRouterHomeScreen(navType, false, input.state, input.liquidGlass),
           owner: this.id,
         },
         {
@@ -1088,7 +1161,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/navigation/AppNavigator.tsx`,
-        content: makeReactNavAppNavigator(navType),
+        content: makeReactNavAppNavigator(navType, input.liquidGlass),
         owner: this.id,
       },
       {
@@ -1100,7 +1173,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/screens/HomeScreen.tsx`,
-        content: makeReactNavHomeScreen(input.state),
+        content: makeReactNavHomeScreen(input.state, input.liquidGlass),
         owner: this.id,
       },
       {
@@ -1128,7 +1201,7 @@ export const reactNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}src/navigation/TabNavigator.tsx`,
-          content: reactNavTabNavigatorSource,
+          content: makeReactNavTabNavigator(input.liquidGlass),
           owner: this.id,
         },
         {

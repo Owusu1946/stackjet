@@ -27,7 +27,56 @@ export const useAppStore = create<AppState>((set) => ({
 }));
 `;
 
-const zustandCounterCardSource = `import React from "react";
+function makeZustandCounterCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import React from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { GlassCard } from "./ui/glass-card";
+import { useAppStore } from "../store/use-app-store";
+
+export function CounterCard() {
+  const { count, increment, decrement, reset } = useAppStore();
+
+  return (
+    <GlassCard style={styles.card} testID="counter-card">
+      <Text style={styles.eyebrow}>Zustand Store</Text>
+      <Text style={styles.count} testID="counter-value">{count}</Text>
+      <View style={styles.actions}>
+        <Button title="-" onPress={decrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={reset} testID="counter-reset" />
+        <Button title="+" onPress={increment} testID="counter-increment" />
+      </View>
+    </GlassCard>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    alignItems: "center",
+    gap: 12,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#315efb",
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  count: {
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#121826",
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+});
+`;
+  }
+
+  return `import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useAppStore } from "../store/use-app-store";
 
@@ -74,6 +123,7 @@ const styles = StyleSheet.create({
   },
 });
 `;
+}
 
 const mobxStoreSource = `import { makeAutoObservable } from "mobx";
 
@@ -114,7 +164,57 @@ export function useAppStore() {
 }
 `;
 
-const mobxCounterCardSource = `import React from "react";
+function makeMobxCounterCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import React from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { observer } from "mobx-react-lite";
+import { GlassCard } from "./ui/glass-card";
+import { useAppStore } from "../store/provider";
+
+export const CounterCard = observer(function CounterCard() {
+  const store = useAppStore();
+
+  return (
+    <GlassCard style={styles.card} testID="counter-card">
+      <Text style={styles.eyebrow}>MobX Store</Text>
+      <Text style={styles.count} testID="counter-value">{store.count}</Text>
+      <View style={styles.actions}>
+        <Button title="-" onPress={store.decrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={store.reset} testID="counter-reset" />
+        <Button title="+" onPress={store.increment} testID="counter-increment" />
+      </View>
+    </GlassCard>
+  );
+});
+
+const styles = StyleSheet.create({
+  card: {
+    alignItems: "center",
+    gap: 12,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#315efb",
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  count: {
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#121826",
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+});
+`;
+  }
+
+  return `import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { observer } from "mobx-react-lite";
 import { useAppStore } from "../store/provider";
@@ -162,6 +262,7 @@ const styles = StyleSheet.create({
   },
 });
 `;
+}
 
 export const zustandStateAdapter: Adapter = {
   id: "state:zustand",
@@ -190,7 +291,7 @@ export const zustandStateAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/counter-card.tsx`,
-        content: zustandCounterCardSource,
+        content: makeZustandCounterCard(input.liquidGlass),
         owner: this.id,
       },
     ];
@@ -238,7 +339,7 @@ export const mobxStateAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/counter-card.tsx`,
-        content: mobxCounterCardSource,
+        content: makeMobxCounterCard(input.liquidGlass),
         owner: this.id,
       },
     ];

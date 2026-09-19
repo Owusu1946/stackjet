@@ -6,7 +6,36 @@ import type { Adapter } from "./contract.js";
 const noOptions = z.object({}).strict();
 const brandTitle = productName.toUpperCase();
 
-const stylesheetCard = `import { StyleSheet, Text, View } from "react-native";
+function makeStylesheetCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import { StyleSheet, Text, View } from "react-native";
+import { GlassCard } from "./ui/glass-card";
+import { Icon } from "./ui/icon";
+
+export function BrandCard() {
+  return (
+    <GlassCard style={styles.card}>
+      <View style={styles.header}>
+        <Icon name="compass" size={20} color="#315efb" />
+        <Text style={styles.eyebrow}>${brandTitle}</Text>
+      </View>
+      <Text style={styles.title}>Your Expo app is ready.</Text>
+      <Text style={styles.body}>The StyleSheet adapter is active with Liquid Glass.</Text>
+    </GlassCard>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: { gap: 10 },
+  header: { flexDirection: "row", alignItems: "center", gap: 8 },
+  eyebrow: { color: "#315efb", fontSize: 13, fontWeight: "700", letterSpacing: 2 },
+  title: { color: "#121826", fontSize: 28, fontWeight: "700" },
+  body: { color: "#52606d", fontSize: 16 },
+});
+`;
+  }
+
+  return `import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui/icon";
 
 export function BrandCard() {
@@ -30,8 +59,30 @@ const styles = StyleSheet.create({
   body: { color: "#52606d", fontSize: 16 },
 });
 `;
+}
 
-const uniwindCard = `import { Text, View } from "react-native";
+function makeUniwindCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import { Text, View } from "react-native";
+import { GlassCard } from "./ui/glass-card";
+import { Icon } from "./ui/icon";
+
+export function BrandCard() {
+  return (
+    <GlassCard style={{ gap: 8 }}>
+      <View className="flex-row items-center gap-2">
+        <Icon name="compass" size={20} color="#315efb" />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+      </View>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400">The Uniwind adapter is active with Liquid Glass.</Text>
+    </GlassCard>
+  );
+}
+`;
+  }
+
+  return `import { Text, View } from "react-native";
 import { Icon } from "./ui/icon";
 
 export function BrandCard() {
@@ -47,8 +98,30 @@ export function BrandCard() {
   );
 }
 `;
+}
 
-const nativewindCard = `import { Text, View } from "react-native";
+function makeNativewindCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import { Text, View } from "react-native";
+import { GlassCard } from "./ui/glass-card";
+import { Icon } from "./ui/icon";
+
+export function BrandCard() {
+  return (
+    <GlassCard style={{ gap: 8 }}>
+      <View className="flex-row items-center gap-2">
+        <Icon name="compass" size={20} color="#315efb" />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+      </View>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400">The NativeWind adapter is active with Liquid Glass.</Text>
+    </GlassCard>
+  );
+}
+`;
+  }
+
+  return `import { Text, View } from "react-native";
 import { Icon } from "./ui/icon";
 
 export function BrandCard() {
@@ -64,6 +137,7 @@ export function BrandCard() {
   );
 }
 `;
+}
 
 const tailwindConfig = `/** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -130,7 +204,55 @@ StyleSheet.configure({
 });
 `;
 
-const unistylesCard = `import { Text, View } from "react-native";
+function makeUnistylesCard(liquidGlass: boolean = false) {
+  if (liquidGlass) {
+    return `import { Text, View } from "react-native";
+import { StyleSheet } from "react-native-unistyles";
+import { GlassCard } from "./ui/glass-card";
+import { Icon } from "./ui/icon";
+
+export function BrandCard() {
+  return (
+    <GlassCard style={styles.card}>
+      <View style={styles.header}>
+        <Icon name="compass" size={20} color="#315efb" />
+        <Text style={styles.eyebrow}>${brandTitle}</Text>
+      </View>
+      <Text style={styles.title}>Your Expo app is ready.</Text>
+      <Text style={styles.body}>The Unistyles adapter is active with Liquid Glass.</Text>
+    </GlassCard>
+  );
+}
+
+const styles = StyleSheet.create((theme) => ({
+  card: {
+    gap: 10,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  eyebrow: {
+    color: theme.colors.primary,
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 2,
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: 28,
+    fontWeight: "700",
+  },
+  body: {
+    color: theme.colors.subtext,
+    fontSize: 16,
+  },
+}));
+`;
+  }
+
+  return `import { Text, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 import { Icon } from "./ui/icon";
 
@@ -176,6 +298,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 }));
 `;
+}
 
 export const stylesheetAdapter: Adapter = {
   id: "style:stylesheet",
@@ -196,7 +319,7 @@ export const stylesheetAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/brand-card.tsx`,
-        content: stylesheetCard,
+        content: makeStylesheetCard(input?.liquidGlass),
         owner: this.id,
       },
     ];
@@ -251,7 +374,7 @@ export const uniwindAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/brand-card.tsx`,
-        content: uniwindCard,
+        content: makeUniwindCard(input?.liquidGlass),
         owner: this.id,
       },
       {
@@ -324,7 +447,7 @@ export const nativewindAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/brand-card.tsx`,
-        content: nativewindCard,
+        content: makeNativewindCard(input?.liquidGlass),
         owner: this.id,
       },
       {
@@ -377,7 +500,7 @@ export const unistylesAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/components/brand-card.tsx`,
-        content: unistylesCard,
+        content: makeUnistylesCard(input?.liquidGlass),
         owner: this.id,
       },
     ];

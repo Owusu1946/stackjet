@@ -1066,4 +1066,88 @@ describe("Phase 2 generation", () => {
     );
     expect(mobilePkg.dependencies.zustand).toBeDefined();
   });
+
+  it("generates a standalone app with Liquid Glass UI engine enabled", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-liquid-glass-")), "glass-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        liquidGlass: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const glassCardFile = join(destination, "src/components/ui/glass-card.tsx");
+    expect(existsSync(glassCardFile)).toBe(true);
+    const glassCardContent = readFileSync(glassCardFile, "utf8");
+    expect(glassCardContent).toContain('from "expo-glass-effect"');
+    expect(glassCardContent).toContain('from "expo-blur"');
+    expect(glassCardContent).toContain("isGlassEffectAPIAvailable");
+
+    const tabBgFile = join(destination, "src/components/ui/glass-tab-bar-background.tsx");
+    expect(existsSync(tabBgFile)).toBe(true);
+
+    // Verify layout uses GlassTabBarBackground and absolute positioning
+    const layoutContent = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
+    expect(layoutContent).toContain("GlassTabBarBackground");
+    expect(layoutContent).toContain('position: "absolute"');
+
+    // Verify BrandCard uses GlassCard
+    const brandContent = readFileSync(join(destination, "src/components/brand-card.tsx"), "utf8");
+    expect(brandContent).toContain("GlassCard");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["expo-glass-effect"]).toBeDefined();
+    expect(pkg.dependencies["expo-blur"]).toBeDefined();
+
+    // Verify doctor check
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.liquidGlass).toBe(true);
+    const checks = runDoctorChecks(project);
+    const cardCheck = checks.find((c) => c.name === "Liquid Glass card");
+    expect(cardCheck?.status).toBe("pass");
+    const tabCheck = checks.find((c) => c.name === "Liquid Glass tab bar");
+    expect(tabCheck?.status).toBe("pass");
+  });
+
+  it("generates a React Navigation app with Liquid Glass tab bar", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-rn-glass-")), "rn-glass");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        liquidGlass: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const navContent = readFileSync(join(destination, "src/navigation/AppNavigator.tsx"), "utf8");
+    expect(navContent).toContain("GlassTabBarBackground");
+    expect(navContent).toContain('position: "absolute"');
+  });
+
+  it("generates a monorepo app with Liquid Glass in mobile workspace", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-mono-glass-")), "mono-glass");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "hono",
+        liquidGlass: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const glassCardFile = join(destination, "apps/mobile/src/components/ui/glass-card.tsx");
+    expect(existsSync(glassCardFile)).toBe(true);
+
+    const mobilePkg = JSON.parse(
+      readFileSync(join(destination, "apps/mobile/package.json"), "utf8"),
+    );
+    expect(mobilePkg.dependencies["expo-glass-effect"]).toBeDefined();
+    expect(mobilePkg.dependencies["expo-blur"]).toBeDefined();
+  });
 });

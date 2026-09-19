@@ -1,6 +1,7 @@
 import {
   authAdapter,
   databaseAdapter,
+  getLiquidGlassAdapter,
   iconAdapter,
   monorepoPlatformAdapter,
   navigationAdapter,
@@ -155,6 +156,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...databaseAdapter(normalizedInput.database).plan(normalizedInput, {}));
   operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
+  operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
   if (normalizedInput.eas) {
     operations.push({
       type: "write-file",
