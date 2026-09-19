@@ -94,15 +94,21 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           packageManager: normalizedInput.packageManager,
           adapters: {
             navigation: normalizedInput.navigation,
+            navigationType: normalizedInput.navigationType,
             backend: normalizedInput.backend,
             auth: normalizedInput.auth,
             style: normalizedInput.style,
             database: normalizedInput.database,
             orm: normalizedInput.orm,
+            icons: normalizedInput.icons,
+            state: normalizedInput.state,
+            analytics: normalizedInput.analytics,
           },
           features: {
             onboarding: normalizedInput.onboarding,
             darkMode: normalizedInput.darkMode,
+            liquidGlass: normalizedInput.liquidGlass,
+            typescript: normalizedInput.typescript,
           },
         },
         null,
@@ -113,7 +119,16 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
     {
       type: "write-file",
       path: `${mobileRoot}src/${commandName}-features.ts`,
-      content: `export const features = ${JSON.stringify({ onboarding: normalizedInput.onboarding, darkMode: normalizedInput.darkMode }, null, 2)} as const;\n`,
+      content: `export const features = ${JSON.stringify(
+        {
+          onboarding: normalizedInput.onboarding,
+          darkMode: normalizedInput.darkMode,
+          liquidGlass: normalizedInput.liquidGlass,
+          typescript: normalizedInput.typescript,
+        },
+        null,
+        2,
+      )} as const;\n`,
       owner: commandName,
     },
   );

@@ -1,8 +1,12 @@
 import { z } from "zod";
 
 export const structures = ["standalone", "monorepo", "monorepo-web"] as const;
-export const packageManagers = ["pnpm", "npm", "bun"] as const;
+export const packageManagers = ["pnpm", "npm", "bun", "yarn"] as const;
 export const navigationAdapters = ["router", "react-navigation"] as const;
+export const navigationTypes = ["tabs", "drawer", "both", "stack"] as const;
+export const iconLibraries = ["lucide", "hugeicons", "expo"] as const;
+export const stateAdapters = ["none", "zustand", "mobx"] as const;
+export const analyticsAdapters = ["none", "posthog", "aptabase"] as const;
 export const backendAdapters = ["hono", "express", "nestjs", "convex", "none"] as const;
 export const authAdapters = [
   "clerk",
@@ -17,9 +21,14 @@ export const databaseAdapters = ["neon", "postgres", "sqlite", "supabase", "none
 export const ormAdapters = ["drizzle", "prisma", "none"] as const;
 
 export type NavigationAdapter = (typeof navigationAdapters)[number];
+export type NavigationType = (typeof navigationTypes)[number];
+export type IconLibrary = (typeof iconLibraries)[number];
+export type StateAdapter = (typeof stateAdapters)[number];
+export type AnalyticsAdapter = (typeof analyticsAdapters)[number];
 export type BackendAdapter = (typeof backendAdapters)[number];
 export type DatabaseAdapter = (typeof databaseAdapters)[number];
 export type OrmAdapter = (typeof ormAdapters)[number];
+export type PackageManager = (typeof packageManagers)[number];
 
 export const projectNameSchema = z
   .string()
@@ -39,6 +48,13 @@ const createInputObjectSchema = z.object({
   structure: z.enum(structures),
   packageManager: z.enum(packageManagers),
   navigation: z.enum(navigationAdapters).default("router"),
+  navigationType: z.enum(navigationTypes).default("tabs"),
+  typescript: z.boolean().default(true),
+  icons: z.enum(iconLibraries).default("lucide"),
+  state: z.enum(stateAdapters).default("none"),
+  liquidGlass: z.boolean().default(false),
+  analytics: z.enum(analyticsAdapters).default("none"),
+  preset: z.string().optional(),
   backend: z.enum(backendAdapters).optional(),
   auth: z.enum(authAdapters),
   style: z.enum(styleAdapters),
@@ -142,3 +158,12 @@ export const createConfigSchema = createInputObjectSchema
   .strict();
 
 export type CreateConfig = z.infer<typeof createConfigSchema>;
+
+export const presetSchema = z.object({
+  name: z.string().min(1, "Preset name cannot be empty"),
+  description: z.string().optional(),
+  createdAt: z.string(),
+  config: createConfigSchema,
+});
+
+export type Preset = z.infer<typeof presetSchema>;

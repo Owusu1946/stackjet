@@ -1,3 +1,4 @@
+import type { PackageManager } from "@expojet/schemas";
 import { execa } from "execa";
 import type { CliIo } from "./io.js";
 
@@ -14,7 +15,7 @@ export interface GitInitResult {
 
 export async function installDependencies(
   destination: string,
-  packageManager: "pnpm" | "npm" | "bun",
+  packageManager: PackageManager,
   _io?: CliIo,
 ): Promise<InstallResult> {
   try {

@@ -1,27 +1,33 @@
 import type { Operation } from "@expojet/core";
-import type { BackendAdapter } from "@expojet/schemas";
+import type { BackendAdapter, PackageManager } from "@expojet/schemas";
 import { z } from "zod";
 import { backendAdapter } from "./backend.js";
 import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
 
-function makeRootPackage(packageManager: "pnpm" | "npm" | "bun", hasDb = true) {
+function makeRootPackage(packageManager: PackageManager, hasDb = true) {
   const dbGenerate =
     packageManager === "npm"
       ? "npm run db:generate --workspace=@expojet/api"
-      : `${packageManager} --filter @expojet/api db:generate`;
+      : packageManager === "yarn"
+        ? "yarn workspace @expojet/api db:generate"
+        : `${packageManager} --filter @expojet/api db:generate`;
   const dbMigrate =
     packageManager === "npm"
       ? "npm run db:migrate --workspace=@expojet/api"
-      : `${packageManager} --filter @expojet/api db:migrate`;
+      : packageManager === "yarn"
+        ? "yarn workspace @expojet/api db:migrate"
+        : `${packageManager} --filter @expojet/api db:migrate`;
 
   const packageManagerVersion =
     packageManager === "pnpm"
       ? "pnpm@10.33.0"
       : packageManager === "npm"
         ? "npm@10.9.2"
-        : "bun@1.2.0";
+        : packageManager === "yarn"
+          ? "yarn@1.22.22"
+          : "bun@1.2.0";
 
   const scripts: Record<string, string> = {
     dev: "turbo dev",
@@ -48,8 +54,9 @@ function makeRootPackage(packageManager: "pnpm" | "npm" | "bun", hasDb = true) {
   )}\n`;
 }
 
-function makeWebPackage(packageManager: "pnpm" | "npm" | "bun", backend: string = "hono") {
-  const contractVersion = packageManager === "npm" ? "*" : "workspace:*";
+function makeWebPackage(packageManager: PackageManager, backend: string = "hono") {
+  const contractVersion =
+    packageManager === "npm" || packageManager === "yarn" ? "*" : "workspace:*";
   const dependencies: Record<string, string> = {
     "@expojet/api-contract": contractVersion,
     "@tanstack/react-query": "^5.87.1",

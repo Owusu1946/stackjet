@@ -18,6 +18,12 @@ describe("createInputSchema", () => {
     structure: "standalone" as const,
     packageManager: "pnpm" as const,
     navigation: "router" as const,
+    navigationType: "tabs" as const,
+    typescript: true,
+    icons: "lucide" as const,
+    state: "none" as const,
+    liquidGlass: false,
+    analytics: "none" as const,
     auth: "clerk" as const,
     style: "uniwind" as const,
     database: "none" as const,
@@ -31,7 +37,17 @@ describe("createInputSchema", () => {
   };
 
   it("accepts a supported Clerk project and applies defaults", () => {
-    const { install: _i, git: _g, ...withoutDefaults } = base;
+    const {
+      install: _i,
+      git: _g,
+      navigationType: _nt,
+      typescript: _ts,
+      icons: _ic,
+      state: _st,
+      liquidGlass: _lg,
+      analytics: _an,
+      ...withoutDefaults
+    } = base;
     expect(createInputSchema.parse(withoutDefaults)).toEqual({ ...base, backend: "none" });
   });
 
@@ -311,5 +327,95 @@ describe("createInputSchema", () => {
       });
       expect(monorepo.auth).toBe("jwt");
     });
+  });
+
+  describe("ecosystem additions (Phase 8)", () => {
+    it.each(["tabs", "drawer", "both", "stack"] as const)(
+      "accepts navigationType %s",
+      (navigationType) => {
+        const result = createInputSchema.parse({ ...base, navigationType });
+        expect(result.navigationType).toBe(navigationType);
+      },
+    );
+
+    it.each(["lucide", "hugeicons", "expo"] as const)("accepts icon library %s", (icons) => {
+      const result = createInputSchema.parse({ ...base, icons });
+      expect(result.icons).toBe(icons);
+    });
+
+    it.each(["none", "zustand", "mobx"] as const)("accepts state adapter %s", (state) => {
+      const result = createInputSchema.parse({ ...base, state });
+      expect(result.state).toBe(state);
+    });
+
+    it.each(["none", "posthog", "aptabase"] as const)(
+      "accepts analytics adapter %s",
+      (analytics) => {
+        const result = createInputSchema.parse({ ...base, analytics });
+        expect(result.analytics).toBe(analytics);
+      },
+    );
+
+    it("accepts liquidGlass toggle", () => {
+      const enabled = createInputSchema.parse({ ...base, liquidGlass: true });
+      expect(enabled.liquidGlass).toBe(true);
+      const disabled = createInputSchema.parse({ ...base, liquidGlass: false });
+      expect(disabled.liquidGlass).toBe(false);
+    });
+
+    it("accepts typescript toggle", () => {
+      const enabled = createInputSchema.parse({ ...base, typescript: true });
+      expect(enabled.typescript).toBe(true);
+      const disabled = createInputSchema.parse({ ...base, typescript: false });
+      expect(disabled.typescript).toBe(false);
+    });
+
+    it("accepts yarn package manager", () => {
+      const result = createInputSchema.parse({ ...base, packageManager: "yarn" });
+      expect(result.packageManager).toBe("yarn");
+    });
+  });
+});
+
+describe("presetSchema", () => {
+  it("validates a complete preset definition", async () => {
+    const { presetSchema } = await import("./create-input.js");
+    const preset = {
+      name: "starter-pro",
+      description: "Full-stack mobile + Hono + Neon + Zustand + Lucide",
+      createdAt: "2026-09-19T10:00:00.000Z",
+      config: {
+        structure: "monorepo" as const,
+        packageManager: "pnpm" as const,
+        navigation: "router" as const,
+        navigationType: "tabs" as const,
+        backend: "hono" as const,
+        auth: "clerk" as const,
+        style: "uniwind" as const,
+        database: "neon" as const,
+        orm: "drizzle" as const,
+        icons: "lucide" as const,
+        state: "zustand" as const,
+        liquidGlass: true,
+        analytics: "posthog" as const,
+      },
+    };
+
+    const parsed = presetSchema.parse(preset);
+    expect(parsed.name).toBe("starter-pro");
+    expect(parsed.config.state).toBe("zustand");
+    expect(parsed.config.icons).toBe("lucide");
+    expect(parsed.config.liquidGlass).toBe(true);
+  });
+
+  it("rejects preset with empty name", async () => {
+    const { presetSchema } = await import("./create-input.js");
+    expect(
+      presetSchema.safeParse({
+        name: "",
+        createdAt: "2026-09-19T10:00:00.000Z",
+        config: {},
+      }).success,
+    ).toBe(false);
   });
 });

@@ -1,11 +1,15 @@
 import { z } from "zod";
 import {
+  analyticsAdapters,
   authAdapters,
   backendAdapters,
   databaseAdapters,
+  iconLibraries,
   navigationAdapters,
+  navigationTypes,
   ormAdapters,
   packageManagers,
+  stateAdapters,
   structures,
   styleAdapters,
 } from "./create-input.js";
@@ -19,16 +23,22 @@ export const expojetManifestSchema = z.object({
   packageManager: z.enum(packageManagers),
   adapters: z.object({
     navigation: z.enum(navigationAdapters).optional(),
+    navigationType: z.enum(navigationTypes).optional(),
     backend: z.enum(backendAdapters).optional(),
     auth: z.enum(authAdapters),
     style: z.enum(styleAdapters),
     database: z.enum(databaseAdapters).optional(),
     orm: z.enum(ormAdapters).optional(),
+    icons: z.enum(iconLibraries).optional(),
+    state: z.enum(stateAdapters).optional(),
+    analytics: z.enum(analyticsAdapters).optional(),
   }),
   features: z
     .object({
       onboarding: z.boolean().optional(),
       darkMode: z.boolean().optional(),
+      liquidGlass: z.boolean().optional(),
+      typescript: z.boolean().optional(),
     })
     .optional(),
 });
