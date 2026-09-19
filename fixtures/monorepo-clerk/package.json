@@ -1,13 +1,13 @@
 {
-  "name": "stackjet-workspace",
+  "name": "expojet-workspace",
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "turbo dev",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "db:generate": "pnpm --filter @stackjet/api db:generate",
-    "db:migrate": "pnpm --filter @stackjet/api db:migrate"
+    "db:generate": "pnpm --filter @expojet/api db:generate",
+    "db:migrate": "pnpm --filter @expojet/api db:migrate"
   },
   "devDependencies": { "turbo": "^2.5.6", "typescript": "~6.0.3" }
 }

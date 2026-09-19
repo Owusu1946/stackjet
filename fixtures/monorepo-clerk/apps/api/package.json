@@ -1,5 +1,5 @@
 {
-  "name": "@stackjet/api",
+  "name": "@expojet/api",
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.ts", "./app": "./src/app.ts" },

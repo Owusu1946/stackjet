@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-const STORAGE_KEY = "stackjet.onboarding.v1";
+const STORAGE_KEY = "expojet.onboarding.v1";
 type OnboardingState = {
   status: "loading" | "ready";
   complete: boolean;

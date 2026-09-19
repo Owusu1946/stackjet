@@ -43,7 +43,7 @@ describe("Phase 2 generation", () => {
   });
 
   it("previews the exact plan without creating a target", () => {
-    const destination = join(mkdtempSync(join(tmpdir(), "stackjet-preview-")), "generated-app");
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-preview-")), "generated-app");
     const result = generateCreatePlan(input(destination), true);
     expect(result.committed).toBe(false);
     expect(result.files).toContain("app/index.tsx");
@@ -150,7 +150,7 @@ describe("Phase 2 generation", () => {
   });
 
   it("generates an atomic monorepo-web project that passes doctor checks", () => {
-    const destination = join(mkdtempSync(join(tmpdir(), "stackjet-monorepo-web-")), "web-app");
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-monorepo-web-")), "web-app");
     const result = generateCreatePlan(
       {
         ...input(destination),

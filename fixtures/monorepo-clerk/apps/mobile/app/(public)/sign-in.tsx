@@ -17,7 +17,7 @@ export default function SignInScreen() {
     finally { setBusy(null); }
   }
   return <View style={styles.container} testID="auth-screen">
-    <Text style={styles.eyebrow}>STACKJET</Text><Text style={styles.title}>Welcome</Text>
+    <Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>Welcome</Text>
     <Text style={styles.body}>Sign in securely in Clerk, then return to the app.</Text>
     {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
     <Pressable testID="sign-in" style={styles.button} disabled={busy !== null} onPress={() => void begin("sign-in")}><Text style={styles.buttonText}>{busy === "sign-in" ? "Opening..." : "Sign in"}</Text></Pressable>

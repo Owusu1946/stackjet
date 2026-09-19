@@ -7,7 +7,7 @@ Accepted
 Tailwind CSS utility styling is the preferred workflow for modern React Native teams. However, NativeWind v5 remains in release-candidate status with evolving configuration requirements, and NativeWind v4 requires a Babel compiler preset that adds build overhead and potential conflicts with Expo SDK 57’s Metro compiler pipeline.
 
 ## Decision
-1. Adopt Uniwind as the default Tailwind styling solution for Stackjet SDK 57 projects.
+1. Adopt Uniwind as the default Tailwind styling solution for Expojet SDK 57 projects.
 2. Provide standard React Native `StyleSheet` as a zero-dependency alternative.
 3. Configure Uniwind through Metro wrapper composition (`withUniwind`) as the outermost wrapper, avoiding Babel compiler alterations.
 

@@ -1,4 +1,4 @@
-# Stackjet app
+# Expojet app
 
 Expo SDK 57 mobile app with Clerk hosted authentication and a typed Hono + Neon API.
 

@@ -12,7 +12,7 @@ All user-facing product branding, CLI executable labels, taglines, and marketing
 packages/brand/src/index.ts
 ```
 
-Generator templates, adapters, and CLI commands must import from `@stackjet/brand` rather than using literal string identifiers.
+Generator templates, adapters, and CLI commands must import from `@expojet/brand` rather than using literal string identifiers.
 
 ## Consequences
 - The product name can be replaced across the entire ecosystem in a single commit without modifying generator logic or schema validators.

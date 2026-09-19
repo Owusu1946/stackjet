@@ -11,7 +11,7 @@ import {
 } from "./index.js";
 
 function temporaryDestination(name: string) {
-  return join(mkdtempSync(join(tmpdir(), "stackjet-plan-")), name);
+  return join(mkdtempSync(join(tmpdir(), "expojet-plan-")), name);
 }
 
 describe("plan conflicts", () => {
@@ -27,7 +27,7 @@ describe("plan conflicts", () => {
   });
 
   it("rejects paths outside staging", () => {
-    const root = mkdtempSync(join(tmpdir(), "stackjet-root-"));
+    const root = mkdtempSync(join(tmpdir(), "expojet-root-"));
     expect(() => resolvePlanPath(root, "../escape.txt")).toThrow("escapes");
     expect(() => resolvePlanPath(root, join(root, "absolute.txt"))).toThrow("Unsafe");
   });

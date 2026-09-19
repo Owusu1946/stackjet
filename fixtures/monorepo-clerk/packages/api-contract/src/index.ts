@@ -1,1 +1,1 @@
-export type { AppType } from "@stackjet/api/app";
+export type { AppType } from "@expojet/api/app";

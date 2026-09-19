@@ -1,4 +1,4 @@
-import type { AppType } from "@stackjet/api-contract";
+import type { AppType } from "@expojet/api-contract";
 import { hc } from "hono/client";
 import { env } from "../env";
 export function createApiClient(getToken: () => Promise<string | null>) {

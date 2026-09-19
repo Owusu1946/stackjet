@@ -6,12 +6,12 @@ import { ProjectPathError, redactText, validateProjectPath } from "./index.js";
 
 describe("validateProjectPath", () => {
   it("resolves a safe new target", () => {
-    const cwd = mkdtempSync(join(tmpdir(), "stackjet-core-"));
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-core-"));
     expect(validateProjectPath({ cwd, destination: "my-app" }).projectName).toBe("my-app");
   });
 
   it("rejects traversal and non-empty targets", () => {
-    const cwd = mkdtempSync(join(tmpdir(), "stackjet-core-"));
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-core-"));
     expect(() => validateProjectPath({ cwd, destination: "../escape" })).toThrow(ProjectPathError);
     mkdirSync(join(cwd, "taken"));
     writeFileSync(join(cwd, "taken", "file.txt"), "owned");

@@ -30,7 +30,7 @@ export function createApp(overrides: Partial<Dependencies> = {}) {
     .use("*", async (c, next) => { c.set("requestId", c.req.header("x-request-id") ?? crypto.randomUUID()); await next(); c.header("x-request-id", c.get("requestId")); })
     .use("*", secureHeaders())
     .use("/v1/*", cors({ origin: (origin) => { const allowed = (process.env.ALLOWED_ORIGINS ?? "http://localhost:8081").split(","); return allowed.includes(origin) ? origin : allowed[0]!; }, credentials: true }))
-    .get("/health", (c) => c.json({ ok: true, service: "stackjet-api" }))
+    .get("/health", (c) => c.json({ ok: true, service: "expojet-api" }))
     .get("/v1/me", auth, async (c) => { const userId = c.get("userId"); return c.json({ user: { id: userId }, profile: await dependencies.findProfile(userId) }); })
     .notFound((c) => c.json(failure("NOT_FOUND", "Route not found", c.get("requestId")), 404))
     .onError((error, c) => { console.error(error); return c.json(failure("INTERNAL_ERROR", "An unexpected error occurred", c.get("requestId")), 500); });

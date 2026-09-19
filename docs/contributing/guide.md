@@ -1,12 +1,12 @@
-# Stackjet Contributor Guide
+# Expojet Contributor Guide
 
-Welcome to the Stackjet repository! This guide provides an overview of our architecture, dependency rules, testing workflows, and release processes.
+Welcome to the Expojet repository! This guide provides an overview of our architecture, dependency rules, testing workflows, and release processes.
 
 ---
 
 ## 1. Repository Architecture & Dependency Flow
 
-Stackjet is organized as a strict pnpm workspace managed by Turborepo:
+Expojet is organized as a strict pnpm workspace managed by Turborepo:
 
 ```text
 packages/

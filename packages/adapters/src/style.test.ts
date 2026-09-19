@@ -62,4 +62,19 @@ describe("style adapters", () => {
     expect(styleAdapter("uniwind")).toBe(uniwindAdapter);
     expect(styleAdapter("stylesheet")).toBe(stylesheetAdapter);
   });
+
+  it("ensures all BrandCard components reference EXPOJET and never STACKJET", () => {
+    const adapters = [stylesheetAdapter, uniwindAdapter, nativewindAdapter, unistylesAdapter];
+    for (const adapter of adapters) {
+      const operations = adapter.plan({ structure: "standalone" } as never, {});
+      const brandCardOp = operations.find(
+        (op) => op.type === "write-file" && op.path === "src/components/brand-card.tsx",
+      );
+      expect(brandCardOp).toBeDefined();
+      if (brandCardOp && "content" in brandCardOp) {
+        expect(brandCardOp.content).toContain("EXPOJET");
+        expect(brandCardOp.content).not.toContain("STACKJET");
+      }
+    }
+  });
 });

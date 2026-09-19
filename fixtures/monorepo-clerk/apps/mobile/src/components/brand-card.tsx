@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 export function BrandCard() {
   return (
     <View style={styles.card}>
-      <Text style={styles.eyebrow}>STACKJET</Text>
+      <Text style={styles.eyebrow}>EXPOJET</Text>
       <Text style={styles.title}>Your Expo app is ready.</Text>
       <Text style={styles.body}>The StyleSheet adapter is active.</Text>
     </View>

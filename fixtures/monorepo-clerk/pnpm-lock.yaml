@@ -60,7 +60,7 @@ importers:
       '@clerk/expo':
         specifier: ^4.6.8
         version: 4.6.8(ce9ea4b7c81fee2efe0b115346f252a4)
-      '@stackjet/api-contract':
+      '@expojet/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
       '@t3-oss/env-core':
@@ -151,7 +151,7 @@ importers:
 
   packages/api-contract:
     dependencies:
-      '@stackjet/api':
+      '@expojet/api':
         specifier: workspace:*
         version: link:../../apps/api
     devDependencies:

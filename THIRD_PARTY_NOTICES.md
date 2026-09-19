@@ -1,6 +1,6 @@
 # Third-Party Notices and Attributions
 
-Stackjet incorporates architectural concepts, configuration patterns, and implementation strategies derived from the following open-source projects under their respective licenses:
+Expojet incorporates architectural concepts, configuration patterns, and implementation strategies derived from the following open-source projects under their respective licenses:
 
 ---
 

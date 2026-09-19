@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://stackjet.dev/schemas/sdk-pack.schema.json",
-  "title": "Stackjet SDK pack",
+  "$id": "https://expojet.dev/schemas/sdk-pack.schema.json",
+  "title": "Expojet SDK pack",
   "type": "object",
   "additionalProperties": false,
   "required": [

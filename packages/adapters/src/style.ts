@@ -1,15 +1,17 @@
+import { productName } from "@expojet/brand";
 import type { Operation } from "@expojet/core";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
+const brandTitle = productName.toUpperCase();
 
 const stylesheetCard = `import { StyleSheet, Text, View } from "react-native";
 
 export function BrandCard() {
   return (
     <View style={styles.card}>
-      <Text style={styles.eyebrow}>STACKJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Your Expo app is ready.</Text>
       <Text style={styles.body}>The StyleSheet adapter is active.</Text>
     </View>
@@ -29,7 +31,7 @@ const uniwindCard = `import { Text, View } from "react-native";
 export function BrandCard() {
   return (
     <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6">
-      <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">STACKJET</Text>
+      <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
       <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
       <Text className="text-base text-slate-600 dark:text-slate-400">The Uniwind adapter is active.</Text>
     </View>
@@ -42,7 +44,7 @@ const nativewindCard = `import { Text, View } from "react-native";
 export function BrandCard() {
   return (
     <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6">
-      <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">STACKJET</Text>
+      <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
       <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
       <Text className="text-base text-slate-600 dark:text-slate-400">The NativeWind adapter is active.</Text>
     </View>
@@ -121,7 +123,7 @@ import { StyleSheet } from "react-native-unistyles";
 export function BrandCard() {
   return (
     <View style={styles.card}>
-      <Text style={styles.eyebrow}>STACKJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Your Expo app is ready.</Text>
       <Text style={styles.body}>The Unistyles adapter is active.</Text>
     </View>

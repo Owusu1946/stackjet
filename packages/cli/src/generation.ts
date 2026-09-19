@@ -116,12 +116,6 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       content: `export const features = ${JSON.stringify({ onboarding: normalizedInput.onboarding, darkMode: normalizedInput.darkMode }, null, 2)} as const;\n`,
       owner: commandName,
     },
-    {
-      type: "write-file",
-      path: `${mobileRoot}src/stackjet-features.ts`,
-      content: `export { features } from "./${commandName}-features.js";\n`,
-      owner: commandName,
-    },
   );
   operations.push(...navigationAdapter(normalizedInput.navigation).plan(normalizedInput, {}));
   operations.push(...authAdapter(normalizedInput.auth).plan(normalizedInput, {}));
