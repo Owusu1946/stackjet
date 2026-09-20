@@ -5,10 +5,12 @@ const releases = [
   {
     version: releaseVersion,
     date: "September 20, 2026",
-    summary: "Configurable social sign-in for Clerk-powered Expo apps.",
+    summary: "Configurable social sign-in and a visual Expo stack builder.",
     changes: [
       "Choose Google, Apple, Facebook, and Microsoft sign-in during setup with multi-select support.",
       "Generated auth screens now use Clerk browser SSO with provider-specific SVG icons.",
+      "Configure the complete Expojet stack from the landing page and copy a production-ready CLI command.",
+      "Stack choices use locally bundled technology icons and automatically normalize incompatible combinations.",
     ],
   },
   {

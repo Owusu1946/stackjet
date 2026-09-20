@@ -10,6 +10,7 @@ import {
   navigationTypes,
   ormAdapters,
   packageManagers,
+  socialProviders,
   stateAdapters,
   structures,
   styleAdapters,
@@ -60,6 +61,11 @@ export function createProgram(io: CliIo) {
     .addOption(new Option("--backend <adapter>").choices([...backendAdapters]))
     .addOption(
       new Option("--auth <adapter>").choices(authAdapters.filter((adapter) => adapter !== "jwt")),
+    )
+    .addOption(
+      new Option("--socials <providers...>", "Clerk social sign-in providers").choices([
+        ...socialProviders,
+      ]),
     )
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
     .addOption(

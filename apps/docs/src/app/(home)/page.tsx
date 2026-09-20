@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CommandPicker } from "@/components/command-picker";
+import { StackBuilder } from "@/components/stack-builder";
 import { createPackageName, productName, releaseVersion } from "@/lib/shared";
 
 const repositoryUrl = "https://github.com/Owusu1946/stackjet";
@@ -193,6 +194,8 @@ export default async function HomePage() {
             </a>
           </aside>
         </div>
+
+        <StackBuilder />
 
         <section className="stats-pane" aria-labelledby="stats-title">
           <div className="stats-heading group-label">

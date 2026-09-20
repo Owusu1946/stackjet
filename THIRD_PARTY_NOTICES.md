@@ -93,3 +93,10 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 ```
+
+---
+
+## 5. Simple Icons
+- **Project URL**: https://simpleicons.org/
+- **License**: CC0 1.0 Universal
+- **Attribution**: Locally bundled technology marks used by the interactive stack builder. All product names and marks remain the property of their respective owners.
