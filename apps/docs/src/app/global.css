@@ -494,22 +494,22 @@ html > body[data-scroll-locked] {
   background: color-mix(in srgb, var(--color-fd-background) 96%, var(--color-fd-primary));
 }
 .builder-page {
-  width: min(96rem, 100%);
-  margin: 0 auto;
-  padding: clamp(1rem, 3vw, 2.5rem);
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 .builder-page .stack-builder {
   overflow: clip;
-  border: 1px solid var(--color-fd-border);
-  border-radius: 0.75rem;
-  box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--color-fd-foreground) 7%, transparent);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .builder-page-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.25rem 0 1rem;
+  padding: 1rem clamp(1rem, 3vw, 2.5rem);
   color: var(--color-fd-muted-foreground);
   font:
     600 0.67rem / 1.4 ui-monospace,
@@ -570,8 +570,13 @@ html > body[data-scroll-locked] {
   align-self: start;
   max-height: calc(100dvh - 5rem);
   overflow-y: auto;
+  scrollbar-width: none;
   padding: 1.4rem;
   border-right: 1px solid var(--color-fd-border);
+}
+.builder-sidebar::-webkit-scrollbar,
+.builder-command::-webkit-scrollbar {
+  display: none;
 }
 .builder-field {
   display: flex;
@@ -648,6 +653,7 @@ html > body[data-scroll-locked] {
     500 0.7rem / 1.6 ui-monospace,
     monospace;
   overflow-wrap: anywhere;
+  scrollbar-width: none;
 }
 .stack-builder .builder-command span {
   margin-right: 0.6rem;
