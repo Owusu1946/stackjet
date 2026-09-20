@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clipboard,
+  FileCode2,
+  Folder,
+  FolderTree,
+  Info,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export type PreviewFile = { path: string; content: string };
@@ -68,7 +78,15 @@ function FileTreeNode({
         style={{ paddingLeft: `${0.7 + depth * 0.9}rem` }}
         onClick={() => (isFolder ? onToggle(node.path) : onSelect(node.path))}
       >
-        <span aria-hidden="true">{isFolder ? (isExpanded ? "▾" : "▸") : "◇"}</span>
+        {isFolder ? (
+          isExpanded ? (
+            <ChevronDown aria-hidden="true" size={13} />
+          ) : (
+            <ChevronRight aria-hidden="true" size={13} />
+          )
+        ) : (
+          <FileCode2 aria-hidden="true" size={13} />
+        )}
         {node.name}
       </button>
       {isFolder && isExpanded ? (
@@ -140,14 +158,24 @@ export function StackPreview({
   return (
     <section className="builder-preview" aria-label="Generated project preview">
       <header className="preview-toolbar">
-        <span>{countFolders(tree)} FOLDERS</span>
-        <span>{files.length} FILES</span>
+        <span className="preview-toolbar-stat">
+          <FolderTree aria-hidden="true" size={14} />
+          {countFolders(tree)} FOLDERS
+        </span>
+        <span className="preview-toolbar-stat">
+          <FileCode2 aria-hidden="true" size={14} />
+          {files.length} FILES
+        </span>
         {loading ? <span className="preview-refreshing">UPDATING…</span> : null}
-        <strong>REAL PLAN PREVIEW</strong>
+        <strong>
+          <Info aria-hidden="true" size={14} /> REAL PLAN PREVIEW
+        </strong>
       </header>
       <div className="preview-workspace">
         <aside className="preview-tree">
-          <div className="preview-root">▱ {projectName}</div>
+          <div className="preview-root">
+            <Folder aria-hidden="true" size={15} /> {projectName}
+          </div>
           <ul>
             {[...tree.children.values()]
               .sort((left, right) => {
@@ -177,8 +205,21 @@ export function StackPreview({
         <div className="preview-code-pane">
           <header>
             <span>{selected?.path ?? "Select a file"}</span>
-            <button type="button" disabled={!selected} onClick={copyFile}>
-              {copied ? "COPIED ✓" : "COPY FILE"}
+            <button
+              type="button"
+              title="Copy file contents"
+              disabled={!selected}
+              onClick={copyFile}
+            >
+              {copied ? (
+                <>
+                  <Check aria-hidden="true" size={13} /> COPIED
+                </>
+              ) : (
+                <>
+                  <Clipboard aria-hidden="true" size={13} /> COPY FILE
+                </>
+              )}
             </button>
           </header>
           <pre>
@@ -186,7 +227,7 @@ export function StackPreview({
               {numberedLines(selected?.content ?? "").map(({ id, line }, index) => (
                 <span key={id}>
                   <i>{index + 1}</i>
-                  <b>{line || " "}</b>
+                  <span>{line || " "}</span>
                 </span>
               ))}
             </code>

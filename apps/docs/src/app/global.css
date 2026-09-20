@@ -725,6 +725,9 @@ html > body[data-scroll-locked] {
   border-bottom: 1px solid var(--color-fd-border);
 }
 .builder-view-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0 1.25rem;
   border: 0;
   border-right: 1px solid var(--color-fd-border);
@@ -745,7 +748,12 @@ html > body[data-scroll-locked] {
   display: flex;
   overflow-x: auto;
   border-bottom: 1px solid var(--color-fd-border);
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+.builder-tabs::-webkit-scrollbar,
+.preview-tree::-webkit-scrollbar,
+.preview-code-pane > pre::-webkit-scrollbar {
+  display: none;
 }
 .builder-tabs button {
   flex: 0 0 auto;
@@ -943,6 +951,14 @@ html > body[data-scroll-locked] {
     monospace;
   letter-spacing: 0.06em;
 }
+.preview-toolbar-stat,
+.preview-toolbar strong,
+.preview-root,
+.preview-code-pane > header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 .preview-toolbar strong {
   margin-left: auto;
   color: var(--color-fd-foreground);
@@ -958,6 +974,7 @@ html > body[data-scroll-locked] {
 .preview-tree {
   max-height: 65dvh;
   overflow: auto;
+  scrollbar-width: none;
   border-right: 1px solid var(--color-fd-border);
   background: color-mix(in srgb, var(--color-fd-muted) 20%, transparent);
 }
@@ -1006,6 +1023,10 @@ html > body[data-scroll-locked] {
   width: 0.7rem;
   flex: 0 0 auto;
 }
+.builder-preview .preview-tree-row > svg {
+  flex: 0 0 auto;
+  color: var(--color-fd-muted-foreground);
+}
 .preview-code-pane {
   min-width: 0;
   background: var(--color-fd-background);
@@ -1042,6 +1063,7 @@ html > body[data-scroll-locked] {
   max-height: calc(65dvh - 3rem);
   margin: 0;
   overflow: auto;
+  scrollbar-width: none;
   padding: 0.75rem 0;
   background: transparent;
   font:
@@ -1065,7 +1087,7 @@ html > body[data-scroll-locked] {
   user-select: none;
   font-style: normal;
 }
-.preview-code-pane code b {
+.preview-code-pane code > span > span {
   display: table-cell;
   padding-right: 1.5rem;
   color: var(--color-fd-foreground);

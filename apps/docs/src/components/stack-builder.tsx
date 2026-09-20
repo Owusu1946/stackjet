@@ -1,6 +1,7 @@
 "use client";
 
 import { commandName, createPackageName } from "@expojet/brand";
+import { Code2, Settings2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { type PreviewFile, StackPreview } from "./stack-preview";
@@ -550,7 +551,8 @@ export function StackBuilder() {
               aria-selected={view === "configure"}
               onClick={() => setView("configure")}
             >
-              ›_ CONFIGURE
+              <Settings2 aria-hidden="true" size={15} />
+              CONFIGURE
             </button>
             <button
               type="button"
@@ -558,7 +560,8 @@ export function StackBuilder() {
               aria-selected={view === "preview"}
               onClick={() => setView("preview")}
             >
-              ⑂ PREVIEW
+              <Code2 aria-hidden="true" size={15} />
+              PREVIEW
             </button>
           </div>
           {view === "preview" ? (
