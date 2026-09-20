@@ -286,7 +286,7 @@ html > body[data-scroll-locked] {
 .contributors-panel {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto;
 }
 .panel-heading {
   padding: clamp(1.5rem, 3vw, 2.5rem);
