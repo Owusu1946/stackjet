@@ -1,6 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { CommandPicker } from "@/components/command-picker";
+import { PeoplePanel } from "@/components/people-panel";
+import maintainers from "@/data/maintainers.json";
 import { createPackageName, productName, releaseVersion } from "@/lib/shared";
 
 const repositoryUrl = "https://github.com/Owusu1946/stackjet";
@@ -113,85 +114,11 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <aside className="contributors-panel">
-            <header className="panel-heading">
-              <div>
-                <span className="panel-kicker">OPEN SOURCE</span>
-                <h1>Built by people who ship.</h1>
-              </div>
-              <a href={`${repositoryUrl}/graphs/contributors`} target="_blank" rel="noreferrer">
-                view all <Arrow />
-              </a>
-            </header>
-
-            <div className="contributor-list">
-              <div className="group-label contributor-label">
-                <span>CONTRIBUTORS</span>
-                <i />
-                <b>{contributors.length}</b>
-              </div>
-              <div className="contributor-grid">
-                {contributors.length > 0 ? (
-                  contributors.map((person) => (
-                    <a
-                      key={person.id}
-                      href={person.html_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="contributor-row"
-                    >
-                      <Image
-                        src={person.avatar_url}
-                        alt=""
-                        width={44}
-                        height={44}
-                        className="contributor-avatar"
-                      />
-                      <span className="contributor-name">
-                        <strong>{person.login}</strong>
-                        <small>@{person.login}</small>
-                      </span>
-                      <span className="contribution-count">
-                        {person.contributions}
-                        <small>commits</small>
-                      </span>
-                    </a>
-                  ))
-                ) : (
-                  <div className="contributors-empty">
-                    <span>GitHub is taking a breath.</span>
-                    <small>The contributor list will refresh automatically.</small>
-                  </div>
-                )}
-                <a
-                  href={`${repositoryUrl}/blob/main/CONTRIBUTING.md`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="contributor-row contributor-invite"
-                >
-                  <span className="invite-mark">+</span>
-                  <span className="contributor-name">
-                    <strong>You, perhaps?</strong>
-                    <small>First PRs are welcome.</small>
-                  </span>
-                  <Arrow />
-                </a>
-              </div>
-            </div>
-
-            <a
-              href={`${repositoryUrl}/blob/main/CONTRIBUTING.md`}
-              target="_blank"
-              rel="noreferrer"
-              className="join-row"
-            >
-              <span>
-                <strong>Your name could be here.</strong>
-                <small>Code, docs, ideas—all contributions count.</small>
-              </span>
-              <span>contribute →</span>
-            </a>
-          </aside>
+          <PeoplePanel
+            contributors={contributors}
+            maintainers={maintainers}
+            repositoryUrl={repositoryUrl}
+          />
         </div>
 
         <section className="stats-pane" aria-labelledby="stats-title">
