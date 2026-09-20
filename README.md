@@ -206,3 +206,7 @@ Contributions are warmly welcomed! Please read our [Contributing Guide](CONTRIBU
 ## 📄 License
 
 Expojet is open-source software licensed under the [MIT License](LICENSE).
+
+## 🌐 Documentation
+
+The latest landing page, documentation, and changelog are available at [expojet.dev](https://expojet.dev).
