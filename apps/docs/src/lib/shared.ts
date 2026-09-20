@@ -1,5 +1,5 @@
-import { createGetUrl } from "fumadocs-core/source";
 import { commandName, createPackageName, productName, releaseVersion } from "@expojet/brand";
+import { createGetUrl } from "fumadocs-core/source";
 
 export { commandName, createPackageName, productName, releaseVersion };
 export const appName = productName;

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { createPackageName, productName, releaseVersion } from "@expojet/brand";
+import Link from "next/link";
 
 const releases = [
   {
@@ -22,7 +22,9 @@ export default function ChangelogPage() {
         ← Back to {productName}
       </Link>
       <header className="mt-10 border-b border-fd-border pb-8">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-fd-muted-foreground">{productName}</p>
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-fd-muted-foreground">
+          {productName}
+        </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight">Changelog</h1>
         <p className="mt-4 max-w-2xl text-lg text-fd-muted-foreground">
           Product updates for {createPackageName}, the production-ready Expo starter.
@@ -37,7 +39,9 @@ export default function ChangelogPage() {
             </div>
             <p className="mt-3 text-fd-muted-foreground">{release.summary}</p>
             <ul className="mt-6 list-disc space-y-3 pl-5 text-fd-foreground/85">
-              {release.changes.map((change) => <li key={change}>{change}</li>)}
+              {release.changes.map((change) => (
+                <li key={change}>{change}</li>
+              ))}
             </ul>
           </article>
         ))}

@@ -1,7 +1,7 @@
 import { RootProvider } from "fumadocs-ui/provider/next";
 import "./global.css";
-import type { Metadata } from "next";
 import { productName, tagline } from "@expojet/brand";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {

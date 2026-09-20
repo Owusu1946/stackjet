@@ -90,8 +90,8 @@ export default async function HomePage() {
                 Build the Expo app you meant to build; not the setup around it.
               </p>
               <p className="console-copy">
-                Choose your stack. {productName} connects the pieces and hands you a clean project ready
-                for Expo Go, a full-stack monorepo, or whatever comes next.
+                Choose your stack. {productName} connects the pieces and hands you a clean project
+                ready for Expo Go, a full-stack monorepo, or whatever comes next.
               </p>
             </div>
 

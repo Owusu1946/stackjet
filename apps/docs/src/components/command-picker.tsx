@@ -1,8 +1,8 @@
 "use client";
 
+import { commandName, createPackageName } from "@expojet/brand";
 import Image from "next/image";
 import { useState } from "react";
-import { commandName, createPackageName } from "@expojet/brand";
 
 const commands = {
   pnpm: `pnpm create ${commandName}@latest`,
