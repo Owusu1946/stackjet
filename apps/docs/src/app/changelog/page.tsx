@@ -9,8 +9,8 @@ const releases = [
     changes: [
       "Choose Google, Apple, Facebook, and Microsoft sign-in during setup with multi-select support.",
       "Generated auth screens now use Clerk browser SSO with provider-specific SVG icons.",
-      "Configure the complete Expojet stack from the landing page and copy a production-ready CLI command.",
-      "Stack choices use locally bundled technology icons and automatically normalize incompatible combinations.",
+      "Configure the complete Expojet stack in a dedicated guided builder and copy a production-ready CLI command.",
+      "Stack choices use locally bundled technology icons, smooth step navigation, and automatic compatibility normalization.",
     ],
   },
   {

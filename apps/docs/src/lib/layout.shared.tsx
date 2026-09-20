@@ -26,6 +26,10 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
+        text: "Builder",
+        url: "/builder",
+      },
+      {
         text: "Documentation",
         url: "/docs",
         active: "nested-url",

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 
 type PackageManager = "pnpm" | "npm" | "bun" | "yarn";
+type CategoryKey = keyof Config | "features";
 type Config = {
   structure: "standalone" | "monorepo" | "monorepo-web";
   navigation: "router" | "react-navigation";
@@ -273,6 +274,12 @@ const featureOptions = [
   { key: "eas", label: "EAS", description: "Development, preview, and production profiles" },
 ] as const;
 
+const categories: Array<{ key: CategoryKey; label: string }> = [
+  ...groups.map(({ key, label }) => ({ key, label })),
+  { key: "socials", label: "Socials" },
+  { key: "features", label: "Features" },
+];
+
 function iconPath(icon: string) {
   return `/stack-icons/${icon}.svg`;
 }
@@ -281,8 +288,8 @@ export function StackBuilder() {
   const [projectName, setProjectName] = useState("my-expojet-app");
   const [packageManager, setPackageManager] = useState<PackageManager>("pnpm");
   const [config, setConfig] = useState<Config>(defaults);
-  const [activeGroup, setActiveGroup] = useState<keyof Config>("structure");
-  const [copied, setCopied] = useState(false);
+  const [activeGroup, setActiveGroup] = useState<CategoryKey>("structure");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   const select = (key: keyof Config, value: string) => {
     setConfig((current) => {
@@ -364,6 +371,12 @@ export function StackBuilder() {
   }, [config, packageManager, projectName]);
 
   const active = groups.find((group) => group.key === activeGroup);
+  const activeIndex = categories.findIndex((category) => category.key === activeGroup);
+  const safeProjectName =
+    projectName
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, "-") || "my-expojet-app";
   const selected = groups
     .map((group) => {
       const option = group.options.find((item) => item.value === config[group.key]);
@@ -372,9 +385,25 @@ export function StackBuilder() {
     .filter(Boolean) as Array<Option & { group: string }>;
 
   async function copyCommand() {
-    await navigator.clipboard.writeText(command);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+    window.setTimeout(() => setCopyStatus("idle"), 1800);
+  }
+
+  function resetBuilder() {
+    setProjectName("my-expojet-app");
+    setPackageManager("pnpm");
+    setConfig(defaults);
+    setActiveGroup("structure");
+  }
+
+  function moveCategory(offset: number) {
+    const next = categories[activeIndex + offset];
+    if (next) setActiveGroup(next.key);
   }
 
   return (
@@ -384,7 +413,12 @@ export function StackBuilder() {
           <span className="panel-kicker">INTERACTIVE BUILDER</span>
           <h2 id="builder-title">Choose the stack. Copy the command.</h2>
         </div>
-        <p>Every option maps to the real Expojet CLI and compatibility schema.</p>
+        <div className="builder-progress-copy">
+          <p>Every option maps to the real Expojet CLI and compatibility schema.</p>
+          <span>
+            STEP {String(activeIndex + 1).padStart(2, "0")} / {categories.length}
+          </span>
+        </div>
       </header>
       <div className="builder-layout">
         <aside className="builder-sidebar">
@@ -394,12 +428,18 @@ export function StackBuilder() {
               value={projectName}
               onChange={(event) => setProjectName(event.target.value)}
               spellCheck={false}
+              aria-describedby="project-name-hint"
             />
+            <small id="project-name-hint">Folder: {safeProjectName}</small>
           </label>
           <div className="builder-command-heading">
             <span>CLI COMMAND</span>
             <button type="button" onClick={copyCommand}>
-              {copied ? "COPIED" : "COPY"}
+              {copyStatus === "copied"
+                ? "COPIED ✓"
+                : copyStatus === "failed"
+                  ? "TRY AGAIN"
+                  : "COPY"}
             </button>
           </div>
           <code className="builder-command">
@@ -441,13 +481,13 @@ export function StackBuilder() {
               ? config.socials.map((social) => <span key={social}>{social}</span>)
               : null}
           </div>
-          <button className="builder-reset" type="button" onClick={() => setConfig(defaults)}>
+          <button className="builder-reset" type="button" onClick={resetBuilder}>
             RESET CONFIGURATION
           </button>
         </aside>
         <div className="builder-main">
           <nav className="builder-tabs" aria-label="Stack categories">
-            {groups.map((group) => (
+            {categories.map((group) => (
               <button
                 type="button"
                 key={group.key}
@@ -457,21 +497,16 @@ export function StackBuilder() {
                 {group.label}
               </button>
             ))}
-            <button
-              type="button"
-              data-active={activeGroup === "socials"}
-              onClick={() => setActiveGroup("socials")}
-            >
-              Socials
-            </button>
-            <button
-              type="button"
-              data-active={activeGroup === "liquidGlass"}
-              onClick={() => setActiveGroup("liquidGlass")}
-            >
-              Features
-            </button>
           </nav>
+          <div className="builder-stage-heading">
+            <div>
+              <span>STEP {String(activeIndex + 1).padStart(2, "0")}</span>
+              <h2>{categories[activeIndex]?.label}</h2>
+            </div>
+            <div className="builder-progress-track" aria-hidden="true">
+              <i style={{ width: `${((activeIndex + 1) / categories.length) * 100}%` }} />
+            </div>
+          </div>
           <div className="builder-options">
             {activeGroup === "socials"
               ? socialOptions.map((option) => (
@@ -499,7 +534,7 @@ export function StackBuilder() {
                     <i>{config.socials.includes(option.value) ? "✓" : "+"}</i>
                   </button>
                 ))
-              : activeGroup === "liquidGlass"
+              : activeGroup === "features"
                 ? featureOptions.map((option) => (
                     <button
                       type="button"
@@ -552,6 +587,19 @@ export function StackBuilder() {
               ? "Select Clerk authentication to configure hosted social sign-in."
               : "Incompatible choices are disabled or normalized automatically."}
           </p>
+          <div className="builder-step-actions">
+            <button type="button" disabled={activeIndex === 0} onClick={() => moveCategory(-1)}>
+              ← Previous
+            </button>
+            <span>{categories[activeIndex]?.label}</span>
+            <button
+              type="button"
+              disabled={activeIndex === categories.length - 1}
+              onClick={() => moveCategory(1)}
+            >
+              Next →
+            </button>
+          </div>
         </div>
       </div>
     </section>
