@@ -545,7 +545,7 @@ export function StackBuilder() {
             {command}
           </code>
           <label className="builder-preset">
-            <span>PRESET</span>
+            <span className="builder-preset-label">PRESET</span>
             <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
               <option value="">Choose a starting point</option>
               {presets.map((item) => (

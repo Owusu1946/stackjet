@@ -661,9 +661,11 @@ html > body[data-scroll-locked] {
   gap: 0.55rem;
   margin-top: 1.25rem;
 }
-.builder-preset > span {
+.builder-preset-label {
   color: var(--color-fd-muted-foreground);
-  font: 600 0.65rem / 1 ui-monospace, monospace;
+  font:
+    600 0.65rem / 1 ui-monospace,
+    monospace;
   letter-spacing: 0.09em;
 }
 .builder-preset select {
@@ -673,11 +675,15 @@ html > body[data-scroll-locked] {
   border-radius: 0.25rem;
   background: var(--color-fd-background);
   color: var(--color-fd-foreground);
-  font: 600 0.72rem / 1.2 ui-monospace, monospace;
+  font:
+    600 0.72rem / 1.2 ui-monospace,
+    monospace;
 }
 .builder-preset small {
   color: var(--color-fd-muted-foreground);
-  font: 500 0.62rem / 1.35 ui-monospace, monospace;
+  font:
+    500 0.62rem / 1.35 ui-monospace,
+    monospace;
 }
 .stack-builder .builder-command span {
   margin-right: 0.6rem;
@@ -1117,7 +1123,7 @@ html > body[data-scroll-locked] {
   user-select: none;
   font-style: normal;
 }
-.preview-code-pane code > span > span {
+.preview-code-line {
   display: table-cell;
   padding-right: 1.5rem;
   color: var(--color-fd-foreground);

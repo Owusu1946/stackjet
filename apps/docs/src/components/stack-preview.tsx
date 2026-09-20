@@ -227,7 +227,7 @@ export function StackPreview({
               {numberedLines(selected?.content ?? "").map(({ id, line }, index) => (
                 <span key={id}>
                   <i>{index + 1}</i>
-                  <span>{line || " "}</span>
+                  <span className="preview-code-line">{line || " "}</span>
                 </span>
               ))}
             </code>
