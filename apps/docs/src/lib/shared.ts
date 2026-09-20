@@ -1,6 +1,8 @@
 import { createGetUrl } from "fumadocs-core/source";
+import { commandName, createPackageName, productName, releaseVersion } from "@expojet/brand";
 
-export const appName = "Expojet";
+export { commandName, createPackageName, productName, releaseVersion };
+export const appName = productName;
 export const docsRoute = "/docs";
 export const docsImageRoute = "/og/docs";
 export const docsContentRoute = "/llms.mdx/docs";

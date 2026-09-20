@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CommandPicker } from "@/components/command-picker";
+import { createPackageName, productName, releaseVersion } from "@/lib/shared";
 
 const repositoryUrl = "https://github.com/Owusu1946/stackjet";
 const asciiLogo = `████████████    ███████╗ ██╗  ██╗ ██████╗   ██████╗       ██╗ ███████╗ ████████╗
@@ -42,7 +43,7 @@ async function getRepoStats(): Promise<RepoStats> {
         next: { revalidate: 21_600 },
         signal: AbortSignal.timeout(3_000),
       }),
-      fetch("https://api.npmjs.org/downloads/point/last-week/create-expojet", {
+      fetch(`https://api.npmjs.org/downloads/point/last-week/${createPackageName}`, {
         next: { revalidate: 21_600 },
         signal: AbortSignal.timeout(3_000),
       }),
@@ -89,7 +90,7 @@ export default async function HomePage() {
                 Build the Expo app you meant to build; not the setup around it.
               </p>
               <p className="console-copy">
-                Choose your stack. Expojet connects the pieces and hands you a clean project ready
+                Choose your stack. {productName} connects the pieces and hands you a clean project ready
                 for Expo Go, a full-stack monorepo, or whatever comes next.
               </p>
             </div>
@@ -105,6 +106,9 @@ export default async function HomePage() {
               </Link>
               <Link href="/docs/ai-agents" className="console-link">
                 give it to your agent →
+              </Link>
+              <Link href="/changelog" className="console-link">
+                see what&apos;s new →
               </Link>
             </div>
           </section>
@@ -212,19 +216,19 @@ export default async function HomePage() {
             <div className="stat">
               <span>NPM</span>
               <strong>{stats.downloads ? stats.downloads.toLocaleString() : "—"}</strong>
-              <small>WEEKLY DOWNLOADS · create-expojet</small>
+              <small>WEEKLY DOWNLOADS · {createPackageName}</small>
             </div>
           </div>
         </section>
 
         <footer className="console-status">
           <span>
-            <i /> EXPOJET
+            <i /> {productName.toUpperCase()}
           </span>
           <span>EXPO-FIRST</span>
           <span>CLERK · HONO · NEON · DRIZZLE</span>
           <span>AI-READY DOCS</span>
-          <span className="status-version">V0.3.0</span>
+          <span className="status-version">V{releaseVersion}</span>
         </footer>
       </div>
     </main>

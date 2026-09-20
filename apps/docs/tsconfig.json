@@ -15,7 +15,8 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@expojet/brand": ["../../packages/brand/src/index.ts"]
     },
     "plugins": [
       {

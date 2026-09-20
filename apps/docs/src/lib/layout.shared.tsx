@@ -42,6 +42,10 @@ export function baseOptions(): BaseLayoutProps {
         text: "AI Agents",
         url: "/docs/ai-agents",
       },
+      {
+        text: "Changelog",
+        url: "/changelog",
+      },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
   };

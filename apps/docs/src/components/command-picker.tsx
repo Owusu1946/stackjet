@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { commandName, createPackageName } from "@expojet/brand";
 
 const commands = {
-  pnpm: "pnpm create expojet@latest",
-  npm: "npx create-expojet@latest",
-  bun: "bun create expojet@latest",
-  yarn: "yarn create expojet",
+  pnpm: `pnpm create ${commandName}@latest`,
+  npm: `npx ${createPackageName}@latest`,
+  bun: `bun create ${commandName}@latest`,
+  yarn: `yarn create ${commandName}`,
 } as const;
 
 type PackageManager = keyof typeof commands;
