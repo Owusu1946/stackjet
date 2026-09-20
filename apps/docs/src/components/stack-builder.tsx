@@ -468,11 +468,10 @@ export function StackBuilder() {
     <section className="stack-builder" id="builder" aria-labelledby="builder-title">
       <header className="builder-heading">
         <div>
-          <span className="panel-kicker">INTERACTIVE BUILDER</span>
-          <h2 id="builder-title">Choose the stack. Copy the command.</h2>
+          <span className="panel-kicker">STACK BUILDER</span>
+          <h2 id="builder-title">Configure your Expo app</h2>
         </div>
         <div className="builder-progress-copy">
-          <p>Every option maps to the real Expojet CLI and compatibility schema.</p>
           <span>
             STEP {String(activeIndex + 1).padStart(2, "0")} / {categories.length}
           </span>
