@@ -465,18 +465,7 @@ export function StackBuilder() {
   }
 
   return (
-    <section className="stack-builder" id="builder" aria-labelledby="builder-title">
-      <header className="builder-heading">
-        <div>
-          <span className="panel-kicker">STACK BUILDER</span>
-          <h2 id="builder-title">Configure your Expo app</h2>
-        </div>
-        <div className="builder-progress-copy">
-          <span>
-            STEP {String(activeIndex + 1).padStart(2, "0")} / {categories.length}
-          </span>
-        </div>
-      </header>
+    <section className="stack-builder" id="builder" aria-label="Expo app stack builder">
       <div className="builder-layout">
         <aside className="builder-sidebar">
           <label className="builder-field">
