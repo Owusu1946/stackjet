@@ -21,7 +21,9 @@ import {
   type IconLibrary,
   type PackageManager,
   packageManagers,
+  type SocialProvider,
   type StateAdapter,
+  socialProviders,
   styleAdapters,
 } from "@expojet/schemas";
 import { ZodError } from "zod";
@@ -40,6 +42,7 @@ export interface CreateFlags {
   navigationType?: string;
   backend?: string;
   auth?: string;
+  socialProviders?: string[];
   style?: string;
   icons?: string;
   lucide?: boolean;
@@ -172,6 +175,9 @@ export function normalizeNonInteractiveCreate(
     analytics,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
+    socialProviders: (flags.socialProviders ??
+      effectiveConfig.socialProviders ??
+      []) as SocialProvider[],
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
     database,
     orm,
@@ -369,6 +375,21 @@ async function promptCreate(
       })),
     }));
   cancelled(auth);
+
+  const selectedSocialProviders =
+    auth === "clerk"
+      ? (flags.socialProviders ??
+        activeConfig.socialProviders ??
+        ((await p.multiselect({
+          message: "Social sign-in providers (optional)",
+          options: socialProviders.map((value) => ({
+            value,
+            label: value.charAt(0).toUpperCase() + value.slice(1),
+          })),
+          required: false,
+        })) as string[]))
+      : [];
+  cancelled(selectedSocialProviders);
 
   const style =
     flags.style ??
@@ -568,6 +589,7 @@ async function promptCreate(
     navigationType,
     backend,
     auth,
+    socialProviders: selectedSocialProviders as SocialProvider[],
     style,
     icons: icons as IconLibrary,
     state: state as StateAdapter,

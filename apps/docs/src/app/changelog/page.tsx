@@ -5,12 +5,14 @@ const releases = [
   {
     version: releaseVersion,
     date: "September 20, 2026",
-    summary: "A sturdier foundation for generated Expo apps.",
+    summary: "Configurable social sign-in for Clerk-powered Expo apps.",
     changes: [
       "Native-feeling liquid-glass navigation and safe-area defaults for Expo Go.",
       "Custom Clerk sign-in, verification, resend, and forgot-password flows.",
       "Multi-step onboarding with reset controls and theme-aware surfaces.",
       "More reliable Expo assets, adapter output, and production rollout checks.",
+      "Choose Google, Apple, Facebook, and Microsoft sign-in during setup with multi-select support.",
+      "Generated auth screens now use Clerk browser SSO with provider-specific SVG icons.",
     ],
   },
 ];

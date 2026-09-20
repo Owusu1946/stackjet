@@ -16,6 +16,7 @@ export const authAdapters = [
   "jwt",
   "none",
 ] as const;
+export const socialProviders = ["google", "apple", "facebook", "microsoft"] as const;
 export const styleAdapters = ["uniwind", "nativewind", "unistyles", "stylesheet"] as const;
 export const databaseAdapters = ["neon", "postgres", "sqlite", "supabase", "none"] as const;
 export const ormAdapters = ["drizzle", "prisma", "none"] as const;
@@ -29,6 +30,7 @@ export type BackendAdapter = (typeof backendAdapters)[number];
 export type DatabaseAdapter = (typeof databaseAdapters)[number];
 export type OrmAdapter = (typeof ormAdapters)[number];
 export type PackageManager = (typeof packageManagers)[number];
+export type SocialProvider = (typeof socialProviders)[number];
 
 export const projectNameSchema = z
   .string()
@@ -57,6 +59,7 @@ const createInputObjectSchema = z.object({
   preset: z.string().optional(),
   backend: z.enum(backendAdapters).optional(),
   auth: z.enum(authAdapters),
+  socialProviders: z.array(z.enum(socialProviders)).default([]),
   style: z.enum(styleAdapters),
   database: z.enum(databaseAdapters).default("none"),
   orm: z.enum(ormAdapters).default("none"),
@@ -176,7 +179,9 @@ export const createInputSchema = createInputObjectSchema
     }
   });
 
-export type CreateInput = z.infer<typeof createInputSchema>;
+export type CreateInput = Omit<z.infer<typeof createInputSchema>, "socialProviders"> & {
+  socialProviders?: SocialProvider[];
+};
 
 export const createConfigSchema = createInputObjectSchema
   .omit({ destination: true, sdk: true })

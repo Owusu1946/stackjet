@@ -1,4 +1,5 @@
 import type { Operation } from "@expojet/core";
+import type { CreateInput } from "@expojet/schemas";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
@@ -120,6 +121,74 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, title: { fontSize: 30, fontWeight: "700" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14 }, error: { color: "#b42318" } });
 `;
 
+const clerkSocialButtons = `import React from "react";
+import { useSSO } from "@clerk/expo";
+import { useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { SocialIcon, type SocialProvider } from "../../src/components/auth/social-icon";
+
+const PROVIDERS: readonly SocialProvider[] = __SOCIAL_PROVIDERS__;
+const STRATEGIES: Record<SocialProvider, string> = {
+  google: "oauth_google",
+  apple: "oauth_apple",
+  facebook: "oauth_facebook",
+  microsoft: "oauth_microsoft",
+};
+const LABELS: Record<SocialProvider, string> = {
+  google: "Google",
+  apple: "Apple",
+  facebook: "Facebook",
+  microsoft: "Microsoft",
+};
+
+export function SocialAuthButtons() {
+  const { startSSOFlow } = useSSO();
+  const router = useRouter();
+  const [pending, setPending] = React.useState<SocialProvider | null>(null);
+  async function signIn(provider: SocialProvider) {
+    setPending(provider);
+    try {
+      const { createdSessionId, setActive } = await startSSOFlow({ strategy: STRATEGIES[provider] as any });
+      if (createdSessionId && setActive) {
+        await setActive({ session: createdSessionId });
+        router.replace("/");
+      }
+    } finally {
+      setPending(null);
+    }
+  }
+  if (!PROVIDERS.length) return null;
+  return <View style={styles.social}><Text style={styles.or}>or continue with</Text>{PROVIDERS.map((provider) => <Pressable key={provider} accessibilityRole="button" accessibilityLabel={"Continue with " + LABELS[provider]} disabled={pending !== null} onPress={() => void signIn(provider)} style={styles.button}>{pending === provider ? <ActivityIndicator /> : <SocialIcon provider={provider} size={20} />}<Text style={styles.label}>{LABELS[provider]}</Text></Pressable>)}</View>;
+}
+const styles = StyleSheet.create({ social: { gap: 10, marginTop: 8 }, or: { color: "#64748b", textAlign: "center" }, button: { minHeight: 48, borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 16 }, label: { fontWeight: "700" } });
+`;
+
+const socialIconSource = `import { SvgXml } from "react-native-svg";
+import type { ColorValue } from "react-native";
+export type SocialProvider = "google" | "apple" | "facebook" | "microsoft";
+const XML: Record<SocialProvider, string> = {
+  google: '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35 12.27c0-.74-.07-1.45-.21-2.13H12v4.03h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.29Z"/><path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.34l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"/><path fill="#FBBC05" d="M6.54 13.6A5.86 5.86 0 0 1 6.23 12c0-.56.1-1.1.31-1.6V7.87H3.3A9.74 9.74 0 0 0 2.25 12c0 1.57.38 3.05 1.05 4.13l3.24-2.53Z"/><path fill="#EA4335" d="M12 6.37c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.47 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.37l3.24 2.53C7.31 8.09 9.46 6.37 12 6.37Z"/></svg>',
+  apple: '<svg viewBox="0 0 24 24"><path fill="#111827" d="M17.05 12.78c-.02-2.31 1.88-3.42 1.97-3.47a4.23 4.23 0 0 0-3.33-1.8c-1.4-.15-2.73.84-3.44.84-.72 0-1.83-.82-3.01-.8a4.43 4.43 0 0 0-3.73 2.27c-1.61 2.79-.41 6.9 1.15 9.16.77 1.1 1.68 2.33 2.88 2.29 1.15-.05 1.58-.74 2.97-.74 1.39 0 1.78.74 2.98.72 1.24-.02 2.03-1.12 2.8-2.22a9.1 9.1 0 0 0 1.27-2.57 3.98 3.98 0 0 1-2.51-3.68ZM14.8 6.04a4 4 0 0 0 .92-2.87 4.08 4.08 0 0 0-2.65 1.37 3.8 3.8 0 0 0-.95 2.76 3.37 3.37 0 0 0 2.68-1.26Z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.88 11.86v-8.4H7.08V12h3.04V9.36c0-3 1.79-4.66 4.52-4.66 1.31 0 2.68.24 2.68.24v2.95h-1.51c-1.49 0-1.95.92-1.95 1.87V12h3.32l-.53 3.46h-2.79v8.4A12 12 0 0 0 24 12Z"/></svg>',
+  microsoft: '<svg viewBox="0 0 24 24"><path fill="#f25022" d="M2 2h9.5v9.5H2z"/><path fill="#7fba00" d="M12.5 2H22v9.5h-9.5z"/><path fill="#00a4ef" d="M2 12.5h9.5V22H2z"/><path fill="#ffb900" d="M12.5 12.5H22V22h-9.5z"/></svg>',
+};
+export function SocialIcon({ provider, size = 20, color }: { provider: SocialProvider; size?: number; color?: ColorValue }) { return <SvgXml xml={XML[provider]} width={size} height={size} color={color as string | undefined} />; }
+`;
+
+function clerkScreenWithSocials(source: string, providers: CreateInput["socialProviders"]) {
+  if (!providers?.length) return source;
+  return source
+    .replace(
+      'import { useSignIn } from "@clerk/expo";',
+      'import { useSignIn } from "@clerk/expo";\nimport { SocialAuthButtons } from "../../src/components/auth/social-buttons";',
+    )
+    .replace(
+      'import { useSignUp } from "@clerk/expo";',
+      'import { useSignUp } from "@clerk/expo";\nimport { SocialAuthButtons } from "../../src/components/auth/social-buttons";',
+    )
+    .replace("</View>;", "<SocialAuthButtons /></View>;");
+}
+
 const betterProvider = `import { type PropsWithChildren } from "react";
 import { authClient } from "../auth/client";
 import type { SessionState } from "./types";
@@ -188,6 +257,7 @@ export const clerkAuthAdapter: Adapter = {
   optionsSchema: () => noOptions,
   plan(input) {
     const { root, workspace } = location(input.structure);
+    const selectedSocialProviders = input.socialProviders ?? [];
     const operations: Operation[] = [
       {
         type: "add-dependency",
@@ -197,6 +267,18 @@ export const clerkAuthAdapter: Adapter = {
         kind: "dependencies",
         owner: this.id,
       },
+      ...(selectedSocialProviders.length > 0
+        ? [
+            {
+              type: "add-dependency" as const,
+              workspace,
+              name: "react-native-svg",
+              version: "^15.11.2",
+              kind: "dependencies" as const,
+              owner: this.id,
+            },
+          ]
+        : []),
       {
         type: "add-dependency",
         workspace,
@@ -240,15 +322,34 @@ export const clerkAuthAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}app/(public)/sign-in.tsx`,
-        content: clerkSignIn,
+        content: clerkScreenWithSocials(clerkSignIn, selectedSocialProviders),
         owner: this.id,
       },
       {
         type: "write-file",
         path: `${root}app/(public)/sign-up.tsx`,
-        content: clerkSignUp,
+        content: clerkScreenWithSocials(clerkSignUp, selectedSocialProviders),
         owner: this.id,
       },
+      ...(selectedSocialProviders.length > 0
+        ? [
+            {
+              type: "write-file" as const,
+              path: `${root}src/components/auth/social-buttons.tsx`,
+              content: clerkSocialButtons.replace(
+                "__SOCIAL_PROVIDERS__",
+                JSON.stringify(selectedSocialProviders),
+              ),
+              owner: this.id,
+            },
+            {
+              type: "write-file" as const,
+              path: `${root}src/components/auth/social-icon.tsx`,
+              content: socialIconSource,
+              owner: this.id,
+            },
+          ]
+        : []),
       { type: "write-file", path: `${root}src/env.ts`, content: clerkEnv, owner: this.id },
       {
         type: "write-file",

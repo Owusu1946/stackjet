@@ -48,7 +48,11 @@ describe("createInputSchema", () => {
       analytics: _an,
       ...withoutDefaults
     } = base;
-    expect(createInputSchema.parse(withoutDefaults)).toEqual({ ...base, backend: "none" });
+    expect(createInputSchema.parse(withoutDefaults)).toEqual({
+      ...base,
+      backend: "none",
+      socialProviders: [],
+    });
   });
 
   it("accepts monorepo-web structure", () => {

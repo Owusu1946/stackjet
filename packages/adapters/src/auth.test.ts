@@ -49,6 +49,27 @@ describe("auth adapters", () => {
   });
 
   describe("clerkAuthAdapter", () => {
+    it("generates only the selected social providers", () => {
+      const operations = clerkAuthAdapter.plan(
+        makeInput({ socialProviders: ["google", "microsoft"] }),
+        {},
+      );
+      const signIn = operations.find(
+        (operation) => operation.type === "write-file" && operation.path.endsWith("sign-in.tsx"),
+      );
+      const social = operations.find(
+        (operation) =>
+          operation.type === "write-file" && operation.path.endsWith("social-buttons.tsx"),
+      );
+      expect(signIn && "content" in signIn ? signIn.content : "").toContain("SocialAuthButtons");
+      expect(social && "content" in social ? social.content : "").toContain(
+        '["google","microsoft"]',
+      );
+      expect(social && "content" in social ? social.content : "").toContain(
+        'const PROVIDERS: readonly SocialProvider[] = ["google","microsoft"];',
+      );
+    });
+
     it("plans Clerk dependencies, env, and provider in standalone", () => {
       const ops = clerkAuthAdapter.plan(makeInput({ structure: "standalone", auth: "clerk" }), {});
       const deps = ops
