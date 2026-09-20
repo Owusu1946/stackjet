@@ -2,7 +2,8 @@
 
 import { commandName, createPackageName } from "@expojet/brand";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { type PreviewFile, StackPreview } from "./stack-preview";
 
 type PackageManager = "pnpm" | "npm" | "bun" | "yarn";
 type CategoryKey = keyof Config | "features";
@@ -290,6 +291,10 @@ export function StackBuilder() {
   const [config, setConfig] = useState<Config>(defaults);
   const [activeGroup, setActiveGroup] = useState<CategoryKey>("structure");
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [view, setView] = useState<"configure" | "preview">("configure");
+  const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(true);
+  const [previewError, setPreviewError] = useState<string>();
 
   const select = (key: keyof Config, value: string) => {
     setConfig((current) => {
@@ -383,6 +388,58 @@ export function StackBuilder() {
       return option ? { ...option, group: group.label } : null;
     })
     .filter(Boolean) as Array<Option & { group: string }>;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setPreviewLoading(true);
+      setPreviewError(undefined);
+      try {
+        const response = await fetch("/api/builder-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectName: safeProjectName,
+            destination: `/preview/${safeProjectName}`,
+            structure: config.structure,
+            packageManager,
+            navigation: config.navigation,
+            navigationType: config.navigationType,
+            typescript: true,
+            icons: config.icons,
+            state: config.state,
+            liquidGlass: config.liquidGlass,
+            analytics: config.analytics,
+            backend: config.backend,
+            auth: config.auth,
+            socialProviders: config.auth === "clerk" ? config.socials : [],
+            style: config.style,
+            database: config.database,
+            orm: config.orm,
+            onboarding: config.onboarding,
+            darkMode: config.darkMode,
+            eas: config.eas,
+            install: true,
+            git: true,
+            sdk: 57,
+          }),
+          signal: controller.signal,
+        });
+        const payload = (await response.json()) as { files?: PreviewFile[]; error?: string };
+        if (!response.ok || !payload.files) throw new Error(payload.error ?? "Preview failed");
+        setPreviewFiles(payload.files);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setPreviewError(error instanceof Error ? error.message : "Unable to render preview");
+      } finally {
+        if (!controller.signal.aborted) setPreviewLoading(false);
+      }
+    }, 250);
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [config, packageManager, safeProjectName]);
 
   async function copyCommand() {
     try {
@@ -486,120 +543,151 @@ export function StackBuilder() {
           </button>
         </aside>
         <div className="builder-main">
-          <nav className="builder-tabs" aria-label="Stack categories">
-            {categories.map((group) => (
-              <button
-                type="button"
-                key={group.key}
-                data-active={activeGroup === group.key}
-                onClick={() => setActiveGroup(group.key)}
-              >
-                {group.label}
-              </button>
-            ))}
-          </nav>
-          <div className="builder-stage-heading">
-            <div>
-              <span>STEP {String(activeIndex + 1).padStart(2, "0")}</span>
-              <h2>{categories[activeIndex]?.label}</h2>
-            </div>
-            <div className="builder-progress-track" aria-hidden="true">
-              <i style={{ width: `${((activeIndex + 1) / categories.length) * 100}%` }} />
-            </div>
+          <div className="builder-view-tabs" role="tablist" aria-label="Builder view">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={view === "configure"}
+              onClick={() => setView("configure")}
+            >
+              ›_ CONFIGURE
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={view === "preview"}
+              onClick={() => setView("preview")}
+            >
+              ⑂ PREVIEW
+            </button>
           </div>
-          <div className="builder-options">
-            {activeGroup === "socials"
-              ? socialOptions.map((option) => (
+          {view === "preview" ? (
+            <StackPreview
+              projectName={safeProjectName}
+              files={previewFiles}
+              loading={previewLoading}
+              error={previewError}
+            />
+          ) : (
+            <>
+              <nav className="builder-tabs" aria-label="Stack categories">
+                {categories.map((group) => (
                   <button
                     type="button"
-                    key={option.value}
-                    disabled={config.auth !== "clerk"}
-                    data-active={config.socials.includes(option.value)}
-                    onClick={() =>
-                      setConfig((current) => ({
-                        ...current,
-                        socials: current.socials.includes(option.value)
-                          ? current.socials.filter((item) => item !== option.value)
-                          : [...current.socials, option.value],
-                      }))
-                    }
+                    key={group.key}
+                    data-active={activeGroup === group.key}
+                    onClick={() => setActiveGroup(group.key)}
                   >
-                    {option.icon ? (
-                      <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
-                    ) : null}
-                    <span className="builder-option-copy">
-                      <strong>{option.label}</strong>
-                      <small>{option.description}</small>
-                    </span>
-                    <i>{config.socials.includes(option.value) ? "✓" : "+"}</i>
+                    {group.label}
                   </button>
-                ))
-              : activeGroup === "features"
-                ? featureOptions.map((option) => (
-                    <button
-                      type="button"
-                      key={option.key}
-                      data-active={config[option.key]}
-                      onClick={() => toggleFeature(option.key)}
-                    >
-                      <span className="builder-option-copy">
-                        <strong>{option.label}</strong>
-                        <small>{option.description}</small>
-                      </span>
-                      <i>{config[option.key] ? "ON" : "OFF"}</i>
-                    </button>
-                  ))
-                : active?.options.map((option) => {
-                    const disabled =
-                      (active.key === "backend" &&
-                        config.structure === "standalone" &&
-                        !["none", "convex"].includes(option.value)) ||
-                      (active.key === "database" &&
-                        config.backend === "convex" &&
-                        option.value !== "none") ||
-                      (active.key === "orm" &&
-                        (config.database === "none" || config.backend === "convex") &&
-                        option.value !== "none");
-                    return (
+                ))}
+              </nav>
+              <div className="builder-stage-heading">
+                <div>
+                  <span>STEP {String(activeIndex + 1).padStart(2, "0")}</span>
+                  <h2>{categories[activeIndex]?.label}</h2>
+                </div>
+                <div className="builder-progress-track" aria-hidden="true">
+                  <i style={{ width: `${((activeIndex + 1) / categories.length) * 100}%` }} />
+                </div>
+              </div>
+              <div className="builder-options">
+                {activeGroup === "socials"
+                  ? socialOptions.map((option) => (
                       <button
                         type="button"
                         key={option.value}
-                        disabled={disabled}
-                        data-active={config[active.key] === option.value}
-                        onClick={() => select(active.key, option.value)}
+                        disabled={config.auth !== "clerk"}
+                        data-active={config.socials.includes(option.value)}
+                        onClick={() =>
+                          setConfig((current) => ({
+                            ...current,
+                            socials: current.socials.includes(option.value)
+                              ? current.socials.filter((item) => item !== option.value)
+                              : [...current.socials, option.value],
+                          }))
+                        }
                       >
                         {option.icon ? (
                           <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
-                        ) : (
-                          <span className="builder-placeholder">{option.label.slice(0, 1)}</span>
-                        )}
+                        ) : null}
                         <span className="builder-option-copy">
                           <strong>{option.label}</strong>
                           <small>{option.description}</small>
                         </span>
-                        <i>{config[active.key] === option.value ? "✓" : "+"}</i>
+                        <i>{config.socials.includes(option.value) ? "✓" : "+"}</i>
                       </button>
-                    );
-                  })}
-          </div>
-          <p className="builder-note">
-            {activeGroup === "socials" && config.auth !== "clerk"
-              ? "Select Clerk authentication to configure hosted social sign-in."
-              : "Incompatible choices are disabled or normalized automatically."}
-          </p>
-          <div className="builder-step-actions">
-            <button type="button" disabled={activeIndex === 0} onClick={() => moveCategory(-1)}>
-              ← Previous
-            </button>
-            <span>{categories[activeIndex]?.label}</span>
-            <button
-              type="button"
-              disabled={activeIndex === categories.length - 1}
-              onClick={() => moveCategory(1)}
-            >
-              Next →
-            </button>
-          </div>
+                    ))
+                  : activeGroup === "features"
+                    ? featureOptions.map((option) => (
+                        <button
+                          type="button"
+                          key={option.key}
+                          data-active={config[option.key]}
+                          onClick={() => toggleFeature(option.key)}
+                        >
+                          <span className="builder-option-copy">
+                            <strong>{option.label}</strong>
+                            <small>{option.description}</small>
+                          </span>
+                          <i>{config[option.key] ? "ON" : "OFF"}</i>
+                        </button>
+                      ))
+                    : active?.options.map((option) => {
+                        const disabled =
+                          (active.key === "backend" &&
+                            config.structure === "standalone" &&
+                            !["none", "convex"].includes(option.value)) ||
+                          (active.key === "database" &&
+                            config.backend === "convex" &&
+                            option.value !== "none") ||
+                          (active.key === "orm" &&
+                            (config.database === "none" || config.backend === "convex") &&
+                            option.value !== "none");
+                        return (
+                          <button
+                            type="button"
+                            key={option.value}
+                            disabled={disabled}
+                            data-active={config[active.key] === option.value}
+                            onClick={() => select(active.key, option.value)}
+                          >
+                            {option.icon ? (
+                              <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
+                            ) : (
+                              <span className="builder-placeholder">
+                                {option.label.slice(0, 1)}
+                              </span>
+                            )}
+                            <span className="builder-option-copy">
+                              <strong>{option.label}</strong>
+                              <small>{option.description}</small>
+                            </span>
+                            <i>{config[active.key] === option.value ? "✓" : "+"}</i>
+                          </button>
+                        );
+                      })}
+              </div>
+              <p className="builder-note">
+                {activeGroup === "socials" && config.auth !== "clerk"
+                  ? "Select Clerk authentication to configure hosted social sign-in."
+                  : "Incompatible choices are disabled or normalized automatically."}
+              </p>
+              <div className="builder-step-actions">
+                <button type="button" disabled={activeIndex === 0} onClick={() => moveCategory(-1)}>
+                  ← Previous
+                </button>
+                <span>{categories[activeIndex]?.label}</span>
+                <button
+                  type="button"
+                  disabled={activeIndex === categories.length - 1}
+                  onClick={() => moveCategory(1)}
+                >
+                  Next →
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

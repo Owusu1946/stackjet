@@ -11,6 +11,7 @@ const releases = [
       "Generated auth screens now use Clerk browser SSO with provider-specific SVG icons.",
       "Configure the complete Expojet stack in a dedicated guided builder and copy a production-ready CLI command.",
       "Stack choices use locally bundled technology icons, smooth step navigation, and automatic compatibility normalization.",
+      "Preview the exact generated file tree and file contents directly from the same operation plan used by the CLI executor.",
     ],
   },
   {

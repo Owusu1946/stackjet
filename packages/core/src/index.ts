@@ -7,6 +7,7 @@ export * from "./operations.js";
 export * from "./package-manager.js";
 export * from "./plan-path.js";
 export * from "./presets.js";
+export * from "./preview.js";
 export * from "./project.js";
 export * from "./project-path.js";
 export * from "./redact.js";

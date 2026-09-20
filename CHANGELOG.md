@@ -10,6 +10,7 @@ See [packages/cli/CHANGELOG.md](file:///c:/Users/HP/Desktop/stackjet/packages/cl
 - Add multi-select Clerk social sign-in for Google, Apple, Facebook, and Microsoft.
 - Add a dedicated guided stack builder that generates valid Expojet CLI commands from the selected configuration.
 - Bundle local stack icons and normalize incompatible configuration choices in the builder.
+- Preview the real generated file tree and contents using the same generation plan as the CLI.
 
 ## 0.3.0
 

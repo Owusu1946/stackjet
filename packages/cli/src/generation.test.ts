@@ -1,7 +1,7 @@
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadProjectContext, runDoctorChecks } from "@expojet/core";
+import { loadProjectContext, materializePlan, runDoctorChecks } from "@expojet/core";
 import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import { buildCreatePlan, generateCreatePlan } from "./generation.js";
@@ -54,6 +54,27 @@ describe("Phase 2 generation", () => {
     expect(result.committed).toBe(false);
     expect(result.files).toContain("app/index.tsx");
     expect(existsSync(destination)).toBe(false);
+  });
+
+  it("materializes the same bytes shown by the web preview and written by the executor", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-materialize-")), "generated-app");
+    const createInput: CreateInput = {
+      ...input(destination),
+      auth: "clerk" as const,
+      socialProviders: ["google", "apple"],
+      onboarding: true,
+      liquidGlass: true,
+      eas: true,
+    };
+    const preview = materializePlan(buildCreatePlan(createInput));
+    const result = generateCreatePlan(createInput, false);
+
+    expect(preview.map((file) => file.path)).toEqual(
+      [...result.files].sort((left, right) => left.localeCompare(right)),
+    );
+    for (const file of preview) {
+      expect(readFileSync(join(destination, file.path), "utf8")).toBe(file.content);
+    }
   });
 
   it("plans Clerk hosted authentication", () => {

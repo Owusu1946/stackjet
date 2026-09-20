@@ -12,7 +12,8 @@
     "expojet": "./dist/cli.js"
   },
   "exports": {
-    ".": "./dist/cli.js"
+    ".": "./dist/cli.js",
+    "./generation": "./dist/generation.js"
   },
   "files": [
     "dist",

@@ -3,15 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "pnpm --filter create-expojet build && next build",
+    "predev": "pnpm --filter create-expojet build",
     "dev": "next dev",
     "start": "next start",
-    "typecheck": "next typegen && tsc --noEmit",
+    "typecheck": "pnpm --filter create-expojet build && next typegen && tsc --noEmit",
     "lint": "biome check",
     "format": "biome format --write"
   },
   "dependencies": {
     "@expojet/brand": "workspace:*",
+    "create-expojet": "workspace:*",
     "fumadocs-core": "16.15.11",
     "fumadocs-mdx": "15.4.1",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.15.11",
