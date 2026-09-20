@@ -7,12 +7,55 @@ const releases = [
     date: "September 20, 2026",
     summary: "Configurable social sign-in for Clerk-powered Expo apps.",
     changes: [
-      "Native-feeling liquid-glass navigation and safe-area defaults for Expo Go.",
-      "Custom Clerk sign-in, verification, resend, and forgot-password flows.",
-      "Multi-step onboarding with reset controls and theme-aware surfaces.",
-      "More reliable Expo assets, adapter output, and production rollout checks.",
       "Choose Google, Apple, Facebook, and Microsoft sign-in during setup with multi-select support.",
       "Generated auth screens now use Clerk browser SSO with provider-specific SVG icons.",
+    ],
+  },
+  {
+    version: "0.5.0",
+    date: "September 20, 2026",
+    summary: "A stronger production foundation for generated Expo apps.",
+    changes: [
+      "Added native-feeling liquid-glass navigation and safe-area defaults for Expo Go.",
+      "Added custom Clerk sign-in, verification, resend, and forgot-password flows.",
+      "Added multi-step onboarding, reset controls, and theme-aware navigation surfaces.",
+      "Improved Expo assets, adapter output, and production rollout checks.",
+    ],
+  },
+  {
+    version: "0.4.0",
+    date: "September 2026",
+    summary: "Expanded the generator across the Expo application stack.",
+    changes: [
+      "Added EAS profiles, icon and state adapters, liquid-glass components, themes, presets, and analytics adapters.",
+      "Improved package-manager detection and cross-platform dependency installation.",
+    ],
+  },
+  {
+    version: "0.3.0",
+    date: "September 2026",
+    summary: "Introduced the ecosystem schemas, preset engine, and navigation matrix.",
+    changes: [
+      "Added validated schemas, preset commands, package-manager selection, and TypeScript controls.",
+      "Added Expo Router and React Navigation layouts for tabs, drawers, both, and stack configurations.",
+    ],
+  },
+  {
+    version: "0.2.1",
+    date: "September 2026",
+    summary: "Completed the Expojet rebrand and SDK pack integrity work.",
+    changes: [
+      "Removed remaining Stackjet branding from generated apps and fixtures.",
+      "Updated the SDK pack metadata, schemas, security documentation, and compatibility references.",
+    ],
+  },
+  {
+    version: "0.2.0",
+    date: "September 2026",
+    summary: "Added the backend, database, ORM, and authentication adapter matrix.",
+    changes: [
+      "Added Neon, Postgres, SQLite, Drizzle, Prisma, Supabase, Firebase, Convex, Express, NestJS, and JWT support.",
+      "Added strict mobile secret isolation and backend-aware doctor diagnostics.",
     ],
   },
 ];

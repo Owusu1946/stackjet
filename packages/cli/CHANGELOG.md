@@ -1,5 +1,18 @@
 # create-expojet
 
+## 0.5.1
+
+### Patch Changes
+
+- Add multi-select Clerk social sign-in providers for generated Expo apps.
+- Generate Expo Go-compatible browser SSO buttons with Google, Apple, Facebook, and Microsoft icons.
+
+## 0.5.0
+
+### Minor Changes
+
+- Improve generated auth, onboarding, theme switching, navigation, icon handling, and Expo SDK 57 app scaffolding.
+
 ## 0.4.0
 
 ### Minor Changes
@@ -90,10 +103,3 @@
     - Validates JWT auth client presence (`src/auth/jwt-client.ts`).
     - Enforces strict isolation check verifying `JWT_SECRET` and `JWT_REFRESH_SECRET` never leak into mobile client bundles.
   - Add CLI flag `--navigation` and interactive prompts with full backwards compatibility.
-# 0.5.0
-
-- Improve generated auth, onboarding, theme switching, navigation, icon handling, and Expo SDK 57 app scaffolding.
-# 0.5.1
-
-- Add multi-select Clerk social sign-in providers for generated Expo apps.
-- Generate Expo Go-compatible browser SSO buttons with Google, Apple, Facebook, and Microsoft icons.
