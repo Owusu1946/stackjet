@@ -343,8 +343,10 @@ async function promptCreate(
 
   const availableAuth =
     structure !== "standalone"
-      ? authAdapters.filter((value) => value !== "better-auth" || flags.experimental)
-      : (["clerk", "supabase", "firebase", "jwt", "none"] as const);
+      ? authAdapters.filter(
+          (value) => value !== "jwt" && (value !== "better-auth" || flags.experimental),
+        )
+      : (["clerk", "supabase", "firebase", "none"] as const);
   const auth =
     flags.auth ??
     activeConfig.auth ??
@@ -652,7 +654,11 @@ function printResult(
   io.stdout(`  Dark mode: ${input.darkMode ? "enabled" : "disabled"}`);
   if (input.eas) io.stdout("  EAS Build: configured (development, preview, production profiles)");
   io.stdout(`  Files: ${result.files.length}`);
-  io.stdout("  Foundation: Expo SDK 57, Expo Router, strict TypeScript, tests");
+  io.stdout(
+    `  Foundation: Expo SDK 57, ${
+      input.navigation === "router" ? "Expo Router" : "React Navigation"
+    }, strict TypeScript, tests`,
+  );
   if (status?.git) io.stdout("  Git: initialized");
   if (status?.install !== undefined) {
     io.stdout(`  Dependencies: ${status.install ? "installed" : "install failed"}`);

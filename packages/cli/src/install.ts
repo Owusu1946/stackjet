@@ -29,6 +29,12 @@ export async function installDependencies(
   if (isPnpm && !hasWorkspaceConfig) {
     args.push("--ignore-workspace");
   }
+  // Adapter operations intentionally mutate package.json after the immutable SDK
+  // pack is copied. The pack lockfile is therefore only a bootstrap artifact and
+  // must be refreshed for the exact generated feature set.
+  if (isPnpm) {
+    args.push("--no-frozen-lockfile");
+  }
 
   try {
     await execa(packageManager, args, {

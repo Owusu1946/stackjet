@@ -12,7 +12,7 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
 
 const glassCardSource = `import React from "react";
 import { Platform, StyleSheet, View, type ViewProps } from "react-native";
-import { GlassView, isGlassEffectAPIAvailable } from "expo-glass-effect";
+import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from "expo-glass-effect";
 import { BlurView } from "expo-blur";
 
 export interface GlassCardProps extends ViewProps {
@@ -29,7 +29,14 @@ export function GlassCard({
   tint = "systemMaterial",
   ...props
 }: GlassCardProps) {
-  if (Platform.OS === "ios" && isGlassEffectAPIAvailable()) {
+  let canUseGlass = false;
+  try {
+    canUseGlass = Platform.OS === "ios" && isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
+  } catch {
+    canUseGlass = false;
+  }
+
+  if (canUseGlass) {
     return (
       <GlassView
         glassEffectStyle={glassEffectStyle}
@@ -74,31 +81,6 @@ const styles = StyleSheet.create({
 });
 `;
 
-const glassTabBarBackgroundSource = `import React from "react";
-import { Platform, StyleSheet } from "react-native";
-import { GlassView, isGlassEffectAPIAvailable } from "expo-glass-effect";
-import { BlurView } from "expo-blur";
-
-export function GlassTabBarBackground() {
-  if (Platform.OS === "ios" && isGlassEffectAPIAvailable()) {
-    return (
-      <GlassView
-        glassEffectStyle="regular"
-        style={StyleSheet.absoluteFill}
-      />
-    );
-  }
-
-  return (
-    <BlurView
-      intensity={80}
-      tint="systemChromeMaterial"
-      style={StyleSheet.absoluteFill}
-    />
-  );
-}
-`;
-
 export const liquidGlassAdapter: Adapter = {
   id: "feature:liquid-glass",
   version: "1.0.0",
@@ -129,12 +111,6 @@ export const liquidGlassAdapter: Adapter = {
         type: "write-file",
         path: `${root}src/components/ui/glass-card.tsx`,
         content: glassCardSource,
-        owner: this.id,
-      },
-      {
-        type: "write-file",
-        path: `${root}src/components/ui/glass-tab-bar-background.tsx`,
-        content: glassTabBarBackgroundSource,
         owner: this.id,
       },
     ];

@@ -11,11 +11,14 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
 }
 
 const lucideIconSource = `import React from "react";
+import type { ColorValue } from "react-native";
 import {
   Bell,
   Check,
   ChevronRight,
   Compass,
+  Eye,
+  EyeOff,
   Home,
   Info,
   type LucideIcon,
@@ -33,12 +36,14 @@ export type IconName =
   | "chevron-right"
   | "check"
   | "compass"
-  | "info";
+  | "info"
+  | "eye"
+  | "eye-off";
 
 export interface IconProps {
   name: IconName;
   size?: number;
-  color?: string;
+  color?: ColorValue;
   strokeWidth?: number;
 }
 
@@ -52,30 +57,33 @@ const ICON_MAP: Record<IconName, LucideIcon> = {
   check: Check,
   compass: Compass,
   info: Info,
+  eye: Eye,
+  "eye-off": EyeOff,
 };
 
 export function Icon({ name, size = 24, color = "#000", strokeWidth = 2 }: IconProps) {
   const Component = ICON_MAP[name] ?? Home;
-  return <Component size={size} color={color} strokeWidth={strokeWidth} />;
+  return <Component size={size} color={color as string} strokeWidth={strokeWidth} />;
 }
 
-export { Bell, Check, ChevronRight, Compass, Home, Info, Menu, Settings, User };
+export { Bell, Check, ChevronRight, Compass, Eye, EyeOff, Home, Info, Menu, Settings, User };
 `;
 
 const hugeiconsIconSource = `import React from "react";
-import {
-  ArrowRight01Icon,
-  CompassIcon,
-  Home01Icon,
-  type IconSvgProps,
-  InformationCircleIcon,
-  Menu01Icon,
-  Notification03Icon,
-  Settings02Icon,
-  Tick01Icon,
-  UserIcon,
-} from "@hugeicons/core-free-icons";
+import type { ColorValue } from "react-native";
+import ArrowRight01Icon from "@hugeicons/core-free-icons/ArrowRight01Icon";
+import CompassIcon from "@hugeicons/core-free-icons/CompassIcon";
+import Home01Icon from "@hugeicons/core-free-icons/Home01Icon";
+import InformationCircleIcon from "@hugeicons/core-free-icons/InformationCircleIcon";
+import Menu01Icon from "@hugeicons/core-free-icons/Menu01Icon";
+import Notification03Icon from "@hugeicons/core-free-icons/Notification03Icon";
+import Settings02Icon from "@hugeicons/core-free-icons/Settings02Icon";
+import Tick01Icon from "@hugeicons/core-free-icons/Tick01Icon";
+import UserIcon from "@hugeicons/core-free-icons/UserIcon";
+import EyeIcon from "@hugeicons/core-free-icons/EyeIcon";
+import EyeClosedIcon from "@hugeicons/core-free-icons/EyeClosedIcon";
 import { HugeiconsIcon } from "@hugeicons/react-native";
+type IconSvgObject = readonly (readonly [string, { readonly [key: string]: string | number }])[];
 
 export type IconName =
   | "home"
@@ -86,16 +94,18 @@ export type IconName =
   | "chevron-right"
   | "check"
   | "compass"
-  | "info";
+  | "info"
+  | "eye"
+  | "eye-off";
 
 export interface IconProps {
   name: IconName;
   size?: number;
-  color?: string;
+  color?: ColorValue;
   strokeWidth?: number;
 }
 
-const ICON_MAP: Record<IconName, React.FC<IconSvgProps>> = {
+const ICON_MAP: Record<IconName, IconSvgObject> = {
   home: Home01Icon,
   user: UserIcon,
   settings: Settings02Icon,
@@ -105,11 +115,13 @@ const ICON_MAP: Record<IconName, React.FC<IconSvgProps>> = {
   check: Tick01Icon,
   compass: CompassIcon,
   info: InformationCircleIcon,
+  eye: EyeIcon,
+  "eye-off": EyeClosedIcon,
 };
 
 export function Icon({ name, size = 24, color = "#000", strokeWidth = 1.5 }: IconProps) {
   const icon = ICON_MAP[name] ?? Home01Icon;
-  return <HugeiconsIcon icon={icon} size={size} color={color} strokeWidth={strokeWidth} />;
+  return <HugeiconsIcon icon={icon} size={size} color={color as string} strokeWidth={strokeWidth} />;
 }
 
 export { HugeiconsIcon };
@@ -117,6 +129,7 @@ export { HugeiconsIcon };
 
 const expoIconSource = `import React from "react";
 import { Ionicons } from "@expo/vector-icons";
+import type { ColorValue } from "react-native";
 
 export type IconName =
   | "home"
@@ -127,12 +140,14 @@ export type IconName =
   | "chevron-right"
   | "check"
   | "compass"
-  | "info";
+  | "info"
+  | "eye"
+  | "eye-off";
 
 export interface IconProps {
   name: IconName;
   size?: number;
-  color?: string;
+  color?: ColorValue;
 }
 
 const ICON_MAP: Record<IconName, keyof typeof Ionicons.glyphMap> = {
@@ -145,6 +160,8 @@ const ICON_MAP: Record<IconName, keyof typeof Ionicons.glyphMap> = {
   check: "checkmark-outline",
   compass: "compass-outline",
   info: "information-circle-outline",
+  eye: "eye-outline",
+  "eye-off": "eye-off-outline",
 };
 
 export function Icon({ name, size = 24, color = "#000" }: IconProps) {
@@ -249,7 +266,23 @@ export const expoIconAdapter: Adapter = {
         type: "add-dependency",
         workspace,
         name: "@expo/vector-icons",
-        version: "^14.1.0",
+        version: "^15.0.2",
+        kind: "dependencies",
+        owner: this.id,
+      },
+      {
+        type: "add-dependency",
+        workspace,
+        name: "expo-font",
+        version: "~57.0.4",
+        kind: "dependencies",
+        owner: this.id,
+      },
+      {
+        type: "add-dependency",
+        workspace,
+        name: "expo-asset",
+        version: "~57.0.18",
         kind: "dependencies",
         owner: this.id,
       },

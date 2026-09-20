@@ -58,7 +58,9 @@ export function createProgram(io: CliIo) {
     .addOption(new Option("--navigation <adapter>").choices([...navigationAdapters]))
     .addOption(new Option("--navigation-type <type>").choices([...navigationTypes]))
     .addOption(new Option("--backend <adapter>").choices([...backendAdapters]))
-    .addOption(new Option("--auth <adapter>").choices([...authAdapters]))
+    .addOption(
+      new Option("--auth <adapter>").choices(authAdapters.filter((adapter) => adapter !== "jwt")),
+    )
     .addOption(new Option("--style <adapter>").choices([...styleAdapters]))
     .addOption(
       new Option("--icons <library>", "icon library to include").choices([...iconLibraries]),

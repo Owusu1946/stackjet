@@ -47,8 +47,8 @@ export const darkColors: ColorTokens = {
 };
 `;
 
-const dynamicThemeProviderSource = `import React, { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
-import { useColorScheme as useNativeColorScheme } from "react-native";
+const dynamicThemeProviderSource = `import React, { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
+import { Appearance, useColorScheme as useNativeColorScheme } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { lightColors, darkColors, type ColorTokens } from "./tokens";
 
@@ -58,13 +58,23 @@ export interface ThemeContextValue {
   mode: ThemeMode;
   resolvedMode: "light" | "dark";
   colorScheme: "light" | "dark";
+  isDark: boolean;
   colors: ColorTokens;
   setMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
 
 const STORAGE_KEY = "expojet.theme.mode";
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+const defaultThemeValue: ThemeContextValue = {
+  mode: "system",
+  resolvedMode: "light",
+  colorScheme: "light",
+  isDark: false,
+  colors: lightColors,
+  setMode: () => {},
+  toggleTheme: () => {},
+};
+const ThemeContext = createContext<ThemeContextValue>(defaultThemeValue);
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const systemScheme = useNativeColorScheme() ?? "light";
@@ -85,16 +95,25 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     SecureStore.setItemAsync(STORAGE_KEY, nextMode).catch(() => {});
   };
 
-  const colorScheme = mode === "system" ? systemScheme : mode;
+  const resolvedMode: "light" | "dark" =
+    (mode === "system" ? systemScheme : mode) === "dark" ? "dark" : "light";
+  const isDark = resolvedMode === "dark";
+  const colorScheme = resolvedMode;
   const colors = colorScheme === "dark" ? darkColors : lightColors;
+
+  useEffect(() => {
+    // Drive React Native, Uniwind/NativeWind, and any system-aware styling
+    // adapter from the same persisted theme decision.
+    Appearance.setColorScheme(mode === "system" ? systemScheme : resolvedMode);
+  }, [mode, resolvedMode, systemScheme]);
 
   const toggleTheme = () => {
     setMode(colorScheme === "dark" ? "light" : "dark");
   };
 
   const value = useMemo(
-    () => ({ mode, colorScheme, colors, setMode, toggleTheme }),
-    [mode, colorScheme, colors],
+    () => ({ mode, resolvedMode, colorScheme, isDark, colors, setMode, toggleTheme }),
+    [mode, resolvedMode, colorScheme, isDark, colors],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -102,8 +121,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within ThemeProvider");
-  return context;
+  return context ?? defaultThemeValue;
 }
 `;
 
@@ -115,18 +133,29 @@ export type ThemeMode = "light";
 export interface ThemeContextValue {
   mode: "light";
   colorScheme: "light";
+  isDark: boolean;
   colors: ColorTokens;
   setMode: (mode: "light") => void;
   toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+const defaultThemeValue: ThemeContextValue = {
+  mode: "light",
+  colorScheme: "light",
+  isDark: false,
+  colors: lightColors,
+  setMode: () => {},
+  toggleTheme: () => {},
+};
+
+const ThemeContext = createContext<ThemeContextValue>(defaultThemeValue);
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const value = useMemo<ThemeContextValue>(
     () => ({
       mode: "light",
       colorScheme: "light",
+      isDark: false,
       colors: lightColors,
       setMode: () => {},
       toggleTheme: () => {},
@@ -138,8 +167,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within ThemeProvider");
-  return context;
+  return context ?? defaultThemeValue;
 }
 `;
 
@@ -220,7 +248,7 @@ export const themeAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/theme/index.ts`,
-        content: 'export * from "./tokens.js";\nexport * from "./provider.js";\n',
+        content: 'export * from "./tokens";\nexport * from "./provider";\n',
         owner: this.id,
       },
       {

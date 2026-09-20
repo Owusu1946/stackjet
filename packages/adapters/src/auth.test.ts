@@ -66,6 +66,12 @@ describe("auth adapters", () => {
         .map((op) => op.type === "write-file" && op.path);
       expect(paths).toContain("src/session/provider.tsx");
       expect(paths).toContain("app/(public)/sign-in.tsx");
+      expect(paths).toContain("app/(public)/sign-up.tsx");
+      const signIn = ops.find(
+        (op) => op.type === "write-file" && op.path === "app/(public)/sign-in.tsx",
+      );
+      expect(signIn?.type === "write-file" && signIn.content).toContain("useSignIn");
+      expect(signIn?.type === "write-file" && signIn.content).not.toContain("useHostedAuth");
     });
   });
 

@@ -1056,11 +1056,18 @@ export default defineSchema({
 });
 `;
 
-const convexUsers = `import { v } from "convex/values";
-import { query } from "./_generated/server";
+const convexUsers = `import { queryGeneric as query } from "convex/server";
+import { v } from "convex/values";
 
 export const getMe = query({
   args: {},
+  returns: v.union(v.null(), v.object({
+    _id: v.id("users"),
+    _creationTime: v.number(),
+    tokenIdentifier: v.string(),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+  })),
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
@@ -1073,10 +1080,21 @@ export const getMe = query({
 
 export const health = query({
   args: {},
+  returns: v.object({ ok: v.boolean(), service: v.string() }),
   handler: async () => {
     return { ok: true, service: "convex-backend" };
   },
 });
+`;
+
+const convexClerkAuthConfig = `import type { AuthConfig } from "convex/server";
+
+const issuerDomain = process.env.CLERK_JWT_ISSUER_DOMAIN;
+if (!issuerDomain) throw new Error("CLERK_JWT_ISSUER_DOMAIN is required");
+
+export default {
+  providers: [{ domain: issuerDomain, applicationID: "convex" }],
+} satisfies AuthConfig;
 `;
 
 const convexTsConfig = `{
@@ -1170,6 +1188,25 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
   },
 });
+`;
+
+const convexClerkProvider = `import { useAuth } from "@clerk/expo";
+import { ConvexReactClient } from "convex/react";
+import { ConvexProviderWithClerk } from "convex/react-clerk";
+import type { PropsWithChildren } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { env } from "../env";
+
+const client = env.EXPO_PUBLIC_CONVEX_URL
+  ? new ConvexReactClient(env.EXPO_PUBLIC_CONVEX_URL, { unsavedChangesWarning: false })
+  : null;
+
+export function DataProvider({ children }: PropsWithChildren) {
+  if (!client) return <View style={styles.container}><Text style={styles.title}>Convex setup required</Text><Text>Set EXPO_PUBLIC_CONVEX_URL and reload.</Text></View>;
+  return <ConvexProviderWithClerk client={client} useAuth={useAuth}>{children}</ConvexProviderWithClerk>;
+}
+
+const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", padding: 24, gap: 8 }, title: { fontSize: 22, fontWeight: "700" } });
 `;
 
 // ---------------------------------------------------------------------------
@@ -1502,7 +1539,7 @@ export const convexBackendAdapter: Adapter = {
       {
         type: "write-file",
         path: `${mobileRoot}src/data/provider.tsx`,
-        content: convexProvider,
+        content: input.auth === "clerk" ? convexClerkProvider : convexProvider,
         owner: this.id,
       },
       {
@@ -1527,6 +1564,15 @@ export const convexBackendAdapter: Adapter = {
           ]
         : []),
     ];
+
+    if (input.auth === "clerk") {
+      operations.push({
+        type: "write-file",
+        path: `${convexDir}/auth.config.ts`,
+        content: convexClerkAuthConfig,
+        owner: this.id,
+      });
+    }
 
     if (!isStandalone) {
       operations.push(

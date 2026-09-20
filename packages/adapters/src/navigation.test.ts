@@ -96,6 +96,11 @@ describe("routerNavigationAdapter", () => {
       .map((op) => op.type === "add-dependency" && op.name);
     expect(deps).toContain("@react-navigation/drawer");
     expect(deps).toContain("react-native-gesture-handler");
+    expect(
+      operations.find(
+        (op) => op.type === "add-dependency" && op.name === "react-native-gesture-handler",
+      ),
+    ).toMatchObject({ version: "~2.32.0" });
   });
 
   it("plans both (drawer + tabs) layout for Expo Router with nested tab group and settings", () => {
@@ -126,6 +131,27 @@ describe("routerNavigationAdapter", () => {
     );
     expect(tabsLayoutOp?.type === "write-file" && tabsLayoutOp.content).toContain("<Tabs");
   });
+
+  it.each(["tabs", "both"] as const)(
+    "uses native tabs for Liquid Glass with Expo Router %s navigation",
+    (navigationType) => {
+      const operations = routerNavigationAdapter.plan(
+        makeInput({ navigation: "router", navigationType, liquidGlass: true }),
+        {},
+      );
+      const layoutPath =
+        navigationType === "both" ? "app/(app)/(tabs)/_layout.tsx" : "app/(app)/_layout.tsx";
+      const layoutOp = operations.find((op) => op.type === "write-file" && op.path === layoutPath);
+      const content = layoutOp?.type === "write-file" ? layoutOp.content : "";
+
+      expect(content).toContain('from "expo-router/unstable-native-tabs"');
+      expect(content).toContain("<NativeTabs");
+      expect(content).toContain('sf={{ default: "house", selected: "house.fill" }}');
+      expect(content).toContain('md="home"');
+      expect(content).not.toContain("GlassTabBarBackground");
+      expect(content).not.toContain("paddingBottom: 110");
+    },
+  );
 
   it("plans stack layout for Expo Router with link navigation", () => {
     const operations = routerNavigationAdapter.plan(
@@ -173,6 +199,20 @@ describe("routerNavigationAdapter", () => {
 });
 
 describe("reactNavigationAdapter", () => {
+  it.each(["tabs", "both"] as const)(
+    "rejects Liquid Glass with React Navigation %s",
+    (navigationType) => {
+      expect(() =>
+        reactNavigationAdapter.plan(
+          makeInput({ navigation: "react-navigation", navigationType, liquidGlass: true }),
+          {},
+        ),
+      ).toThrow(
+        "Native Liquid Glass tabs in Expo Go require the Expo Router navigation adapter on SDK 57",
+      );
+    },
+  );
+
   it("plans tabs layout for React Navigation in standalone", () => {
     const operations = reactNavigationAdapter.plan(
       makeInput({ navigation: "react-navigation", navigationType: "tabs" }),

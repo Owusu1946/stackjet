@@ -74,6 +74,14 @@ export const createInputSchema = createInputObjectSchema
     backend: input.backend ?? (input.structure === "standalone" ? "none" : "hono"),
   }))
   .superRefine((input, context) => {
+    if (input.auth === "jwt") {
+      context.addIssue({
+        code: "custom",
+        path: ["auth"],
+        message:
+          "Custom JWT generation is disabled until a credential store, password hashing policy, rate limiting, and refresh-token revocation strategy are configured. Use Clerk, Better Auth, Supabase, Firebase, or no auth.",
+      });
+    }
     if (
       input.structure === "standalone" &&
       input.backend !== "none" &&
@@ -106,6 +114,13 @@ export const createInputSchema = createInputObjectSchema
         code: "custom",
         path: ["orm"],
         message: "Convex does not use an external ORM; set orm to 'none'",
+      });
+    }
+    if (input.backend === "convex" && input.auth !== "clerk" && input.auth !== "none") {
+      context.addIssue({
+        code: "custom",
+        path: ["auth"],
+        message: "Convex authentication is currently supported with Clerk or no auth only",
       });
     }
     if (input.auth === "better-auth" && input.structure === "standalone") {
@@ -145,6 +160,18 @@ export const createInputSchema = createInputObjectSchema
         code: "custom",
         path: ["orm"],
         message: "Better Auth requires Drizzle ORM and a configured database in this version",
+      });
+    }
+    if (
+      input.liquidGlass &&
+      input.navigation === "react-navigation" &&
+      (input.navigationType === "tabs" || input.navigationType === "both")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["navigation"],
+        message:
+          "Native Liquid Glass tabs in Expo Go require the Expo Router navigation adapter on SDK 57",
       });
     }
   });

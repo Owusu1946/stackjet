@@ -315,17 +315,10 @@ describe("createInputSchema", () => {
   });
 
   describe("jwt authentication", () => {
-    it("accepts jwt auth in standalone and monorepo", () => {
-      const standalone = createInputSchema.parse({ ...base, auth: "jwt" });
-      expect(standalone.auth).toBe("jwt");
-
-      const monorepo = createInputSchema.parse({
-        ...base,
-        structure: "monorepo",
-        auth: "jwt",
-        backend: "hono",
-      });
-      expect(monorepo.auth).toBe("jwt");
+    it("rejects insecure generic JWT generation", () => {
+      const result = createInputSchema.safeParse({ ...base, auth: "jwt" });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toContain("Custom JWT generation is disabled");
     });
   });
 
@@ -362,6 +355,30 @@ describe("createInputSchema", () => {
       const disabled = createInputSchema.parse({ ...base, liquidGlass: false });
       expect(disabled.liquidGlass).toBe(false);
     });
+
+    it.each(["tabs", "both"] as const)(
+      "rejects React Navigation %s with Liquid Glass because Expo Go requires Router native tabs",
+      (navigationType) => {
+        const result = createInputSchema.safeParse({
+          ...base,
+          navigation: "react-navigation",
+          navigationType,
+          liquidGlass: true,
+        });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                path: ["navigation"],
+                message:
+                  "Native Liquid Glass tabs in Expo Go require the Expo Router navigation adapter on SDK 57",
+              }),
+            ]),
+          );
+        }
+      },
+    );
 
     it("accepts typescript toggle", () => {
       const enabled = createInputSchema.parse({ ...base, typescript: true });

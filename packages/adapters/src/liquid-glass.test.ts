@@ -38,7 +38,7 @@ describe("getLiquidGlassAdapter selector", () => {
 });
 
 describe("liquidGlassAdapter", () => {
-  it("plans dependencies, GlassCard, and GlassTabBarBackground in standalone mode", () => {
+  it("plans dependencies and GlassCard in standalone mode", () => {
     const operations = liquidGlassAdapter.plan(
       makeInput({ liquidGlass: true, structure: "standalone" }),
       {},
@@ -63,17 +63,12 @@ describe("liquidGlassAdapter", () => {
       expect(glassCardOp.content).toContain("export function GlassCard");
     }
 
-    const tabBgOp = operations.find(
-      (op) =>
-        op.type === "write-file" && op.path === "src/components/ui/glass-tab-bar-background.tsx",
-    );
-    expect(tabBgOp).toBeDefined();
-    if (tabBgOp && "content" in tabBgOp) {
-      expect(tabBgOp.content).toContain("GlassTabBarBackground");
-      expect(tabBgOp.content).toContain("GlassView");
-      expect(tabBgOp.content).toContain("BlurView");
-      expect(tabBgOp.content).toContain("StyleSheet.absoluteFill");
-    }
+    expect(
+      operations.some(
+        (op) =>
+          op.type === "write-file" && op.path === "src/components/ui/glass-tab-bar-background.tsx",
+      ),
+    ).toBe(false);
   });
 
   it("plans liquid glass under apps/mobile in monorepo mode", () => {
@@ -86,13 +81,6 @@ describe("liquidGlassAdapter", () => {
         op.type === "write-file" && op.path === "apps/mobile/src/components/ui/glass-card.tsx",
     );
     expect(glassCardOp).toBeDefined();
-
-    const tabBgOp = operations.find(
-      (op) =>
-        op.type === "write-file" &&
-        op.path === "apps/mobile/src/components/ui/glass-tab-bar-background.tsx",
-    );
-    expect(tabBgOp).toBeDefined();
 
     const deps = operations.filter((op) => op.type === "add-dependency");
     for (const dep of deps) {

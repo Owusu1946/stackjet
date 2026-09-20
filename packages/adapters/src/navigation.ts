@@ -19,18 +19,21 @@ import { StatusBar } from "expo-status-bar";
 import { DataProvider } from "../src/data/provider";
 import { OnboardingProvider } from "../src/onboarding/provider";
 import { SessionProvider } from "../src/session/provider";
+import { ThemeProvider } from "../src/theme/provider";
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="auto" />
-      <SessionProvider>
-        <DataProvider>
-          <OnboardingProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </OnboardingProvider>
-        </DataProvider>
-      </SessionProvider>
+      <ThemeProvider>
+        <SessionProvider>
+          <DataProvider>
+            <OnboardingProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </OnboardingProvider>
+          </DataProvider>
+        </SessionProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
@@ -44,9 +47,11 @@ import { Drawer } from "expo-router/drawer";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
+import { useTheme } from "../../src/theme/provider";
 
 export default function ProtectedLayout() {
   const session = useSession();
+  const { colors } = useTheme();
   if (session.status === "loading") {
     return (
       <View style={styles.loading}>
@@ -60,7 +65,12 @@ export default function ProtectedLayout() {
     <Drawer
       screenOptions={{
         headerShown: true,
-        drawerActiveTintColor: "#315efb",
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
+        drawerStyle: { backgroundColor: colors.background },
+        drawerInactiveTintColor: colors.textSecondary,
+        drawerActiveTintColor: colors.primary,
+        drawerLabelStyle: { color: colors.text },
       }}
     >
       <Drawer.Screen
@@ -95,9 +105,11 @@ import { Drawer } from "expo-router/drawer";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
+import { useTheme } from "../../src/theme/provider";
 
 export default function ProtectedLayout() {
   const session = useSession();
+  const { colors } = useTheme();
   if (session.status === "loading") {
     return (
       <View style={styles.loading}>
@@ -111,7 +123,10 @@ export default function ProtectedLayout() {
     <Drawer
       screenOptions={{
         headerShown: false,
-        drawerActiveTintColor: "#315efb",
+        drawerStyle: { backgroundColor: colors.background },
+        drawerInactiveTintColor: colors.textSecondary,
+        drawerActiveTintColor: colors.primary,
+        drawerLabelStyle: { color: colors.text },
       }}
     >
       <Drawer.Screen
@@ -186,22 +201,53 @@ const styles = StyleSheet.create({
 `;
   }
 
-  const glassImport = liquidGlass
-    ? 'import { GlassTabBarBackground } from "../../src/components/ui/glass-tab-bar-background";\n'
-    : "";
-  const glassOptions = liquidGlass
-    ? `        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        tabBarBackground: () => <GlassTabBarBackground />,`
-    : "";
+  if (liquidGlass) {
+    return `import { DarkTheme, DefaultTheme, Redirect, ThemeProvider } from "expo-router";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { ActivityIndicator, DynamicColorIOS, Platform, StyleSheet, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+import { useTheme } from "../../src/theme/provider";
+
+const tabTint =
+  Platform.OS === "ios" ? DynamicColorIOS({ light: "#315efb", dark: "#7c9cff" }) : "#315efb";
+
+export default function ProtectedLayout() {
+  const session = useSession();
+  const { resolvedMode } = useTheme();
+  if (session.status === "loading") {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
+
+  return (
+    <ThemeProvider value={resolvedMode === "dark" ? DarkTheme : DefaultTheme}>
+      <NativeTabs tintColor={tabTint} disableTransparentOnScrollEdge>
+        <NativeTabs.Trigger name="index">
+          <NativeTabs.Trigger.Icon sf={{ default: "house", selected: "house.fill" }} md="home" />
+          <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="profile">
+          <NativeTabs.Trigger.Icon sf={{ default: "person", selected: "person.fill" }} md="person" />
+          <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
+    </ThemeProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+});
+`;
+  }
 
   return `import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-${glassImport}import { Icon } from "../../src/components/ui/icon";
+import { Icon } from "../../src/components/ui/icon";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -220,7 +266,6 @@ export default function ProtectedLayout() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
-${glassOptions}
       }}
     >
       <Tabs.Screen
@@ -250,21 +295,37 @@ const styles = StyleSheet.create({
 }
 
 function makeRouterTabLayout(liquidGlass: boolean = false) {
-  const glassImport = liquidGlass
-    ? 'import { GlassTabBarBackground } from "../../../src/components/ui/glass-tab-bar-background";\n'
-    : "";
-  const glassOptions = liquidGlass
-    ? `        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        tabBarBackground: () => <GlassTabBarBackground />,`
-    : "";
+  if (liquidGlass) {
+    return `import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { DynamicColorIOS, Platform } from "react-native";
+import { useTheme } from "../../../src/theme/provider";
+
+const tabTint =
+  Platform.OS === "ios" ? DynamicColorIOS({ light: "#315efb", dark: "#7c9cff" }) : "#315efb";
+
+export default function TabLayout() {
+  const { resolvedMode } = useTheme();
+  return (
+    <ThemeProvider value={resolvedMode === "dark" ? DarkTheme : DefaultTheme}>
+      <NativeTabs tintColor={tabTint} disableTransparentOnScrollEdge>
+        <NativeTabs.Trigger name="index">
+          <NativeTabs.Trigger.Icon sf={{ default: "house", selected: "house.fill" }} md="home" />
+          <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="profile">
+          <NativeTabs.Trigger.Icon sf={{ default: "person", selected: "person.fill" }} md="person" />
+          <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
+    </ThemeProvider>
+  );
+}
+`;
+  }
 
   return `import { Tabs } from "expo-router";
-${glassImport}import { Icon } from "../../../src/components/ui/icon";
+import { Icon } from "../../../src/components/ui/icon";
 
 export default function TabLayout() {
   return (
@@ -272,7 +333,6 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
-${glassOptions}
       }}
     >
       <Tabs.Screen
@@ -301,28 +361,27 @@ function makeRouterHomeScreen(
   navigationType: NavigationType,
   isNestedTabs: boolean = false,
   state: CreateInput["state"] = "none",
-  liquidGlass: boolean = false,
 ) {
   const prefix = isNestedTabs ? "../../../" : "../../";
   const counterImport =
     state !== "none" ? `import { CounterCard } from "${prefix}src/components/counter-card";\n` : "";
   const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
-  const containerPadding =
-    liquidGlass && navigationType !== "stack" ? "\n    paddingBottom: 90," : "";
 
   if (navigationType === "stack") {
     return `import { Link } from "expo-router";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "${prefix}src/components/brand-card";
 ${counterImport}import { useSession } from "${prefix}src/session/provider";
+import { useTheme } from "${prefix}src/theme/provider";
 
 export default function AppHomeScreen() {
   const session = useSession();
+  const { colors } = useTheme();
   return (
-    <View style={styles.container} testID="home-screen">
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="home-screen">
       <BrandCard />
 ${counterComponent}      {session.user ? (
-        <Text style={styles.welcome} testID="welcome-text">
+        <Text style={[styles.welcome, { color: colors.textSecondary }]} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
       ) : null}
@@ -343,14 +402,16 @@ const styles = StyleSheet.create({
   return `import { StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "${prefix}src/components/brand-card";
 ${counterImport}import { useSession } from "${prefix}src/session/provider";
+import { useTheme } from "${prefix}src/theme/provider";
 
 export default function AppHomeScreen() {
   const session = useSession();
+  const { colors } = useTheme();
   return (
-    <View style={styles.container} testID="home-screen">
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="home-screen">
       <BrandCard />
 ${counterComponent}      {session.user ? (
-        <Text style={styles.welcome} testID="welcome-text">
+        <Text style={[styles.welcome, { color: colors.textSecondary }]} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
       ) : null}
@@ -359,7 +420,7 @@ ${counterComponent}      {session.user ? (
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb"${containerPadding} },
+  container: { flex: 1, justifyContent: "center", padding: 24, gap: 16, backgroundColor: "#f4f6fb" },
   welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
 });
 `;
@@ -368,22 +429,27 @@ const styles = StyleSheet.create({
 function makeRouterProfileScreen(isNestedTabs: boolean = false) {
   const prefix = isNestedTabs ? "../../../" : "../../";
   return `import { Button, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
 import { useSession } from "${prefix}src/session/provider";
+import { useOnboarding } from "${prefix}src/onboarding/provider";
 import { useTheme } from "${prefix}src/theme/provider";
 
 export default function ProfileScreen() {
   const session = useSession();
-  const { mode, setMode } = useTheme();
+  const onboarding = useOnboarding();
+  const { mode, setMode, colors } = useTheme();
 
   return (
-    <View style={styles.container} testID="profile-screen">
-      <Text style={styles.title}>Profile</Text>
-      <Text style={styles.detail}>User: {session.user?.displayName ?? session.user?.id ?? "Guest"}</Text>
-      <Text style={styles.detail}>Theme: {mode}</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="profile-screen">
+      <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
+      <Text style={[styles.detail, { color: colors.textSecondary }]}>User: {session.user?.displayName ?? session.user?.id ?? "Guest"}</Text>
+      <Text style={[styles.detail, { color: colors.textSecondary }]}>Theme: {mode}</Text>
       <Button
         title={\`Switch to \${mode === "dark" ? "light" : "dark"} mode\`}
+        color={colors.primary}
         onPress={() => setMode(mode === "dark" ? "light" : "dark")}
       />
+      <Button title="Show onboarding again" onPress={() => void onboarding.reset().then(() => router.replace("/(onboarding)"))} />
       <Button title="Sign out" onPress={session.signOut} color="#b42318" />
     </View>
   );
@@ -530,7 +596,7 @@ const styles = StyleSheet.create({
 });
 `;
 
-function makeReactNavAppNavigator(navigationType: NavigationType, liquidGlass: boolean = false) {
+function makeReactNavAppNavigator(navigationType: NavigationType) {
   if (navigationType === "drawer") {
     return `import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Icon } from "../components/ui/icon";
@@ -631,21 +697,8 @@ export function AppNavigator() {
 `;
   }
 
-  const glassImport = liquidGlass
-    ? 'import { GlassTabBarBackground } from "../components/ui/glass-tab-bar-background";\n'
-    : "";
-  const glassOptions = liquidGlass
-    ? `        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        tabBarBackground: () => <GlassTabBarBackground />,`
-    : "";
-
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-${glassImport}import { Icon } from "../components/ui/icon";
+import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -657,7 +710,6 @@ export function AppNavigator() {
       screenOptions={{
         headerShown: true,
         tabBarActiveTintColor: "#315efb",
-${glassOptions}
       }}
     >
       <Tab.Screen
@@ -682,22 +734,9 @@ ${glassOptions}
 `;
 }
 
-function makeReactNavTabNavigator(liquidGlass: boolean = false) {
-  const glassImport = liquidGlass
-    ? 'import { GlassTabBarBackground } from "../components/ui/glass-tab-bar-background";\n'
-    : "";
-  const glassOptions = liquidGlass
-    ? `        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-          elevation: 0,
-        },
-        tabBarBackground: () => <GlassTabBarBackground />,`
-    : "";
-
+function makeReactNavTabNavigator() {
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-${glassImport}import { Icon } from "../components/ui/icon";
+import { Icon } from "../components/ui/icon";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -709,7 +748,6 @@ export function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#315efb",
-${glassOptions}
       }}
     >
       <Tab.Screen
@@ -750,14 +788,10 @@ export function AuthNavigator() {
 }
 `;
 
-function makeReactNavHomeScreen(
-  state: CreateInput["state"] = "none",
-  liquidGlass: boolean = false,
-) {
+function makeReactNavHomeScreen(state: CreateInput["state"] = "none") {
   const counterImport =
     state !== "none" ? 'import { CounterCard } from "../components/counter-card";\n' : "";
   const counterComponent = state !== "none" ? "      <CounterCard />\n" : "";
-  const containerPadding = liquidGlass ? "\n    paddingBottom: 90," : "";
 
   return `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
@@ -786,7 +820,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
     gap: 16,
-    backgroundColor: "#f4f6fb",${containerPadding}
+    backgroundColor: "#f4f6fb",
   },
   welcome: { fontSize: 16, color: "#52606d", textAlign: "center" },
 });
@@ -794,23 +828,28 @@ const styles = StyleSheet.create({
 }
 
 const reactNavProfileScreenSource = `import { Button, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
 import { useSession } from "../session/provider";
+import { useOnboarding } from "../onboarding/provider";
 import { useTheme } from "../theme/provider";
 
 export function ProfileScreen() {
   const session = useSession();
-  const { mode, setMode } = useTheme();
+  const onboarding = useOnboarding();
+  const { mode, setMode, colors } = useTheme();
 
   return (
-    <View style={styles.container} testID="profile-screen">
-      <Text style={styles.title}>Profile</Text>
-      <Text style={styles.detail}>User: {session.user?.displayName ?? session.user?.id ?? "Guest"}</Text>
-      <Text style={styles.detail}>Theme: {mode}</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="profile-screen">
+      <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
+      <Text style={[styles.detail, { color: colors.textSecondary }]}>User: {session.user?.displayName ?? session.user?.id ?? "Guest"}</Text>
+      <Text style={[styles.detail, { color: colors.textSecondary }]}>Theme: {mode}</Text>
       <Button
         title={\`Switch to \${mode === "dark" ? "light" : "dark"} mode\`}
+        color={colors.primary}
         onPress={() => setMode(mode === "dark" ? "light" : "dark")}
       />
       <Button title="Sign out" onPress={session.signOut} color="#b42318" />
+      <Button title="Show onboarding again" onPress={() => void onboarding.reset().then(() => router.replace("/(onboarding)"))} />
     </View>
   );
 }
@@ -997,7 +1036,7 @@ export const routerNavigationAdapter: Adapter = {
           type: "add-dependency",
           workspace,
           name: "react-native-gesture-handler",
-          version: "~2.28.0",
+          version: "~2.32.0",
           kind: "dependencies",
           owner: this.id,
         },
@@ -1028,7 +1067,7 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/(tabs)/index.tsx`,
-          content: makeRouterHomeScreen(navType, true, input.state, input.liquidGlass),
+          content: makeRouterHomeScreen(navType, true, input.state),
           owner: this.id,
         },
         {
@@ -1049,7 +1088,7 @@ export const routerNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}app/(app)/index.tsx`,
-          content: makeRouterHomeScreen(navType, false, input.state, input.liquidGlass),
+          content: makeRouterHomeScreen(navType, false, input.state),
           owner: this.id,
         },
         {
@@ -1075,6 +1114,11 @@ export const reactNavigationAdapter: Adapter = {
   plan(input) {
     const { workspace, root } = location(input.structure);
     const navType = input.navigationType ?? "tabs";
+    if (input.liquidGlass && (navType === "tabs" || navType === "both")) {
+      throw new Error(
+        "Native Liquid Glass tabs in Expo Go require the Expo Router navigation adapter on SDK 57",
+      );
+    }
     const hasGesture = navType === "drawer" || navType === "both";
 
     const operations: Operation[] = [
@@ -1121,7 +1165,7 @@ export const reactNavigationAdapter: Adapter = {
           type: "add-dependency",
           workspace,
           name: "react-native-gesture-handler",
-          version: "~2.28.0",
+          version: "~2.32.0",
           kind: "dependencies",
           owner: this.id,
         },
@@ -1161,7 +1205,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/navigation/AppNavigator.tsx`,
-        content: makeReactNavAppNavigator(navType, input.liquidGlass),
+        content: makeReactNavAppNavigator(navType),
         owner: this.id,
       },
       {
@@ -1173,7 +1217,7 @@ export const reactNavigationAdapter: Adapter = {
       {
         type: "write-file",
         path: `${root}src/screens/HomeScreen.tsx`,
-        content: makeReactNavHomeScreen(input.state, input.liquidGlass),
+        content: makeReactNavHomeScreen(input.state),
         owner: this.id,
       },
       {
@@ -1201,7 +1245,7 @@ export const reactNavigationAdapter: Adapter = {
         {
           type: "write-file",
           path: `${root}src/navigation/TabNavigator.tsx`,
-          content: makeReactNavTabNavigator(input.liquidGlass),
+          content: makeReactNavTabNavigator(),
           owner: this.id,
         },
         {

@@ -164,7 +164,7 @@ export const sqliteDatabaseAdapter: Adapter = {
           type: "add-dependency",
           workspace: ".",
           name: "expo-sqlite",
-          version: "~15.1.2",
+          version: "~57.0.3",
           kind: "dependencies",
           owner: this.id,
         },

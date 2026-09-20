@@ -40,6 +40,7 @@ describe("themeAdapter", () => {
     if (providerOp && providerOp.type === "write-file") {
       expect(providerOp.content).toContain("expo-secure-store");
       expect(providerOp.content).toContain("useNativeColorScheme");
+      expect(providerOp.content).toContain("Appearance.setColorScheme");
       expect(providerOp.content).toContain("ThemeProvider");
     }
 

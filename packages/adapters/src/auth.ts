@@ -4,7 +4,7 @@ import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
 const noneEnv = `import { createEnv } from "@t3-oss/env-core";\nimport { z } from "zod";\nexport const env = createEnv({ clientPrefix: "EXPO_PUBLIC_", client: { EXPO_PUBLIC_API_URL: z.string().url().optional(), EXPO_PUBLIC_CONVEX_URL: z.string().optional() }, runtimeEnv: { EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL, EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL }, emptyStringAsUndefined: true });\n`;
-const clerkEnv = `import { createEnv } from "@t3-oss/env-core";\nimport { z } from "zod";\nexport const env = createEnv({ clientPrefix: "EXPO_PUBLIC_", client: { EXPO_PUBLIC_API_URL: z.string().url().optional(), EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1), EXPO_PUBLIC_CONVEX_URL: z.string().optional() }, runtimeEnv: { EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY, EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL }, emptyStringAsUndefined: true });\n`;
+const clerkEnv = `import { createEnv } from "@t3-oss/env-core";\nimport { z } from "zod";\nexport const env = createEnv({ clientPrefix: "EXPO_PUBLIC_", client: { EXPO_PUBLIC_API_URL: z.string().url().optional(), EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).default("pk_test_placeholder"), EXPO_PUBLIC_CONVEX_URL: z.string().optional() }, runtimeEnv: { EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY, EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL }, emptyStringAsUndefined: true });\n`;
 
 const noneProvider = `import { createContext, type PropsWithChildren, useContext, useMemo, useState } from "react";
 import type { SessionState, SessionStatus } from "./types";
@@ -57,7 +57,22 @@ function ClerkSession({ children }: PropsWithChildren) {
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 export function SessionProvider({ children }: PropsWithChildren) {
-  return <ClerkProvider publishableKey={env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}><ClerkSession>{children}</ClerkSession></ClerkProvider>;
+  const publishableKey = env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (!publishableKey || publishableKey === "pk_test_placeholder") {
+    return (
+      <SessionContext.Provider
+        value={{
+          status: "unauthenticated",
+          user: null,
+          signIn: () => {},
+          signOut: () => {},
+        }}
+      >
+        {children}
+      </SessionContext.Provider>
+    );
+  }
+  return <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}><ClerkSession>{children}</ClerkSession></ClerkProvider>;
 }
 export function useSession() {
   const value = useContext(SessionContext);
@@ -66,34 +81,43 @@ export function useSession() {
 }
 `;
 
-const clerkSignIn = `import { useHostedAuth } from "@clerk/expo/hosted-auth";
-import { Redirect } from "expo-router";
+const clerkSignIn = `import { useSignIn } from "@clerk/expo";
+import { Redirect, useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSession } from "../../src/session/provider";
 
 export default function SignInScreen() {
-  const session = useSession();
-  const { startHostedAuth } = useHostedAuth();
-  const [busy, setBusy] = useState<"sign-in" | "sign-up" | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const session = useSession(); const router = useRouter(); const { signIn, errors, fetchStatus } = useSignIn();
+  const [emailAddress, setEmailAddress] = useState(""); const [password, setPassword] = useState(""); const [code, setCode] = useState(""); const [newPassword, setNewPassword] = useState(""); const [mode, setMode] = useState<"sign-in" | "forgot" | "reset">("sign-in"); const [actionError, setActionError] = useState<string | null>(null);
   if (session.status === "authenticated") return <Redirect href="/" />;
-  async function begin(mode: "sign-in" | "sign-up") {
-    setBusy(mode); setError(null);
-    try { await startHostedAuth({ mode }); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Authentication failed"); }
-    finally { setBusy(null); }
-  }
-  return <View style={styles.container} testID="auth-screen">
-    <Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>Welcome</Text>
-    <Text style={styles.body}>Sign in securely in Clerk, then return to the app.</Text>
-    {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-    <Pressable testID="sign-in" style={styles.button} disabled={busy !== null} onPress={() => void begin("sign-in")}><Text style={styles.buttonText}>{busy === "sign-in" ? "Opening..." : "Sign in"}</Text></Pressable>
-    <Pressable testID="sign-up" style={styles.secondary} disabled={busy !== null} onPress={() => void begin("sign-up")}><Text style={styles.buttonText}>{busy === "sign-up" ? "Opening..." : "Create account"}</Text></Pressable>
-    {busy ? <ActivityIndicator /> : null}
-  </View>;
+  async function submit() { setActionError(null); const { error } = await signIn.password({ emailAddress, password }); if (error || signIn.status !== "complete") return; await signIn.finalize({ navigate: () => router.replace("/") }); }
+  async function sendReset() { setActionError(null); const { error: createError } = await signIn.create({ identifier: emailAddress }); if (createError) return setActionError(createError.message); const { error } = await signIn.resetPasswordEmailCode.sendCode(); if (error) setActionError(error.message); else setMode("reset"); }
+  async function verifyReset() { setActionError(null); const { error } = await signIn.resetPasswordEmailCode.verifyCode({ code }); if (error) setActionError(error.message); else setMode("forgot"); }
+  async function finishReset() { const { error } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPassword }); if (error) setActionError(error.message); else { setMode("sign-in"); setPassword(""); } }
+  const resetCode = mode === "reset"; const resetPassword = mode === "forgot" && signIn.status === "needs_new_password";
+  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>{resetCode ? "Check your email" : resetPassword ? "Choose a new password" : mode === "forgot" ? "Forgot password" : "Welcome back"}</Text>{resetCode ? <><TextInput testID="reset-code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button title="Verify code" disabled={fetchStatus === "fetching"} onPress={() => void verifyReset()} /><Button title="Resend code" onPress={() => void sendReset()} /></> : resetPassword ? <><TextInput testID="new-password" secureTextEntry placeholder="New password" value={newPassword} onChangeText={setNewPassword} style={styles.input} /><Button title="Update password" disabled={fetchStatus === "fetching"} onPress={() => void finishReset()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} />{mode === "sign-in" ? <TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /> : null}<Text>{actionError ?? errors?.fields?.identifier?.message ?? errors?.fields?.password?.message ?? ""}</Text>{mode === "sign-in" ? <><Button testID="sign-in" title="Sign in" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /><Button title="Forgot password" onPress={() => setMode("forgot")} /><Button testID="goto-sign-up" title="Create account" onPress={() => router.push("/(public)/sign-up")} /></> : <Button title="Send reset code" disabled={fetchStatus === "fetching"} onPress={() => void sendReset()} />}</>}</View>;
 }
-const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, eyebrow: { color: "#315efb", fontWeight: "700", letterSpacing: 2 }, title: { fontSize: 36, fontWeight: "800" }, body: { color: "#52606d", fontSize: 16 }, error: { color: "#b42318" }, button: { alignItems: "center", borderRadius: 14, backgroundColor: "#315efb", padding: 16 }, secondary: { alignItems: "center", borderRadius: 14, backgroundColor: "#121826", padding: 16 }, buttonText: { color: "white", fontWeight: "700" } });
+const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, eyebrow: { color: "#315efb", fontWeight: "700", letterSpacing: 2 }, title: { fontSize: 36, fontWeight: "800" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14 }, error: { color: "#b42318" } });
+`;
+
+const clerkSignUp = `import { useSignUp } from "@clerk/expo";
+import { Redirect, useRouter } from "expo-router";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSession } from "../../src/session/provider";
+
+export default function SignUpScreen() {
+  const session = useSession(); const router = useRouter(); const { signUp, errors, fetchStatus } = useSignUp();
+  const [emailAddress, setEmailAddress] = useState(""); const [password, setPassword] = useState(""); const [code, setCode] = useState(""); const [actionError, setActionError] = useState<string | null>(null);
+  if (session.status === "authenticated") return <Redirect href="/" />;
+  const verifying = signUp.status === "missing_requirements" && signUp.unverifiedFields?.includes("email_address");
+  async function submit() { setActionError(null); const { error } = await signUp.password({ emailAddress, password }); if (error) return setActionError(error.message); const result = await signUp.verifications.sendEmailCode(); if (result.error) setActionError(result.error.message); }
+  async function resend() { const { error } = await signUp.verifications.sendEmailCode(); if (error) setActionError(error.message); else setActionError("A new verification code was sent."); }
+  async function verify() { const { error } = await signUp.verifications.verifyEmailCode({ code }); if (error || signUp.status !== "complete") { if (error) setActionError(error.message); return; } await signUp.finalize({ navigate: () => router.replace("/") }); }
+  return <View style={styles.container} testID="sign-up-screen"><Text style={styles.title}>{verifying ? "Check your email" : "Create account"}</Text>{verifying ? <><TextInput testID="code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button testID="verify-sign-up" title="Verify" disabled={fetchStatus === "fetching"} onPress={() => void verify()} /><Button title="Resend code" onPress={() => void resend()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} /><TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /><Button testID="sign-up" title="Create account" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /></>}{actionError || errors?.global?.[0]?.message ? <Text style={styles.error}>{actionError ?? errors.global[0].message}</Text> : null}<View nativeID="clerk-captcha" /><Button title="Back to sign in" onPress={() => router.replace("/(public)/sign-in")} /></View>;
+}
+const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, title: { fontSize: 30, fontWeight: "700" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14 }, error: { color: "#b42318" } });
 `;
 
 const betterProvider = `import { type PropsWithChildren } from "react";
@@ -217,6 +241,12 @@ export const clerkAuthAdapter: Adapter = {
         type: "write-file",
         path: `${root}app/(public)/sign-in.tsx`,
         content: clerkSignIn,
+        owner: this.id,
+      },
+      {
+        type: "write-file",
+        path: `${root}app/(public)/sign-up.tsx`,
+        content: clerkSignUp,
         owner: this.id,
       },
       { type: "write-file", path: `${root}src/env.ts`, content: clerkEnv, owner: this.id },
@@ -350,9 +380,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<{ id: string; displayName?: string; email?: string } | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateSession(session);
-    });
+    void supabase.auth.getSession()
+      .then(({ data: { session } }) => updateSession(session))
+      .catch(() => updateSession(null));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       updateSession(session);
@@ -905,7 +935,8 @@ export async function refreshAccessToken(): Promise<string | null> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return null;
 
-  const baseUrl = env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+  const baseUrl = env.EXPO_PUBLIC_API_URL;
+  if (!baseUrl) throw new Error("EXPO_PUBLIC_API_URL is required for JWT authentication");
   try {
     const res = await fetch(\`\${baseUrl}/auth/refresh\`, {
       method: "POST",
@@ -976,7 +1007,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
           setStatus("unauthenticated");
           return;
         }
-        const baseUrl = env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+        const baseUrl = env.EXPO_PUBLIC_API_URL;
+        if (!baseUrl) throw new Error("EXPO_PUBLIC_API_URL is required for JWT authentication");
         const res = await authFetch(\`\${baseUrl}/v1/me\`);
         if (res.ok) {
           const data = await res.json();
@@ -999,7 +1031,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
     signIn: async (creds) => {
       const email = creds?.email ?? "user@example.com";
       const password = creds?.password ?? "password";
-      const baseUrl = env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+      const baseUrl = env.EXPO_PUBLIC_API_URL;
+      if (!baseUrl) throw new Error("EXPO_PUBLIC_API_URL is required for JWT authentication");
 
       try {
         const res = await fetch(\`\${baseUrl}/auth/login\`, {
@@ -1007,25 +1040,23 @@ export function SessionProvider({ children }: PropsWithChildren) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
-        if (res.ok) {
-          const data = await res.json();
-          await saveTokens(data.accessToken, data.refreshToken);
-          setUser(data.user ?? { id: "1", email, displayName: email.split("@")[0] });
-          setStatus("authenticated");
-          return;
-        }
-      } catch {
-        // Fallback for demo / standalone
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error?.message ?? "Sign in failed");
+        if (!data?.accessToken || !data?.user) throw new Error("The authentication server returned an invalid response");
+        await saveTokens(data.accessToken, data.refreshToken);
+        setUser(data.user);
+        setStatus("authenticated");
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
       }
-      await saveTokens("mock-jwt-access-token", "mock-jwt-refresh-token");
-      setUser({ id: "user_jwt_1", email, displayName: email.split("@")[0] });
-      setStatus("authenticated");
     },
     signUp: async (creds) => {
       const email = creds?.email ?? "user@example.com";
       const password = creds?.password ?? "password";
       const displayName = creds?.displayName ?? email.split("@")[0];
-      const baseUrl = env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+      const baseUrl = env.EXPO_PUBLIC_API_URL;
+      if (!baseUrl) throw new Error("EXPO_PUBLIC_API_URL is required for JWT authentication");
 
       try {
         const res = await fetch(\`\${baseUrl}/auth/register\`, {
@@ -1033,19 +1064,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, name: displayName }),
         });
-        if (res.ok) {
-          const data = await res.json();
-          await saveTokens(data.accessToken, data.refreshToken);
-          setUser(data.user ?? { id: "1", email, displayName });
-          setStatus("authenticated");
-          return;
-        }
-      } catch {
-        // Fallback for demo / standalone
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error?.message ?? "Account creation failed");
+        if (!data?.accessToken || !data?.user) throw new Error("The authentication server returned an invalid response");
+        await saveTokens(data.accessToken, data.refreshToken);
+        setUser(data.user);
+        setStatus("authenticated");
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
       }
-      await saveTokens("mock-jwt-access-token", "mock-jwt-refresh-token");
-      setUser({ id: "user_jwt_1", email, displayName });
-      setStatus("authenticated");
     },
     signOut: async () => {
       await clearTokens();

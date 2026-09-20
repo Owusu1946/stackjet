@@ -95,7 +95,7 @@ export function getDb() {
 
 const drizzleStandaloneSqliteClient = `import { drizzle } from "drizzle-orm/expo-sqlite";
 import { openDatabaseSync } from "expo-sqlite";
-import * as schema from "./schema.js";
+import * as schema from "./schema";
 
 const expoDb = openDatabaseSync("expojet.db");
 export const db = drizzle(expoDb, { schema });

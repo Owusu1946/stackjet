@@ -40,7 +40,7 @@ describe("Phase 2 generation", () => {
     expect(result.committed).toBe(true);
     expect(JSON.parse(readFileSync(join(destination, "package.json"), "utf8"))).toMatchObject({
       name: "generated-app",
-      dependencies: { expo: "~57.0.23", "expo-router": "~57.0.21" },
+      dependencies: { expo: "~57.0.24", "expo-router": "~57.0.22" },
     });
     expect(JSON.parse(readFileSync(join(destination, "app.json"), "utf8"))).toMatchObject({
       expo: { slug: "generated-app", scheme: "generated-app" },
@@ -568,12 +568,17 @@ describe("Phase 2 generation", () => {
 
     // app/ folder should be omitted in react-navigation mode
     expect(existsSync(join(destination, "app/index.tsx"))).toBe(false);
+    expect(existsSync(join(destination, "app/(public)/sign-in.tsx"))).toBe(false);
 
     const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
     expect(pkg.main).toBe("index.js");
     expect(pkg.dependencies["@react-navigation/native"]).toBeDefined();
     expect(pkg.dependencies["@react-navigation/native-stack"]).toBeDefined();
     expect(pkg.dependencies["@react-navigation/bottom-tabs"]).toBeDefined();
+    expect(pkg.dependencies["expo-router"]).toBeUndefined();
+    const appConfig = JSON.parse(readFileSync(join(destination, "app.json"), "utf8"));
+    expect(appConfig.expo.plugins).not.toContain("expo-router");
+    expect(appConfig.expo.experiments?.typedRoutes).toBeUndefined();
   });
 
   it("generates a standalone app with Custom JWT authentication", () => {
@@ -1085,13 +1090,11 @@ describe("Phase 2 generation", () => {
     expect(glassCardContent).toContain('from "expo-blur"');
     expect(glassCardContent).toContain("isGlassEffectAPIAvailable");
 
-    const tabBgFile = join(destination, "src/components/ui/glass-tab-bar-background.tsx");
-    expect(existsSync(tabBgFile)).toBe(true);
-
-    // Verify layout uses GlassTabBarBackground and absolute positioning
+    // Verify the layout uses native platform tabs, which adopt Liquid Glass on iOS 26.
     const layoutContent = readFileSync(join(destination, "app/(app)/_layout.tsx"), "utf8");
-    expect(layoutContent).toContain("GlassTabBarBackground");
-    expect(layoutContent).toContain('position: "absolute"');
+    expect(layoutContent).toContain('from "expo-router/unstable-native-tabs"');
+    expect(layoutContent).toContain("<NativeTabs");
+    expect(layoutContent).not.toContain("GlassTabBarBackground");
 
     // Verify BrandCard uses GlassCard
     const brandContent = readFileSync(join(destination, "src/components/brand-card.tsx"), "utf8");
@@ -1107,25 +1110,24 @@ describe("Phase 2 generation", () => {
     const checks = runDoctorChecks(project);
     const cardCheck = checks.find((c) => c.name === "Liquid Glass card");
     expect(cardCheck?.status).toBe("pass");
-    const tabCheck = checks.find((c) => c.name === "Liquid Glass tab bar");
+    const tabCheck = checks.find((c) => c.name === "Native Liquid Glass tabs");
     expect(tabCheck?.status).toBe("pass");
   });
 
-  it("generates a React Navigation app with Liquid Glass tab bar", () => {
+  it("rejects React Navigation tabs with Liquid Glass because Expo Go requires Router native tabs", () => {
     const destination = join(mkdtempSync(join(tmpdir(), "expojet-rn-glass-")), "rn-glass");
-    const result = generateCreatePlan(
-      {
-        ...input(destination),
-        navigation: "react-navigation",
-        liquidGlass: true,
-      },
-      false,
+    expect(() =>
+      generateCreatePlan(
+        {
+          ...input(destination),
+          navigation: "react-navigation",
+          liquidGlass: true,
+        },
+        false,
+      ),
+    ).toThrow(
+      "Native Liquid Glass tabs in Expo Go require the Expo Router navigation adapter on SDK 57",
     );
-    expect(result.committed).toBe(true);
-
-    const navContent = readFileSync(join(destination, "src/navigation/AppNavigator.tsx"), "utf8");
-    expect(navContent).toContain("GlassTabBarBackground");
-    expect(navContent).toContain('position: "absolute"');
   });
 
   it("generates a monorepo app with Liquid Glass in mobile workspace", () => {
@@ -1266,6 +1268,10 @@ describe("Phase 2 generation", () => {
       autoIncrement: true,
       channel: "production",
     });
+    const appConfig = JSON.parse(readFileSync(join(destination, "app.json"), "utf8"));
+    expect(appConfig.expo.ios.bundleIdentifier).toBe("com.expojet.generatedapp");
+    expect(appConfig.expo.android.package).toBe("com.expojet.generatedapp");
+    expect(appConfig.expo.runtimeVersion).toEqual({ policy: "appVersion" });
 
     const project = loadProjectContext(destination);
     expect(project?.manifest.features?.eas).toBe(true);

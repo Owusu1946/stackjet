@@ -256,16 +256,31 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
         : "GlassCard component missing",
     });
 
-    const hasTabBarBg = existsSync(
-      join(mobileRoot, "src/components/ui/glass-tab-bar-background.tsx"),
-    );
-    checks.push({
-      name: "Liquid Glass tab bar",
-      status: hasTabBarBg ? "pass" : "fail",
-      message: hasTabBarBg
-        ? "src/components/ui/glass-tab-bar-background.tsx found"
-        : "GlassTabBarBackground component missing",
-    });
+    if (navigationType === "tabs" || navigationType === "both") {
+      const tabsPath =
+        navigation === "router"
+          ? join(
+              mobileRoot,
+              navigationType === "both" ? "app/(app)/(tabs)/_layout.tsx" : "app/(app)/_layout.tsx",
+            )
+          : join(
+              mobileRoot,
+              navigationType === "both"
+                ? "src/navigation/TabNavigator.tsx"
+                : "src/navigation/AppNavigator.tsx",
+            );
+      const expectedNativeTabs =
+        navigation === "router" ? "<NativeTabs" : "createNativeBottomTabNavigator";
+      const hasNativeTabs =
+        existsSync(tabsPath) && readFileSync(tabsPath, "utf8").includes(expectedNativeTabs);
+      checks.push({
+        name: "Native Liquid Glass tabs",
+        status: hasNativeTabs ? "pass" : "fail",
+        message: hasNativeTabs
+          ? "Native tabs enabled for platform Liquid Glass"
+          : "Liquid Glass requires the native tabs navigator",
+      });
+    }
   }
 
   const analytics = project.manifest.adapters?.analytics;
@@ -301,6 +316,7 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     } else {
       try {
         const easContent = JSON.parse(readFileSync(easJsonPath, "utf8"));
+        const appConfig = JSON.parse(readFileSync(join(mobileRoot, "app.json"), "utf8"));
         const hasBuild =
           typeof easContent === "object" && easContent !== null && "build" in easContent;
         const hasProfiles =
@@ -309,12 +325,16 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
           "preview" in easContent.build &&
           "production" in easContent.build;
 
+        const hasIdentifiers =
+          typeof appConfig?.expo?.ios?.bundleIdentifier === "string" &&
+          typeof appConfig?.expo?.android?.package === "string";
         checks.push({
           name: "EAS Build configuration",
-          status: hasProfiles ? "pass" : "fail",
-          message: hasProfiles
-            ? "eas.json valid with development, preview, and production build profiles"
-            : "eas.json missing required build profiles (development, preview, production)",
+          status: hasProfiles && hasIdentifiers ? "pass" : "fail",
+          message:
+            hasProfiles && hasIdentifiers
+              ? "EAS development, preview, and production profiles and native application identifiers are configured"
+              : "EAS requires build profiles plus ios.bundleIdentifier and android.package",
         });
       } catch {
         checks.push({

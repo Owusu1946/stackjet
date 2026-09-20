@@ -161,7 +161,43 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
   operations.push(...analyticsAdapter(normalizedInput.analytics).plan(normalizedInput, {}));
+  if (isReactNav) {
+    for (let index = operations.length - 1; index >= 0; index -= 1) {
+      const operation = operations[index];
+      if (operation?.type === "write-file" && operation.path.startsWith(`${mobileRoot}app/`)) {
+        operations.splice(index, 1);
+      }
+    }
+    operations.push({
+      type: "patch-json",
+      path: `${mobileRoot}package.json`,
+      edits: [{ path: ["dependencies", "expo-router"], value: undefined }],
+      owner: `${commandName}:react-navigation`,
+    });
+    operations.push({
+      type: "patch-json",
+      path: `${mobileRoot}app.json`,
+      edits: [
+        { path: ["expo", "plugins"], value: ["expo-splash-screen"] },
+        { path: ["expo", "experiments", "typedRoutes"], value: undefined },
+      ],
+      owner: `${commandName}:react-navigation`,
+    });
+  }
   if (normalizedInput.eas) {
+    const applicationId = `com.expojet.${normalizedInput.projectName
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 48)}`;
+    operations.push({
+      type: "patch-json",
+      path: `${mobileRoot}app.json`,
+      edits: [
+        { path: ["expo", "ios", "bundleIdentifier"], value: applicationId },
+        { path: ["expo", "android", "package"], value: applicationId },
+        { path: ["expo", "runtimeVersion", "policy"], value: "appVersion" },
+      ],
+      owner: `${commandName}:eas`,
+    });
     operations.push({
       type: "write-file",
       path: `${mobileRoot}eas.json`,
