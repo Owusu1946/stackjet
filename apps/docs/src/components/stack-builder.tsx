@@ -269,6 +269,48 @@ const defaults: Config = {
   eas: true,
 };
 
+const presets: Array<{ id: string; label: string; description: string; config: Config }> = [
+  {
+    id: "mvp",
+    label: "Expo MVP",
+    description: "Tabs, dark mode, onboarding, and EAS",
+    config: defaults,
+  },
+  {
+    id: "full-stack",
+    label: "Full-stack Expo",
+    description: "Mobile + API with Convex and Clerk",
+    config: {
+      ...defaults,
+      structure: "monorepo",
+      backend: "convex",
+      database: "none",
+      orm: "none",
+    },
+  },
+  {
+    id: "minimal",
+    label: "Minimal app",
+    description: "A focused client-only Expo app",
+    config: {
+      ...defaults,
+      navigationType: "stack",
+      auth: "none",
+      socials: [],
+      style: "stylesheet",
+      state: "none",
+      backend: "none",
+      database: "none",
+      orm: "none",
+      analytics: "none",
+      liquidGlass: false,
+      onboarding: false,
+      darkMode: false,
+      eas: false,
+    },
+  },
+];
+
 const featureOptions = [
   { key: "liquidGlass", label: "Liquid Glass", description: "Native glass navigation in Expo Go" },
   { key: "onboarding", label: "Onboarding", description: "Multi-step first-run experience" },
@@ -296,6 +338,7 @@ export function StackBuilder() {
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState<string>();
+  const [preset, setPreset] = useState("");
 
   const select = (key: keyof Config, value: string) => {
     setConfig((current) => {
@@ -457,6 +500,15 @@ export function StackBuilder() {
     setPackageManager("pnpm");
     setConfig(defaults);
     setActiveGroup("structure");
+    setPreset("");
+  }
+
+  function applyPreset(id: string) {
+    const selectedPreset = presets.find((item) => item.id === id);
+    if (!selectedPreset) return;
+    setConfig({ ...selectedPreset.config, socials: [...selectedPreset.config.socials] });
+    setPreset(id);
+    setActiveGroup("structure");
   }
 
   function moveCategory(offset: number) {
@@ -492,6 +544,21 @@ export function StackBuilder() {
             <span>$</span>
             {command}
           </code>
+          <label className="builder-preset">
+            <span>PRESET</span>
+            <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
+              <option value="">Choose a starting point</option>
+              {presets.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <small>
+              {presets.find((item) => item.id === preset)?.description ??
+                "Apply a validated configuration"}
+            </small>
+          </label>
           <fieldset className="builder-manager" aria-label="Package manager">
             {(["pnpm", "npm", "bun", "yarn"] as const).map((manager) => (
               <button
