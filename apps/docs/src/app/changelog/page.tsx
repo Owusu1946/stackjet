@@ -12,6 +12,16 @@ const releases = [
   {
     version: releaseVersion,
     date: "September 21, 2026",
+    summary: "Landing analytics, generated app assets, and release polish.",
+    changes: [
+      "Added Vercel Web Analytics to measure Expojet landing-page visitors and page views.",
+      "Added the default Expo icon, splash, adaptive icon, monochrome icon, and favicon asset set to generated projects.",
+      "Updated the public version surfaces and fixed the landing build's Biome import-order check.",
+    ],
+  },
+  {
+    version: "0.6.2",
+    date: "September 21, 2026",
     summary: "Supabase email OTP authentication and clearer generated-project guidance.",
     changes: [
       "Added eight-digit Supabase email OTP authentication with boxed-code verification and resend support.",

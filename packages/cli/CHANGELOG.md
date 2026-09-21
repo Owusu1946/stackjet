@@ -1,5 +1,13 @@
 # create-expojet
 
+## 0.6.3
+
+### Patch Changes
+
+- Add Vercel Web Analytics to the Expojet landing site.
+- Add the generated Expo asset set and update the public release surfaces to 0.6.3.
+- Fix the landing build's Biome import-order check.
+
 ## 0.6.2
 
 ### Patch Changes
