@@ -1,5 +1,12 @@
 import { createPackageName, productName, releaseVersion } from "@expojet/brand";
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Changelog",
+  description: "Release notes and product updates for Expojet.",
+  alternates: { canonical: "/changelog" },
+};
 
 const releases = [
   {
