@@ -24,6 +24,7 @@ describe("createInputSchema", () => {
     state: "none" as const,
     liquidGlass: false,
     analytics: "none" as const,
+    monitoring: "none" as const,
     auth: "clerk" as const,
     style: "uniwind" as const,
     database: "none" as const,
