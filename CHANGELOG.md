@@ -1,7 +1,7 @@
 # Expojet Changelog
 
 All notable changes to the Expojet project (`create-expojet`) will be documented in this file.
-See [packages/cli/CHANGELOG.md](file:///c:/Users/HP/Desktop/stackjet/packages/cli/CHANGELOG.md) for package-specific details.
+See [packages/cli/CHANGELOG.md](packages/cli/CHANGELOG.md) for package-specific details.
 
 ## 0.6.2
 

@@ -23,7 +23,7 @@ pnpm create expojet my-app
 
 ## Interactive choices
 
-Expojet asks for the project structure, package manager, authentication adapter, styling adapter, onboarding, and EAS profiles. Stable authentication choices are Clerk and none. Better Auth appears only when the CLI is started with `--experimental`.
+Expojet asks for the project structure, package manager, authentication adapter, styling adapter, onboarding, and EAS profiles. Stable authentication choices include Clerk, Supabase, Firebase, and none. Better Auth appears only when the CLI is started with `--experimental`.
 
 ## Non-interactive generation
 
@@ -46,5 +46,5 @@ Contributors can test the exact publish artifact:
 ```bash
 pnpm smoke:pack
 pnpm --filter create-expojet pack --pack-destination .artifacts
-pnpm dlx .artifacts/create-expojet-0.3.0.tgz create
+pnpm dlx .artifacts/create-expojet-0.6.2.tgz create
 ```

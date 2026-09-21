@@ -52,7 +52,7 @@ Supported package managers include npm, pnpm, Bun, and Yarn. The generated proje
 | --- | --- |
 | Structure | `standalone`, `monorepo`, `monorepo-web` |
 | Navigation | Expo Router, React Navigation; tabs, drawer, tabs + drawer, stack |
-| Authentication | Clerk, Supabase, Firebase, Better Auth (experimental), JWT (experimental), none |
+| Authentication | Clerk (with optional Google, Apple, Facebook, Microsoft social sign-in), Supabase (email OTP), Firebase, Better Auth (experimental), none |
 | Styling | Uniwind, NativeWind, Unistyles, StyleSheet |
 | Icons | Lucide, Hugeicons, Expo Icons |
 | Backend | Hono, Express, NestJS, Convex |
@@ -60,7 +60,7 @@ Supported package managers include npm, pnpm, Bun, and Yarn. The generated proje
 | ORM | Drizzle, Prisma |
 | State | Zustand, MobX, React state |
 | Analytics | PostHog, Aptabase |
-| Features | Dark mode, onboarding, Liquid Glass, EAS profiles |
+| Features | Dark mode, onboarding, Liquid Glass, EAS profiles, saved presets (`--preset`, `--save-preset`) |
 
 Use the [Stack Builder](https://www.expojet.dev/builder) to explore compatible choices before generating a project.
 

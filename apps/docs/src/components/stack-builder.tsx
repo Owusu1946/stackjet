@@ -114,8 +114,8 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
       },
       {
         value: "better-auth",
-        label: "Better Auth",
-        description: "Self-hosted auth for monorepos",
+        label: "Better Auth (experimental)",
+        description: "Self-hosted auth for monorepos (requires --experimental)",
         icon: "better-auth",
       },
       {
@@ -474,6 +474,7 @@ export function StackBuilder() {
       config.eas ? "--eas" : "--no-eas",
       "--yes",
     ];
+    if (config.auth === "better-auth") flags.push("--experimental");
     if (config.auth === "clerk" && config.socials.length)
       flags.push(`--socials ${config.socials.join(" ")}`);
     return `${starters[packageManager]} ${safeName} ${flags.join(" ")}`;

@@ -1,3 +1,4 @@
+import { productName } from "@expojet/brand";
 import type { Operation } from "@expojet/core";
 import type { BackendAdapter, PackageManager } from "@expojet/schemas";
 import { z } from "zod";
@@ -5,6 +6,7 @@ import { backendAdapter } from "./backend.js";
 import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
+const brandTitle = productName.toUpperCase();
 
 function makeRootPackage(packageManager: PackageManager, hasDb = true) {
   const dbGenerate =
@@ -154,8 +156,8 @@ import type { PropsWithChildren } from "react";
 import { Providers } from "./providers.js";
 
 export const metadata: Metadata = {
-  title: "Expojet Web",
-  description: "Next.js web application powered by Expojet monorepo",
+  title: "${productName} Web",
+  description: "Next.js web application powered by ${productName} monorepo",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
@@ -203,7 +205,7 @@ const webPage = `export default function HomePage() {
             textTransform: "uppercase",
           }}
         >
-          EXPOJET MONOREPO
+          ${brandTitle} MONOREPO
         </span>
         <h1
           style={{
@@ -450,7 +452,7 @@ export function useMe() {
 }
 `;
 
-const readme = `# Expojet app
+const readme = `# ${productName} app
 
 Expo SDK 57 mobile app with modern authentication and a typed API.
 

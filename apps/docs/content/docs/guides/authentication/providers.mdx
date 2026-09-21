@@ -3,9 +3,9 @@ title: Authentication providers
 description: Choose the auth adapter that matches your project and deployment model.
 ---
 
-Expojet exposes `clerk`, `better-auth`, `supabase`, `firebase`, `jwt`, and `none`.
+Expojet exposes `clerk`, `better-auth`, `supabase`, `firebase`, and `none`. Custom JWT generation is disabled in current releases until credential storage, password policy, rate limiting, and refresh-token revocation are configured.
 
-Clerk is the stable hosted Expo flow. Better Auth requires a monorepo and the `--experimental` flag. Supabase and Firebase generate provider setup with public mobile configuration; JWT generates a minimal token boundary for teams that own the identity service. Use `none` when authentication is managed elsewhere.
+Clerk is the stable hosted Expo flow and supports optional social sign-in providers via `--socials`. Better Auth requires a monorepo, Drizzle ORM, a configured database, and the `--experimental` flag. Supabase and Firebase generate provider setup with public mobile configuration; Supabase supports email OTP with an eight-digit code flow. Use `none` when authentication is managed elsewhere.
 
 ```bash
 npx create-expojet@latest my-app --experimental --auth better-auth --structure monorepo
