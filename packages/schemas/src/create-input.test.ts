@@ -354,6 +354,17 @@ describe("createInputSchema", () => {
       },
     );
 
+    it.each(["none", "sentry"] as const)("accepts monitoring adapter %s", (monitoring) => {
+      const result = createInputSchema.parse({ ...base, monitoring });
+      expect(result.monitoring).toBe(monitoring);
+    });
+
+    it("defaults monitoring to none when omitted", () => {
+      const { monitoring: _mon, ...withoutMonitoring } = base;
+      const result = createInputSchema.parse(withoutMonitoring);
+      expect(result.monitoring).toBe("none");
+    });
+
     it("accepts liquidGlass toggle", () => {
       const enabled = createInputSchema.parse({ ...base, liquidGlass: true });
       expect(enabled.liquidGlass).toBe(true);

@@ -75,6 +75,11 @@ export const sentryMonitoringAdapter: Adapter = {
         },
         owner: this.id,
       },
+      // EAS Build secrets: these live in the mobile workspace because `eas build`
+      // runs there. They appear in .env.example as documentation only — actual
+      // values go in EAS Secrets or CI env. The names are added to
+      // MOBILE_SECRET_PATTERN in checks.ts so doctor fails if they leak into
+      // bundled .ts/.tsx/.js/.jsx source files (treeContains skips .env files).
       {
         type: "add-env",
         workspace,

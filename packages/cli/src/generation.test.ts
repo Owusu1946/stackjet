@@ -1389,6 +1389,26 @@ describe("Phase 2 generation", () => {
     expect(initContent).toContain("Sentry.init");
   });
 
+  it("preserves Sentry plugin in app.json after React Navigation plugins wipe", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-sentry-rnav-plugin-")),
+      "sentry-rnav-plugin",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        monitoring: "sentry",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const appConfig = JSON.parse(readFileSync(join(destination, "app.json"), "utf8"));
+    expect(appConfig.expo.plugins).toContain("expo-splash-screen");
+    expect(appConfig.expo.plugins).toContain("@sentry/react-native/expo");
+  });
+
   it("generates a standalone app with EAS Build configuration and passes doctor check", () => {
     const destination = join(mkdtempSync(join(tmpdir(), "expojet-eas-")), "eas-standalone");
     const result = generateCreatePlan(

@@ -1,3 +1,4 @@
+import "../src/monitoring/init";
 import "../src/style-entry";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
