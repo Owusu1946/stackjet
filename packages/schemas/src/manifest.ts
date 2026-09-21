@@ -5,6 +5,7 @@ import {
   backendAdapters,
   databaseAdapters,
   iconLibraries,
+  monitoringAdapters,
   navigationAdapters,
   navigationTypes,
   ormAdapters,
@@ -34,6 +35,7 @@ export const expojetManifestSchema = z.object({
     icons: z.enum(iconLibraries).optional(),
     state: z.enum(stateAdapters).optional(),
     analytics: z.enum(analyticsAdapters).optional(),
+    monitoring: z.enum(monitoringAdapters).optional(),
   }),
   features: z
     .object({

@@ -7,6 +7,7 @@ export const navigationTypes = ["tabs", "drawer", "both", "stack"] as const;
 export const iconLibraries = ["lucide", "hugeicons", "expo"] as const;
 export const stateAdapters = ["none", "zustand", "mobx"] as const;
 export const analyticsAdapters = ["none", "posthog", "aptabase"] as const;
+export const monitoringAdapters = ["none", "sentry"] as const;
 export const backendAdapters = ["hono", "express", "nestjs", "convex", "none"] as const;
 export const authAdapters = [
   "clerk",
@@ -26,6 +27,7 @@ export type NavigationType = (typeof navigationTypes)[number];
 export type IconLibrary = (typeof iconLibraries)[number];
 export type StateAdapter = (typeof stateAdapters)[number];
 export type AnalyticsAdapter = (typeof analyticsAdapters)[number];
+export type MonitoringAdapter = (typeof monitoringAdapters)[number];
 export type BackendAdapter = (typeof backendAdapters)[number];
 export type DatabaseAdapter = (typeof databaseAdapters)[number];
 export type OrmAdapter = (typeof ormAdapters)[number];
@@ -56,6 +58,7 @@ const createInputObjectSchema = z.object({
   state: z.enum(stateAdapters).default("none"),
   liquidGlass: z.boolean().default(false),
   analytics: z.enum(analyticsAdapters).default("none"),
+  monitoring: z.enum(monitoringAdapters).default("none"),
   preset: z.string().optional(),
   backend: z.enum(backendAdapters).optional(),
   auth: z.enum(authAdapters),
