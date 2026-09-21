@@ -19,6 +19,7 @@ function input(destination: string): CreateInput {
     state: "none",
     liquidGlass: false,
     analytics: "none",
+    monitoring: "none",
     backend: "none",
     auth: "none",
     style: "stylesheet",

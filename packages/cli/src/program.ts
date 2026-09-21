@@ -6,6 +6,7 @@ import {
   backendAdapters,
   databaseAdapters,
   iconLibraries,
+  monitoringAdapters,
   navigationAdapters,
   navigationTypes,
   ormAdapters,
@@ -91,6 +92,12 @@ export function createProgram(io: CliIo) {
     )
     .option("--posthog", "use PostHog mobile analytics")
     .option("--aptabase", "use Aptabase privacy-first mobile analytics")
+    .addOption(
+      new Option("--monitoring <adapter>", "error monitoring adapter").choices([
+        ...monitoringAdapters,
+      ]),
+    )
+    .option("--sentry", "use Sentry error monitoring")
     .addOption(new Option("--database <adapter>").choices([...databaseAdapters]))
     .addOption(new Option("--orm <adapter>").choices([...ormAdapters]))
     .option("--onboarding", "include onboarding")

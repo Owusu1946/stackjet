@@ -55,6 +55,8 @@ export interface CreateFlags {
   analytics?: string;
   posthog?: boolean;
   aptabase?: boolean;
+  monitoring?: string;
+  sentry?: boolean;
   database?: string;
   orm?: string;
   onboarding?: boolean;
@@ -162,6 +164,12 @@ export function normalizeNonInteractiveCreate(
   }
   const analytics = analyticsFlag ?? effectiveConfig.analytics ?? "none";
 
+  let monitoringFlag = flags.monitoring;
+  if (!monitoringFlag) {
+    if (flags.sentry) monitoringFlag = "sentry";
+  }
+  const monitoring = monitoringFlag ?? effectiveConfig.monitoring ?? "none";
+
   return createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
@@ -173,6 +181,7 @@ export function normalizeNonInteractiveCreate(
     state,
     liquidGlass: flags.liquidGlass ?? effectiveConfig.liquidGlass ?? false,
     analytics,
+    monitoring,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
     socialProviders: (flags.socialProviders ??
@@ -496,6 +505,24 @@ async function promptCreate(
   }
   cancelled(analytics);
 
+  let monitoring = flags.monitoring ?? activeConfig.monitoring;
+  if (!monitoring) {
+    if (flags.sentry) monitoring = "sentry";
+  }
+  if (!monitoring) {
+    monitoring = (await p.select({
+      message: "Error monitoring",
+      options: [
+        { value: "none", label: "None (No error monitoring)" },
+        {
+          value: "sentry",
+          label: "Sentry (Crash reporting, performance traces, EAS source map uploads)",
+        },
+      ],
+    })) as string;
+  }
+  cancelled(monitoring);
+
   let database = flags.database ?? activeConfig.database;
   if (backend === "convex") {
     database = "none";
@@ -579,6 +606,7 @@ async function promptCreate(
     state: state as StateAdapter,
     liquidGlass,
     analytics: analytics as AnalyticsAdapter,
+    monitoring,
     database,
     orm,
     onboarding: true,
@@ -634,6 +662,7 @@ async function promptCreate(
     state: state as StateAdapter,
     liquidGlass,
     analytics: analytics as AnalyticsAdapter,
+    monitoring,
     database,
     orm,
     onboarding,
@@ -645,8 +674,9 @@ async function promptCreate(
     sdk: 57,
   });
   const backendLabel = backend !== "none" ? `, ${backend} backend` : "";
+  const monitoringLabel = monitoring !== "none" ? `, ${monitoring} monitoring` : "";
   const confirmed = await p.confirm({
-    message: `Plan ${input.projectName} with Expo SDK 57${backendLabel}, ${input.auth}, ${input.style}, ${input.database} database, and ${input.orm} ORM?`,
+    message: `Plan ${input.projectName} with Expo SDK 57${backendLabel}, ${input.auth}, ${input.style}, ${input.database} database, and ${input.orm} ORM${monitoringLabel}?`,
     initialValue: true,
   });
   cancelled(confirmed);
@@ -681,6 +711,7 @@ async function promptCreate(
           state: input.state,
           liquidGlass: input.liquidGlass,
           analytics: input.analytics,
+          monitoring: input.monitoring,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,
@@ -832,6 +863,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           icons: input.icons,
           state: input.state,
           liquidGlass: input.liquidGlass,
+          monitoring: input.monitoring,
           database: input.database,
           orm: input.orm,
           onboarding: input.onboarding,

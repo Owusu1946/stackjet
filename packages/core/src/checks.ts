@@ -15,7 +15,7 @@ function majorMinorPatch(version: string) {
 }
 
 const MOBILE_SECRET_PATTERN =
-  /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET/;
+  /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET|SENTRY_AUTH_TOKEN|SENTRY_ORG|SENTRY_PROJECT/;
 
 function treeContains(directory: string, pattern: RegExp): boolean {
   if (!existsSync(directory)) return false;
@@ -304,6 +304,27 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
       message: hasAnalyticsProvider
         ? "src/analytics/provider.tsx found"
         : "src/analytics/provider.tsx missing",
+    });
+  }
+
+  const monitoring = project.manifest.adapters?.monitoring;
+  if (monitoring && monitoring !== "none") {
+    const hasMonitoringInit = existsSync(join(mobileRoot, "src/monitoring/init.ts"));
+    checks.push({
+      name: "Mobile monitoring init",
+      status: hasMonitoringInit ? "pass" : "fail",
+      message: hasMonitoringInit
+        ? "src/monitoring/init.ts found"
+        : "src/monitoring/init.ts missing",
+    });
+
+    const hasMonitoringModule = existsSync(join(mobileRoot, "src/monitoring/index.ts"));
+    checks.push({
+      name: "Mobile monitoring module",
+      status: hasMonitoringModule ? "pass" : "fail",
+      message: hasMonitoringModule
+        ? "src/monitoring/index.ts found"
+        : "src/monitoring/index.ts missing",
     });
   }
 
