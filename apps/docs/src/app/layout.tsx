@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: `%s | ${productName} Docs`,
   },
   description: `${productName} is the most configurable way to create a production-ready Expo SDK 57 mobile app with authentication, database, styling, navigation, and backend — all in one command.`,
-  metadataBase: new URL("https://docs.expojet.com"),
+  metadataBase: new URL("https://www.expojet.dev"),
   alternates: { canonical: "/" },
   keywords: [
     "Expo app generator",
@@ -69,14 +69,14 @@ const structuredData = {
     {
       "@type": "Organization",
       name: productName,
-      url: "https://docs.expojet.com",
-      logo: "https://docs.expojet.com/brand/site-icon.svg",
+      url: "https://www.expojet.dev",
+      logo: "https://www.expojet.dev/brand/site-icon.svg",
     },
     {
       "@type": "SoftwareApplication",
       name: productName,
       description: `${productName} generates production-ready Expo SDK 57 applications and full-stack monorepos.`,
-      url: "https://docs.expojet.com",
+      url: "https://www.expojet.dev",
       applicationCategory: "DeveloperApplication",
       operatingSystem: "Cross-platform",
       softwareVersion: releaseVersion,

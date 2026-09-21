@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { source } from "@/lib/source";
 
-const siteUrl = "https://docs.expojet.com";
+const siteUrl = "https://www.expojet.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [
