@@ -19,6 +19,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     state: "none",
     liquidGlass: false,
     analytics: "none",
+    monitoring: "none",
     backend: "none",
     auth: "none",
     style: "uniwind",
