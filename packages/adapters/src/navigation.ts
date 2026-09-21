@@ -1,9 +1,11 @@
+import { productName } from "@expojet/brand";
 import type { Operation } from "@expojet/core";
 import type { CreateInput, NavigationAdapter, NavigationType } from "@expojet/schemas";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
+const brandTitle = productName.toUpperCase();
 
 function location(structure: "standalone" | "monorepo" | "monorepo-web") {
   const workspace = structure === "standalone" ? "." : "apps/mobile";
@@ -894,7 +896,7 @@ export function SignInScreen({ navigation }: { navigation?: any }) {
 
   return (
     <View style={styles.container} testID="auth-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Sign In</Text>
       <TextInput
         testID="email"
@@ -954,7 +956,7 @@ export function SignUpScreen({ navigation }: { navigation?: any }) {
 
   return (
     <View style={styles.container} testID="sign-up-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Create Account</Text>
       <TextInput
         testID="name"

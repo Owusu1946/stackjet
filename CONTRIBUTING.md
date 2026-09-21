@@ -127,4 +127,4 @@ node packages/cli/dist/cli.js test-web --structure monorepo-web --style unistyle
 
 - Read the [Architecture Decision Records (ADRs)](docs/decisions/).
 - Check the [Evidence & Verification Ledgers](docs/).
-- Open a GitHub Issue for bug reports or feature discussions.
+- Open a [GitHub Issue](https://github.com/Owusu1946/stackjet/issues) for bug reports or feature discussions. For security vulnerabilities, follow [SECURITY.md](SECURITY.md) and use GitHub Security Advisories instead of public issues.

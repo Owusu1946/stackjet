@@ -1,3 +1,4 @@
+import { productName } from "@expojet/brand";
 import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import {
@@ -94,6 +95,8 @@ describe("auth adapters", () => {
       );
       expect(signIn?.type === "write-file" && signIn.content).toContain("useSignIn");
       expect(signIn?.type === "write-file" && signIn.content).not.toContain("useHostedAuth");
+      expect(signIn?.type === "write-file" && signIn.content).toContain(productName.toUpperCase());
+      expect(signIn?.type === "write-file" && signIn.content).not.toContain("STACKJET");
     });
   });
 
@@ -110,6 +113,8 @@ describe("auth adapters", () => {
       expect(content).toContain("codeBox");
       expect(content).not.toContain("signInWithPassword");
       expect(content).not.toContain("emailRedirectTo");
+      expect(content).toContain(productName.toUpperCase());
+      expect(content).not.toContain("STACKJET");
     });
   });
 
@@ -129,6 +134,13 @@ describe("auth adapters", () => {
         .filter((op) => op.type === "write-file")
         .map((op) => op.type === "write-file" && op.path);
       expect(paths).toContain("apps/mobile/src/auth/client.ts");
+
+      const mobilePayload = JSON.stringify(
+        ops.filter(
+          (op) => op.type === "write-file" && "path" in op && op.path.startsWith("apps/mobile/"),
+        ),
+      );
+      expect(mobilePayload).not.toMatch(/BETTER_AUTH_SECRET|CLERK_SECRET_KEY/);
     });
   });
 

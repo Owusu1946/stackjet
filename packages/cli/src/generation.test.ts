@@ -1347,4 +1347,38 @@ describe("Phase 2 generation", () => {
     const easCheck = checks.find((c) => c.name === "EAS Build configuration");
     expect(easCheck).toBeUndefined();
   });
+
+  it("generates a Better Auth monorepo with secret boundary and promotion warning", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-better-auth-")), "ba-app");
+    const createInput = {
+      ...input(destination),
+      structure: "monorepo" as const,
+      auth: "better-auth" as const,
+      database: "neon" as const,
+      orm: "drizzle" as const,
+    };
+    const result = generateCreatePlan(createInput, false);
+    expect(result.committed).toBe(true);
+
+    const plan = buildCreatePlan(createInput);
+    const mobile = JSON.stringify(
+      plan.operations.filter(
+        (operation) => "path" in operation && operation.path.startsWith("apps/mobile/"),
+      ),
+    );
+    expect(mobile).not.toMatch(/BETTER_AUTH_SECRET|CLERK_SECRET_KEY/);
+
+    const project = loadProjectContext(destination);
+    const checks = runDoctorChecks(project);
+    expect(checks.find((c) => c.name === "Better Auth promotion")?.status).toBe("warning");
+    expect(checks.find((c) => c.name === "Mobile secret boundary")?.status).toBe("pass");
+  });
+
+  it("runs mobile secret boundary on standalone generated apps", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-standalone-secret-")), "solo-app");
+    const result = generateCreatePlan(input(destination), false);
+    expect(result.committed).toBe(true);
+    const checks = runDoctorChecks(loadProjectContext(destination));
+    expect(checks.find((c) => c.name === "Mobile secret boundary")?.status).toBe("pass");
+  });
 });
