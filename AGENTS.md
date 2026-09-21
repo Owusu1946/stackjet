@@ -1,7 +1,5 @@
 # Expojet
 
-This repository is named `stackjet`. The product, CLI, packages, generated manifest, and user-facing copy use the Expojet name. Keep that distinction clear. Do not reintroduce `StackJET` or `Stackjet` as product branding.
-
 Expojet is an Expo-first project generator. It turns one validated configuration into either an Expo SDK 57 app or a full-stack TypeScript workspace. The generator combines a checksum-verified base pack with declarative adapters, checks the rendered tree, then moves it into place atomically.
 
 ## What must stay true
@@ -186,6 +184,13 @@ Make small atomic commits using conventional commit syntax, such as `fix(core): 
 Add a changeset for a user-visible change to a published package. Skip it for internal refactors, tests, and repository-only docs unless the release process needs one.
 
 Do not open a pull request unless the developer asks. Keep one concern per pull request. Describe the user-visible problem, the implementation, the combinations checked, and any known support limit. UI changes to the docs site should include before and after images when the visual difference matters.
+
+Prefer pull request titles that describe the user-visible or operational impact.
+
+- Avoid: `PF-server: negotiate permessage-deflate on websocket`
+- Prefer: `PF-server: cut websocket frame size by 70% with gzipping`
+
+Open descriptions with the user's problem in plain language, followed by the solution. Keep implementation details secondary.
 
 ## Code style
 
