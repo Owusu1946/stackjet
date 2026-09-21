@@ -14,8 +14,8 @@ export default function IndexScreen() {
       </View>
     );
   }
-  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
   if (features.onboarding && !onboarding.complete) return <Redirect href="/(onboarding)" />;
+  if (session.status === "unauthenticated") return <Redirect href="/(public)/sign-in" />;
   return <Redirect href="/(app)" />;
 }
 

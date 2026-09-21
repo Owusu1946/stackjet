@@ -29,4 +29,19 @@ describe("SDK 57 pack", () => {
       expect.arrayContaining(["package.json", "app.json", "app/_layout.tsx", "app/index.tsx"]),
     );
   });
+
+  it("mounts the theme globally and prioritizes onboarding before auth", () => {
+    const layout = sdk57Files["app/_layout.tsx"];
+    const index = sdk57Files["app/index.tsx"];
+    if (!layout || !index) throw new Error("SDK template routes are missing");
+
+    expect(layout).toContain('import { ThemeProvider } from "../src/theme/provider";');
+    expect(layout).toContain("<ThemeProvider>");
+    expect(index).toContain(
+      'if (features.onboarding && !onboarding.complete) return <Redirect href="/(onboarding)" />;',
+    );
+    expect(index.indexOf("features.onboarding")).toBeLessThan(
+      index.indexOf('session.status === "unauthenticated"'),
+    );
+  });
 });

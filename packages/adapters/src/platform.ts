@@ -454,13 +454,17 @@ const readme = `# Expojet app
 
 Expo SDK 57 mobile app with modern authentication and a typed API.
 
-## Run
+## Configure environment variables
 
-1. Copy apps/mobile/.env.example to apps/mobile/.env and add public keys and reachable API URL.
-2. Copy apps/api/.env.example to apps/api/.env and configure server database keys.
+1. Copy apps/mobile/.env.example to apps/mobile/.env and set only public mobile values.
+2. Copy apps/api/.env.example to apps/api/.env and configure server-only database and authentication secrets.
 3. Run pnpm install, pnpm db:migrate (if database is enabled), then pnpm dev.
 
-Never put backend secrets in the mobile environment. See docs/deployment.md.
+Variables prefixed with EXPO_PUBLIC_ are embedded in the mobile bundle. They must never contain database URLs, Clerk secret keys, Convex admin keys, or other server secrets. Public provider keys such as Clerk publishable keys, Convex deployment URLs, and PostHog project keys are appropriate for the mobile file.
+
+For Convex, run pnpm --filter @expojet/api dev (or npx convex dev from the Convex workspace) before launching the mobile app, and set EXPO_PUBLIC_CONVEX_URL to the deployment's .convex.cloud URL. For Clerk + Convex, configure CLERK_JWT_ISSUER_DOMAIN in the Convex deployment environment. Restart Metro with its cache cleared after changing mobile .env values.
+
+See docs/deployment.md for production deployment and secret handling.
 `;
 
 const deployment = `# Deployment

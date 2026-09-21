@@ -255,6 +255,17 @@ async function promptCreate(
     (await p.text({ message: "Project name", placeholder: "my-app" }));
   cancelled(projectName);
 
+  // Fail before asking the remaining configuration questions when the name or
+  // destination can never be used. The final validation below remains the
+  // authoritative guard for races and programmatic callers.
+  const destination = flags.destination ?? activeConfig.destination ?? String(projectName);
+  const validatedPath = validateProjectPath({
+    cwd,
+    destination,
+    projectName: String(projectName),
+    allowCurrentDirectory: flags.allowCurrentDirectory ?? false,
+  });
+
   const typescript =
     flags.typescript ??
     activeConfig.typescript ??
@@ -375,6 +386,14 @@ async function promptCreate(
       })),
     }));
   cancelled(auth);
+
+  if (auth === "better-auth" && !flags.experimental) {
+    throw new CliError(
+      "Better Auth is experimental and requires --experimental",
+      ExitCode.InvalidInput,
+      "Add --experimental, or choose Clerk, Supabase, Firebase, or no auth.",
+    );
+  }
 
   const selectedSocialProviders =
     auth === "clerk"
@@ -545,6 +564,33 @@ async function promptCreate(
   }
   cancelled(orm);
 
+  const draftValidation = createInputSchema.safeParse({
+    projectName: validatedPath.projectName,
+    destination: validatedPath.absolutePath,
+    structure,
+    packageManager,
+    navigation,
+    navigationType,
+    backend,
+    auth,
+    socialProviders: selectedSocialProviders as SocialProvider[],
+    style: style ?? "uniwind",
+    icons: icons as IconLibrary,
+    state: state as StateAdapter,
+    liquidGlass,
+    analytics: analytics as AnalyticsAdapter,
+    database,
+    orm,
+    onboarding: true,
+    darkMode: true,
+    eas: true,
+    install: true,
+    git: true,
+    typescript,
+    sdk: 57,
+  });
+  if (!draftValidation.success) throw draftValidation.error;
+
   const onboarding =
     flags.onboarding ??
     activeConfig.onboarding ??
@@ -573,13 +619,6 @@ async function promptCreate(
     (await p.confirm({ message: "Initialize a git repository?", initialValue: true }));
   cancelled(git);
 
-  const destination = flags.destination ?? activeConfig.destination ?? String(projectName);
-  const validatedPath = validateProjectPath({
-    cwd,
-    destination,
-    projectName: String(projectName),
-    allowCurrentDirectory: flags.allowCurrentDirectory ?? false,
-  });
   const input = createInputSchema.parse({
     projectName: validatedPath.projectName,
     destination: validatedPath.absolutePath,
@@ -622,6 +661,7 @@ async function promptCreate(
     const presetName = await p.text({
       message: "Preset name",
       placeholder: "my-stack",
+      validate: (value) => (String(value).trim() ? undefined : "Preset name is required"),
     });
     cancelled(presetName);
     const validPresetName = String(presetName).trim();
@@ -719,6 +759,13 @@ function printResult(
 }
 
 export async function runCreate(projectName: string | undefined, flags: CreateFlags, io: CliIo) {
+  if (flags.savePreset !== undefined && !flags.savePreset.trim()) {
+    throw new CliError(
+      "Preset name cannot be empty",
+      ExitCode.InvalidInput,
+      "Pass a non-empty value to --save-preset.",
+    );
+  }
   const config = readConfig(io.cwd, flags.config);
   try {
     const input = flags.yes

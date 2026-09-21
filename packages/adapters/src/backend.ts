@@ -1056,7 +1056,7 @@ export default defineSchema({
 });
 `;
 
-const convexUsers = `import { queryGeneric as query } from "convex/server";
+const convexUsers = `import { mutationGeneric as mutation, queryGeneric as query } from "convex/server";
 import { v } from "convex/values";
 
 export const getMe = query({
@@ -1075,6 +1075,36 @@ export const getMe = query({
       .query("users")
       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
       .unique();
+  },
+});
+
+export const ensureMe = mutation({
+  args: {
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+  },
+  returns: v.id("users"),
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Authentication required");
+
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        name: args.name ?? identity.name ?? existing.name,
+        email: args.email ?? identity.email ?? existing.email,
+      });
+      return existing._id;
+    }
+
+    return await ctx.db.insert("users", {
+      tokenIdentifier: identity.tokenIdentifier,
+      name: args.name ?? identity.name,
+      email: args.email ?? identity.email,
+    });
   },
 });
 
@@ -1105,7 +1135,8 @@ const convexTsConfig = `{
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"]
   },
   "include": ["./**/*.ts"]
 }
@@ -1190,20 +1221,40 @@ const styles = StyleSheet.create({
 });
 `;
 
-const convexClerkProvider = `import { useAuth } from "@clerk/expo";
+const convexClerkProvider = `import { useAuth, useUser } from "@clerk/expo";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import type { PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren } from "react";
+import { useMutation } from "convex/react";
 import { StyleSheet, Text, View } from "react-native";
 import { env } from "../env";
+import { api } from "../../convex/_generated/api";
 
 const client = env.EXPO_PUBLIC_CONVEX_URL
   ? new ConvexReactClient(env.EXPO_PUBLIC_CONVEX_URL, { unsavedChangesWarning: false })
   : null;
 
+function ConvexUserSync() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const ensureMe = useMutation(api.users.ensureMe);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return;
+    void ensureMe({
+      name: user.fullName ?? undefined,
+      email: user.primaryEmailAddress?.emailAddress ?? undefined,
+    }).catch((error) => {
+      console.error("Unable to sync Clerk user to Convex", error);
+    });
+  }, [ensureMe, isLoaded, isSignedIn, user]);
+
+  return null;
+}
+
 export function DataProvider({ children }: PropsWithChildren) {
   if (!client) return <View style={styles.container}><Text style={styles.title}>Convex setup required</Text><Text>Set EXPO_PUBLIC_CONVEX_URL and reload.</Text></View>;
-  return <ConvexProviderWithClerk client={client} useAuth={useAuth}>{children}</ConvexProviderWithClerk>;
+  return <ConvexProviderWithClerk client={client} useAuth={useAuth}><ConvexUserSync />{children}</ConvexProviderWithClerk>;
 }
 
 const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", padding: 24, gap: 8 }, title: { fontSize: 22, fontWeight: "700" } });
@@ -1518,6 +1569,18 @@ export const convexBackendAdapter: Adapter = {
         kind: "dependencies",
         owner: this.id,
       },
+      ...(isStandalone
+        ? [
+            {
+              type: "add-dependency" as const,
+              workspace: ".",
+              name: "@types/node",
+              version: "^24.3.1",
+              kind: "devDependencies" as const,
+              owner: this.id,
+            },
+          ]
+        : []),
       {
         type: "write-file",
         path: `${convexDir}/schema.ts`,
@@ -1539,7 +1602,10 @@ export const convexBackendAdapter: Adapter = {
       {
         type: "write-file",
         path: `${mobileRoot}src/data/provider.tsx`,
-        content: input.auth === "clerk" ? convexClerkProvider : convexProvider,
+        content: (input.auth === "clerk" ? convexClerkProvider : convexProvider).replace(
+          "../../convex/_generated/api",
+          isStandalone ? "../../convex/_generated/api" : "../../../api/convex/_generated/api",
+        ),
         owner: this.id,
       },
       {
@@ -1593,6 +1659,7 @@ export const convexBackendAdapter: Adapter = {
                 convex: "^1.19.4",
               },
               devDependencies: {
+                "@types/node": "^24.3.1",
                 typescript: "~6.0.3",
               },
             },

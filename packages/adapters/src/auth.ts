@@ -125,7 +125,7 @@ const clerkSocialButtons = `import React from "react";
 import { useSSO } from "@clerk/expo";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import { SocialIcon, type SocialProvider } from "../../src/components/auth/social-icon";
+import { SocialIcon, type SocialProvider } from "./social-icon";
 
 const PROVIDERS: readonly SocialProvider[] = __SOCIAL_PROVIDERS__;
 const STRATEGIES: Record<SocialProvider, string> = {

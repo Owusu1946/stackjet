@@ -68,6 +68,7 @@ describe("auth adapters", () => {
       expect(social && "content" in social ? social.content : "").toContain(
         'const PROVIDERS: readonly SocialProvider[] = ["google","microsoft"];',
       );
+      expect(social && "content" in social ? social.content : "").toContain('from "./social-icon"');
     });
 
     it("plans Clerk dependencies, env, and provider in standalone", () => {

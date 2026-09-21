@@ -162,10 +162,44 @@ describe("convexBackendAdapter", () => {
     expect(paths).toContain("convex/tsconfig.json");
     expect(paths).toContain("src/data/provider.tsx");
 
+    const usersFile = operations.find(
+      (operation) => operation.type === "write-file" && operation.path === "convex/users.ts",
+    );
+    expect(usersFile && "content" in usersFile ? usersFile.content : "").toContain(
+      "export const ensureMe = mutation",
+    );
+    expect(usersFile && "content" in usersFile ? usersFile.content : "").toContain(
+      "email: v.optional(v.string())",
+    );
+
+    const providerFile = operations.find(
+      (operation) => operation.type === "write-file" && operation.path === "src/data/provider.tsx",
+    );
+    expect(providerFile && "content" in providerFile ? providerFile.content : "").toContain(
+      "useMutation(api.users.ensureMe)",
+    );
+    expect(providerFile && "content" in providerFile ? providerFile.content : "").toContain(
+      "primaryEmailAddress?.emailAddress",
+    );
+
     const envVars = operations
       .filter((op) => op.type === "add-env")
       .map((op) => op.type === "add-env" && op.variable.name);
     expect(envVars).toContain("EXPO_PUBLIC_CONVEX_URL");
+
+    const convexTsConfig = operations.find(
+      (operation) => operation.type === "write-file" && operation.path === "convex/tsconfig.json",
+    );
+    expect(convexTsConfig && "content" in convexTsConfig ? convexTsConfig.content : "").toContain(
+      '"types": ["node"]',
+    );
+
+    const devDeps = operations
+      .filter(
+        (operation) => operation.type === "add-dependency" && operation.kind === "devDependencies",
+      )
+      .map((operation) => (operation.type === "add-dependency" ? operation.name : null));
+    expect(devDeps).toContain("@types/node");
 
     const scripts = operations
       .filter((op) => op.type === "add-script")

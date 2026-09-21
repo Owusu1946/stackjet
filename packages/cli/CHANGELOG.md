@@ -1,5 +1,14 @@
 # create-expojet
 
+## 0.6.1
+
+### Patch Changes
+
+- Validate project names, destinations, preset names, and incompatible options before the interactive flow reaches its end.
+- Fix generated Clerk + Convex user synchronization so authenticated users are created or updated with their Clerk email and name.
+- Fix generated Expo Router projects so dark mode is mounted globally and onboarding can appear before authentication.
+- Fix Convex TypeScript generation to include Node types and correct generated social-icon imports.
+
 ## 0.6.0
 
 ### Minor Changes

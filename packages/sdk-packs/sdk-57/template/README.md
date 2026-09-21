@@ -2,9 +2,12 @@
 
 This project was generated from the checksum-verified Expo SDK 57 base pack.
 
+## Run
+
 ```powershell
 pnpm install
-pnpm start
+Copy-Item .env.example .env
+pnpm start -- --clear
 ```
 
-Open Expo Go and scan the QR code. This fixture has no authentication or server requirements. It includes protected/public/onboarding route groups, a provider-neutral session boundary, secure onboarding persistence, and validated public environment configuration.
+Open Expo Go and scan the QR code. Configure only public mobile variables in `.env`: values prefixed with `EXPO_PUBLIC_` are embedded in the bundle. Never put database URLs, server secrets, Clerk secret keys, or Convex admin keys in this file. Provider adapters add their required variables to `.env.example`; follow the generated README for provider-specific setup.
