@@ -60,9 +60,8 @@ expojet/
 
 ## 4. Key Documentation Links
 
-- [Blueprint Specification](file:///c:/Users/HP/Desktop/stackjet/stackjet-researched-implementation-blueprint.md)
-- [Architecture Decisions (ADRs)](file:///c:/Users/HP/Desktop/stackjet/docs/decisions/)
-- [Phase Verifications](file:///c:/Users/HP/Desktop/stackjet/docs/)
-- [Compatibility Ledger](file:///c:/Users/HP/Desktop/stackjet/docs/compatibility/v1.0.0-alpha.1.md)
-- [Contributor Guide](file:///c:/Users/HP/Desktop/stackjet/docs/contributing/guide.md)
-- [Third-Party Notices](file:///c:/Users/HP/Desktop/stackjet/THIRD_PARTY_NOTICES.md)
+- [Architecture Decisions (ADRs)](docs/decisions/)
+- [Phase Verifications](docs/)
+- [Compatibility Ledger](docs/compatibility/v1.0.0-alpha.1.md)
+- [Contributor Guide](docs/contributing/guide.md)
+- [Third-Party Notices](THIRD_PARTY_NOTICES.md)

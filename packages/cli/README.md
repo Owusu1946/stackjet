@@ -43,8 +43,12 @@ npx create-expojet my-monorepo --structure monorepo-web --style unistyles --auth
 |---|---|---|---|
 | `--structure` | Monorepo or standalone layout | `standalone`, `monorepo`, `monorepo-web` | `standalone` |
 | `--style` | Styling engine | `uniwind`, `nativewind`, `unistyles`, `stylesheet` | `uniwind` |
-| `--auth` | Authentication adapter | `clerk`, `better-auth`, `none` | `clerk` |
-| `--package-manager` | Package manager | `pnpm`, `npm`, `bun` | `pnpm` |
+| `--auth` | Authentication adapter | `clerk`, `supabase`, `firebase`, `none`, experimental `better-auth` | `clerk` |
+| `--backend` | Backend adapter | `none`, `hono`, `express`, `nestjs`, `convex` | `hono` (monorepo) |
+| `--socials` | Clerk social providers | `google`, `apple`, `facebook`, `microsoft` | — |
+| `--package-manager` | Package manager | `pnpm`, `npm`, `bun`, `yarn` | `pnpm` |
+| `--experimental` | Allow experimental adapters | boolean | `false` |
+| `--preset` / `--save-preset` | Load or save configuration presets | preset name | — |
 | `--no-dark-mode` | Disable dynamic dark mode | boolean | `false` |
 | `--no-onboarding` | Disable onboarding flow | boolean | `false` |
 | `--no-eas` | Disable EAS configuration | boolean | `false` |

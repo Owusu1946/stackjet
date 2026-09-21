@@ -14,6 +14,9 @@ function majorMinorPatch(version: string) {
   return version.replace(/^v/, "").split(".").map(Number);
 }
 
+const MOBILE_SECRET_PATTERN =
+  /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET/;
+
 function treeContains(directory: string, pattern: RegExp): boolean {
   if (!existsSync(directory)) return false;
   return readdirSync(directory, { withFileTypes: true }).some((entry) => {
@@ -87,10 +90,12 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
         ? "apps/mobile, apps/api, and apps/web are required"
         : "apps/mobile and apps/api are required",
     });
-    const leaked = treeContains(
-      mobile,
-      /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET/,
-    );
+  }
+
+  const mobileRoot =
+    project.manifest.structure === "standalone" ? project.root : join(project.root, "apps/mobile");
+  if (existsSync(mobileRoot)) {
+    const leaked = treeContains(mobileRoot, MOBILE_SECRET_PATTERN);
     checks.push({
       name: "Mobile secret boundary",
       status: leaked ? "fail" : "pass",
@@ -174,8 +179,6 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
 
   const navigation = project.manifest.adapters.navigation ?? "router";
   const navigationType = project.manifest.adapters.navigationType ?? "tabs";
-  const mobileRoot =
-    project.manifest.structure === "standalone" ? project.root : join(project.root, "apps/mobile");
 
   if (navigation === "react-navigation") {
     const hasRootNav = existsSync(join(mobileRoot, "src/navigation/RootNavigator.tsx"));

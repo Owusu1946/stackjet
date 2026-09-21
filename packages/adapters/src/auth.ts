@@ -1,9 +1,11 @@
+import { productName } from "@expojet/brand";
 import type { Operation } from "@expojet/core";
 import type { CreateInput } from "@expojet/schemas";
 import { z } from "zod";
 import type { Adapter } from "./contract.js";
 
 const noOptions = z.object({}).strict();
+const brandTitle = productName.toUpperCase();
 const noneEnv = `import { createEnv } from "@t3-oss/env-core";\nimport { z } from "zod";\nexport const env = createEnv({ clientPrefix: "EXPO_PUBLIC_", client: { EXPO_PUBLIC_API_URL: z.string().url().optional(), EXPO_PUBLIC_CONVEX_URL: z.string().optional() }, runtimeEnv: { EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL, EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL }, emptyStringAsUndefined: true });\n`;
 const clerkEnv = `import { createEnv } from "@t3-oss/env-core";\nimport { z } from "zod";\nexport const env = createEnv({ clientPrefix: "EXPO_PUBLIC_", client: { EXPO_PUBLIC_API_URL: z.string().url().optional(), EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).default("pk_test_placeholder"), EXPO_PUBLIC_CONVEX_URL: z.string().optional() }, runtimeEnv: { EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY, EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL }, emptyStringAsUndefined: true });\n`;
 
@@ -97,7 +99,7 @@ export default function SignInScreen() {
   async function verifyReset() { setActionError(null); const { error } = await signIn.resetPasswordEmailCode.verifyCode({ code }); if (error) setActionError(error.message); else setMode("forgot"); }
   async function finishReset() { const { error } = await signIn.resetPasswordEmailCode.submitPassword({ password: newPassword }); if (error) setActionError(error.message); else { setMode("sign-in"); setPassword(""); } }
   const resetCode = mode === "reset"; const resetPassword = mode === "forgot" && signIn.status === "needs_new_password";
-  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>{resetCode ? "Check your email" : resetPassword ? "Choose a new password" : mode === "forgot" ? "Forgot password" : "Welcome back"}</Text>{resetCode ? <><TextInput testID="reset-code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button title="Verify code" disabled={fetchStatus === "fetching"} onPress={() => void verifyReset()} /><Button title="Resend code" onPress={() => void sendReset()} /></> : resetPassword ? <><TextInput testID="new-password" secureTextEntry placeholder="New password" value={newPassword} onChangeText={setNewPassword} style={styles.input} /><Button title="Update password" disabled={fetchStatus === "fetching"} onPress={() => void finishReset()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} />{mode === "sign-in" ? <TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /> : null}<Text>{actionError ?? errors?.fields?.identifier?.message ?? errors?.fields?.password?.message ?? ""}</Text>{mode === "sign-in" ? <><Button testID="sign-in" title="Sign in" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /><Button title="Forgot password" onPress={() => setMode("forgot")} /><Button testID="goto-sign-up" title="Create account" onPress={() => router.push("/(public)/sign-up")} /></> : <Button title="Send reset code" disabled={fetchStatus === "fetching"} onPress={() => void sendReset()} />}</>}</View>;
+  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>${brandTitle}</Text><Text style={styles.title}>{resetCode ? "Check your email" : resetPassword ? "Choose a new password" : mode === "forgot" ? "Forgot password" : "Welcome back"}</Text>{resetCode ? <><TextInput testID="reset-code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button title="Verify code" disabled={fetchStatus === "fetching"} onPress={() => void verifyReset()} /><Button title="Resend code" onPress={() => void sendReset()} /></> : resetPassword ? <><TextInput testID="new-password" secureTextEntry placeholder="New password" value={newPassword} onChangeText={setNewPassword} style={styles.input} /><Button title="Update password" disabled={fetchStatus === "fetching"} onPress={() => void finishReset()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} />{mode === "sign-in" ? <TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /> : null}<Text>{actionError ?? errors?.fields?.identifier?.message ?? errors?.fields?.password?.message ?? ""}</Text>{mode === "sign-in" ? <><Button testID="sign-in" title="Sign in" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /><Button title="Forgot password" onPress={() => setMode("forgot")} /><Button testID="goto-sign-up" title="Create account" onPress={() => router.push("/(public)/sign-up")} /></> : <Button title="Send reset code" disabled={fetchStatus === "fetching"} onPress={() => void sendReset()} />}</>}</View>;
 }
 const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, eyebrow: { color: "#315efb", fontWeight: "700", letterSpacing: 2 }, title: { fontSize: 36, fontWeight: "800" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14 }, error: { color: "#b42318" } });
 `;
@@ -542,7 +544,7 @@ export default function SignInScreen() {
   if (session.status === "authenticated") return <Redirect href="/" />;
   async function sendCode() { setBusy(true); setError(null); const { error: authError } = await supabase.auth.signInWithOtp({ email: email.trim() }); if (authError) setError(authError.message); else { setStep("code"); setMessage(\`We sent an 8-digit code to \${email.trim()}.\`); } setBusy(false); }
   async function verifyCode() { setBusy(true); setError(null); const { error: authError } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: "email" }); if (authError) setError(authError.message); setBusy(false); }
-  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>{step === "code" ? "Check your email" : "Welcome back"}</Text><Text style={styles.body}>{step === "code" ? "Enter the 8-digit code to continue." : "Sign in or create an account with your email."}</Text>{error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}{message ? <Text style={styles.success}>{message}</Text> : null}{step === "email" ? <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} /><Pressable testID="send-code" style={styles.button} disabled={busy || !email.trim()} onPress={() => void sendCode()}><Text style={styles.buttonText}>{busy ? "Sending..." : "Email me a code"}</Text></Pressable></> : <><OtpBoxes value={code} onChange={setCode} /><Pressable testID="verify-code" style={styles.button} disabled={busy || code.length !== CODE_LENGTH} onPress={() => void verifyCode()}><Text style={styles.buttonText}>{busy ? "Verifying..." : "Verify code"}</Text></Pressable><Pressable style={styles.secondary} disabled={busy} onPress={() => void sendCode()}><Text style={styles.secondaryText}>Resend code</Text></Pressable></>}</View>;
+  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>${brandTitle}</Text><Text style={styles.title}>{step === "code" ? "Check your email" : "Welcome back"}</Text><Text style={styles.body}>{step === "code" ? "Enter the 8-digit code to continue." : "Sign in or create an account with your email."}</Text>{error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}{message ? <Text style={styles.success}>{message}</Text> : null}{step === "email" ? <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} /><Pressable testID="send-code" style={styles.button} disabled={busy || !email.trim()} onPress={() => void sendCode()}><Text style={styles.buttonText}>{busy ? "Sending..." : "Email me a code"}</Text></Pressable></> : <><OtpBoxes value={code} onChange={setCode} /><Pressable testID="verify-code" style={styles.button} disabled={busy || code.length !== CODE_LENGTH} onPress={() => void verifyCode()}><Text style={styles.buttonText}>{busy ? "Verifying..." : "Verify code"}</Text></Pressable><Pressable style={styles.secondary} disabled={busy} onPress={() => void sendCode()}><Text style={styles.secondaryText}>Resend code</Text></Pressable></>}</View>;
 }
 const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f8fafc" }, eyebrow: { color: "#38bdf8", fontWeight: "700", letterSpacing: 2 }, title: { fontSize: 32, fontWeight: "800" }, body: { color: "#64748b", fontSize: 16 }, error: { color: "#ef4444" }, success: { color: "#10b981" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14, backgroundColor: "#ffffff" }, codeRow: { flexDirection: "row", justifyContent: "space-between", gap: 8 }, codeBox: { flex: 1, borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14, backgroundColor: "#ffffff", textAlign: "center", fontSize: 22, fontWeight: "700" }, button: { alignItems: "center", borderRadius: 14, backgroundColor: "#0284c7", padding: 16 }, secondary: { alignItems: "center", borderRadius: 14, backgroundColor: "#f1f5f9", padding: 16 }, buttonText: { color: "white", fontWeight: "700" }, secondaryText: { color: "#0f172a", fontWeight: "700" } });
 `;
@@ -681,7 +683,7 @@ export default function SignInScreen() {
 
   return (
     <View style={styles.container} testID="auth-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Firebase Auth</Text>
       <Text style={styles.body}>Sign in or create an account with Firebase Authentication.</Text>
       {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
@@ -1133,7 +1135,7 @@ export default function SignInScreen() {
 
   return (
     <View style={styles.container} testID="auth-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Sign In</Text>
       <TextInput
         testID="email"
@@ -1199,7 +1201,7 @@ export default function SignUpScreen() {
 
   return (
     <View style={styles.container} testID="sign-up-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
+      <Text style={styles.eyebrow}>${brandTitle}</Text>
       <Text style={styles.title}>Create Account</Text>
       <TextInput
         testID="name"
