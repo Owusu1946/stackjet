@@ -100,8 +100,13 @@ node packages/cli/dist/cli.js test-web --structure monorepo-web --style unistyle
 
 ## Submitting a Pull Request
 
-1. **Create a branch**:
+All contributions must be pushed to the repository's `dev` branch. Do not push feature work directly to `main`; `main` is reserved for reviewed releases.
+
+1. **Start from the latest `dev` branch**:
    ```bash
+   git fetch origin
+   git checkout dev
+   git pull --ff-only origin dev
    git checkout -b feature/my-cool-feature
    ```
 2. **Make your changes**:
@@ -120,6 +125,15 @@ node packages/cli/dist/cli.js test-web --structure monorepo-web --style unistyle
    - `fix: resolve issue with ...`
    - `docs: update ...`
 6. **Open a PR**: Describe what your change accomplishes, why it is needed, and any architectural implications.
+
+7. **Push your branch and target `dev`**:
+   ```bash
+   git push -u origin feature/my-cool-feature
+   ```
+   Set the pull request base branch to `dev`. If you are working directly on `dev` with permission, push only after `pnpm check` passes:
+   ```bash
+   git push origin dev
+   ```
 
 ---
 
