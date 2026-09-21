@@ -13,7 +13,8 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
 }
 
 function makeRouterRootLayout() {
-  return `import "../src/style-entry";
+  return `import "../src/monitoring/init";
+import "../src/style-entry";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack } from "expo-router";
@@ -488,7 +489,8 @@ const styles = StyleSheet.create({
 
 function makeReactNavApp(hasGesture: boolean) {
   if (hasGesture) {
-    return `import "react-native-gesture-handler";
+    return `import "./monitoring/init";
+import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
@@ -528,7 +530,8 @@ export default function App() {
 `;
   }
 
-  return `import { NavigationContainer } from "@react-navigation/native";
+  return `import "./monitoring/init";
+import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DataProvider } from "./data/provider";
