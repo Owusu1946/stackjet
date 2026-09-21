@@ -19,6 +19,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     state: "none",
     liquidGlass: false,
     analytics: "none",
+    monitoring: "none",
     backend: "none",
     auth: "none",
     style: "uniwind",
@@ -51,10 +52,18 @@ describe("routerNavigationAdapter", () => {
       .map((op) => (op.type === "write-file" ? op.path : null))
       .filter(Boolean);
 
+    expect(paths).toContain("app/_layout.tsx");
     expect(paths).toContain("app/(app)/_layout.tsx");
     expect(paths).toContain("app/(app)/index.tsx");
     expect(paths).toContain("app/(app)/profile.tsx");
-    expect(paths).not.toContain("app/_layout.tsx");
+
+    const rootLayout = operations.find(
+      (op) => op.type === "write-file" && op.path === "app/_layout.tsx",
+    );
+    expect(rootLayout?.type === "write-file" && rootLayout.content).toContain("monitoring/init");
+    expect(rootLayout?.type === "write-file" && rootLayout.content).not.toContain(
+      "GestureHandlerRootView",
+    );
 
     const layoutOp = operations.find(
       (op) => op.type === "write-file" && op.path === "app/(app)/_layout.tsx",
