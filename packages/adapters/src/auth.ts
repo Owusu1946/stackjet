@@ -526,110 +526,25 @@ export function useSession() {
 `;
 
 const supabaseSignIn = `import { Redirect } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { supabase } from "../../src/supabase/client";
 import { useSession } from "../../src/session/provider";
 
+const CODE_LENGTH = 8;
+function OtpBoxes({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const refs = useRef<Array<TextInput | null>>([]);
+  return <View style={styles.codeRow}>{Array.from({ length: CODE_LENGTH }, (_, index) => <TextInput key={index} ref={(ref) => { refs.current[index] = ref; }} accessibilityLabel={\`Verification digit \${index + 1}\`} keyboardType="number-pad" maxLength={1} value={value[index] ?? ""} onChangeText={(digit) => { const next = value.split(""); next[index] = digit.replace(/\\D/g, "").slice(-1); onChange(next.join("")); if (digit && index < CODE_LENGTH - 1) refs.current[index + 1]?.focus(); }} style={styles.codeBox} />)}</View>;
+}
 export default function SignInScreen() {
   const session = useSession();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState<"sign-in" | "sign-up" | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
+  const [email, setEmail] = useState(""); const [code, setCode] = useState(""); const [step, setStep] = useState<"email" | "code">("email"); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null); const [message, setMessage] = useState<string | null>(null);
   if (session.status === "authenticated") return <Redirect href="/" />;
-
-  async function handleSignIn() {
-    setBusy("sign-in");
-    setError(null);
-    setMessage(null);
-    try {
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) throw authError;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign in failed");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function handleSignUp() {
-    setBusy("sign-up");
-    setError(null);
-    setMessage(null);
-    try {
-      const { data, error: authError } = await supabase.auth.signUp({ email, password });
-      if (authError) throw authError;
-      if (!data.session) {
-        setMessage("Check your email for confirmation link!");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  return (
-    <View style={styles.container} testID="auth-screen">
-      <Text style={styles.eyebrow}>EXPOJET</Text>
-      <Text style={styles.title}>Supabase Auth</Text>
-      <Text style={styles.body}>Sign in or create an account with email and password.</Text>
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-      {message ? <Text style={styles.success}>{message}</Text> : null}
-      <TextInput
-        testID="email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        testID="password"
-        secureTextEntry
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-      />
-      <Pressable
-        testID="sign-in"
-        style={styles.button}
-        disabled={busy !== null}
-        onPress={() => void handleSignIn()}
-      >
-        <Text style={styles.buttonText}>{busy === "sign-in" ? "Signing in..." : "Sign in"}</Text>
-      </Pressable>
-      <Pressable
-        testID="sign-up"
-        style={styles.secondary}
-        disabled={busy !== null}
-        onPress={() => void handleSignUp()}
-      >
-        <Text style={styles.secondaryText}>{busy === "sign-up" ? "Creating..." : "Create account"}</Text>
-      </Pressable>
-      {busy ? <ActivityIndicator style={{ marginTop: 8 }} /> : null}
-    </View>
-  );
+  async function sendCode() { setBusy(true); setError(null); const { error: authError } = await supabase.auth.signInWithOtp({ email: email.trim() }); if (authError) setError(authError.message); else { setStep("code"); setMessage(\`We sent an 8-digit code to \${email.trim()}.\`); } setBusy(false); }
+  async function verifyCode() { setBusy(true); setError(null); const { error: authError } = await supabase.auth.verifyOtp({ email: email.trim(), token: code, type: "email" }); if (authError) setError(authError.message); setBusy(false); }
+  return <View style={styles.container} testID="auth-screen"><Text style={styles.eyebrow}>EXPOJET</Text><Text style={styles.title}>{step === "code" ? "Check your email" : "Welcome back"}</Text><Text style={styles.body}>{step === "code" ? "Enter the 8-digit code to continue." : "Sign in or create an account with your email."}</Text>{error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}{message ? <Text style={styles.success}>{message}</Text> : null}{step === "email" ? <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} /><Pressable testID="send-code" style={styles.button} disabled={busy || !email.trim()} onPress={() => void sendCode()}><Text style={styles.buttonText}>{busy ? "Sending..." : "Email me a code"}</Text></Pressable></> : <><OtpBoxes value={code} onChange={setCode} /><Pressable testID="verify-code" style={styles.button} disabled={busy || code.length !== CODE_LENGTH} onPress={() => void verifyCode()}><Text style={styles.buttonText}>{busy ? "Verifying..." : "Verify code"}</Text></Pressable><Pressable style={styles.secondary} disabled={busy} onPress={() => void sendCode()}><Text style={styles.secondaryText}>Resend code</Text></Pressable></>}</View>;
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f8fafc" },
-  eyebrow: { color: "#38bdf8", fontWeight: "700", letterSpacing: 2 },
-  title: { fontSize: 32, fontWeight: "800" },
-  body: { color: "#64748b", fontSize: 16 },
-  error: { color: "#ef4444" },
-  success: { color: "#10b981" },
-  input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14, backgroundColor: "#ffffff" },
-  button: { alignItems: "center", borderRadius: 14, backgroundColor: "#0284c7", padding: 16 },
-  secondary: { alignItems: "center", borderRadius: 14, backgroundColor: "#f1f5f9", padding: 16 },
-  buttonText: { color: "white", fontWeight: "700" },
-  secondaryText: { color: "#0f172a", fontWeight: "700" },
-});
+const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f8fafc" }, eyebrow: { color: "#38bdf8", fontWeight: "700", letterSpacing: 2 }, title: { fontSize: 32, fontWeight: "800" }, body: { color: "#64748b", fontSize: 16 }, error: { color: "#ef4444" }, success: { color: "#10b981" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14, backgroundColor: "#ffffff" }, codeRow: { flexDirection: "row", justifyContent: "space-between", gap: 8 }, codeBox: { flex: 1, borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14, backgroundColor: "#ffffff", textAlign: "center", fontSize: 22, fontWeight: "700" }, button: { alignItems: "center", borderRadius: 14, backgroundColor: "#0284c7", padding: 16 }, secondary: { alignItems: "center", borderRadius: 14, backgroundColor: "#f1f5f9", padding: 16 }, buttonText: { color: "white", fontWeight: "700" }, secondaryText: { color: "#0f172a", fontWeight: "700" } });
 `;
 
 const firebaseEnv = `import { createEnv } from "@t3-oss/env-core";

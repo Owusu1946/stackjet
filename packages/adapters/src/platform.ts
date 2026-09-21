@@ -464,6 +464,8 @@ Variables prefixed with EXPO_PUBLIC_ are embedded in the mobile bundle. They mus
 
 For Convex, run pnpm --filter @expojet/api dev (or npx convex dev from the Convex workspace) before launching the mobile app, and set EXPO_PUBLIC_CONVEX_URL to the deployment's .convex.cloud URL. For Clerk + Convex, configure CLERK_JWT_ISSUER_DOMAIN in the Convex deployment environment. Restart Metro with its cache cleared after changing mobile .env values.
 
+For Supabase email OTP, enable Email under Authentication → Sign In / Providers. The generated mobile app calls signInWithOtp and verifyOtp with an eight-digit code, so it does not require emailRedirectTo or localhost redirects. Supabase's default email may display a sign-in link; to customize it for codes, configure custom SMTP, open Authentication → Emails → Magic link or OTP, and include {{ .Token }} in the email body.
+
 See docs/deployment.md for production deployment and secret handling.
 `;
 

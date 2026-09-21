@@ -1,5 +1,12 @@
 # create-expojet
 
+## 0.6.2
+
+### Patch Changes
+
+- Add Supabase email OTP authentication with eight-digit boxed-code verification and resend support.
+- Document Supabase OTP email-template and SMTP setup requirements in generated project guidance.
+
 ## 0.6.1
 
 ### Patch Changes

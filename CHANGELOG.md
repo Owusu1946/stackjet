@@ -3,6 +3,13 @@
 All notable changes to the Expojet project (`create-expojet`) will be documented in this file.
 See [packages/cli/CHANGELOG.md](file:///c:/Users/HP/Desktop/stackjet/packages/cli/CHANGELOG.md) for package-specific details.
 
+## 0.6.2
+
+### Patch Changes
+
+- Add Supabase email OTP authentication with eight-digit boxed-code verification and resend support.
+- Document Supabase OTP email-template and SMTP setup requirements.
+
 ## 0.6.1
 
 ### Patch Changes

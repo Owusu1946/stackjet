@@ -97,6 +97,22 @@ describe("auth adapters", () => {
     });
   });
 
+  describe("supabaseAuthAdapter", () => {
+    it("generates email OTP auth with boxed-code semantics", () => {
+      const operations = supabaseAuthAdapter.plan(makeInput({ auth: "supabase" }), {});
+      const signIn = operations.find(
+        (operation) => operation.type === "write-file" && operation.path.endsWith("sign-in.tsx"),
+      );
+      const content = signIn?.type === "write-file" ? signIn.content : "";
+      expect(content).toContain("signInWithOtp");
+      expect(content).toContain('verifyOtp({ email: email.trim(), token: code, type: "email" })');
+      expect(content).toContain("CODE_LENGTH = 8");
+      expect(content).toContain("codeBox");
+      expect(content).not.toContain("signInWithPassword");
+      expect(content).not.toContain("emailRedirectTo");
+    });
+  });
+
   describe("betterAuthAdapter", () => {
     it("plans Better Auth client and dependencies in monorepo", () => {
       const ops = betterAuthAdapter.plan(
