@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: `%s | ${productName} Docs`,
   },
   description: `${productName} is the most configurable way to create a production-ready Expo SDK 57 mobile app with authentication, database, styling, navigation, and backend — all in one command.`,
-  metadataBase: new URL("https://expojet.dev"),
+  metadataBase: new URL("https://docs.expojet.com"),
   icons: {
     icon: "/brand/favicon.svg",
     shortcut: "/brand/favicon.svg",
