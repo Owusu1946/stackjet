@@ -76,10 +76,30 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
     key: "navigationType",
     label: "Layout",
     options: [
-      { value: "tabs", label: "Bottom tabs", description: "Primary tab navigation" },
-      { value: "drawer", label: "Drawer", description: "Side navigation drawer" },
-      { value: "both", label: "Tabs + drawer", description: "Combined navigation shell" },
-      { value: "stack", label: "Stack", description: "Focused push navigation" },
+      {
+        value: "tabs",
+        label: "Bottom tabs",
+        description: "Primary tab navigation",
+        icon: "layout-tabs",
+      },
+      {
+        value: "drawer",
+        label: "Drawer",
+        description: "Side navigation drawer",
+        icon: "layout-drawer",
+      },
+      {
+        value: "both",
+        label: "Tabs + drawer",
+        description: "Combined navigation shell",
+        icon: "layout-both",
+      },
+      {
+        value: "stack",
+        label: "Stack",
+        description: "Focused push navigation",
+        icon: "layout-stack",
+      },
     ],
   },
   {
@@ -92,7 +112,12 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
         description: "Custom email and hosted social auth",
         icon: "clerk",
       },
-      { value: "better-auth", label: "Better Auth", description: "Self-hosted auth for monorepos" },
+      {
+        value: "better-auth",
+        label: "Better Auth",
+        description: "Self-hosted auth for monorepos",
+        icon: "better-auth",
+      },
       {
         value: "supabase",
         label: "Supabase Auth",
@@ -148,7 +173,12 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
         description: "Clean, consistent outline icons",
         icon: "lucide",
       },
-      { value: "hugeicons", label: "Hugeicons", description: "Large modern icon collection" },
+      {
+        value: "hugeicons",
+        label: "Hugeicons",
+        description: "Large modern icon collection",
+        icon: "hugeicons",
+      },
       {
         value: "expo",
         label: "Expo Icons",
@@ -223,7 +253,12 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
         description: "No external state manager",
         icon: "react",
       },
-      { value: "zustand", label: "Zustand", description: "Small hook-based stores" },
+      {
+        value: "zustand",
+        label: "Zustand",
+        description: "Small hook-based stores",
+        icon: "zustand",
+      },
       { value: "mobx", label: "MobX", description: "Reactive application state", icon: "mobx" },
     ],
   },
@@ -238,7 +273,12 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
         description: "Product analytics and events",
         icon: "posthog",
       },
-      { value: "aptabase", label: "Aptabase", description: "Privacy-first app analytics" },
+      {
+        value: "aptabase",
+        label: "Aptabase",
+        description: "Privacy-first app analytics",
+        icon: "aptabase",
+      },
     ],
   },
 ];
@@ -247,7 +287,7 @@ const socialOptions: Option[] = [
   { value: "google", label: "Google", description: "Google OAuth", icon: "google" },
   { value: "apple", label: "Apple", description: "Sign in with Apple", icon: "apple" },
   { value: "facebook", label: "Facebook", description: "Facebook Login", icon: "facebook" },
-  { value: "microsoft", label: "Microsoft", description: "Microsoft identity" },
+  { value: "microsoft", label: "Microsoft", description: "Microsoft identity", icon: "microsoft" },
 ];
 
 const defaults: Config = {
@@ -312,10 +352,30 @@ const presets: Array<{ id: string; label: string; description: string; config: C
 ];
 
 const featureOptions = [
-  { key: "liquidGlass", label: "Liquid Glass", description: "Native glass navigation in Expo Go" },
-  { key: "onboarding", label: "Onboarding", description: "Multi-step first-run experience" },
-  { key: "darkMode", label: "Dark mode", description: "Persistent theme switching" },
-  { key: "eas", label: "EAS", description: "Development, preview, and production profiles" },
+  {
+    key: "liquidGlass",
+    label: "Liquid Glass",
+    description: "Native glass navigation in Expo Go",
+    icon: "feature-glass",
+  },
+  {
+    key: "onboarding",
+    label: "Onboarding",
+    description: "Multi-step first-run experience",
+    icon: "feature-onboarding",
+  },
+  {
+    key: "darkMode",
+    label: "Dark mode",
+    description: "Persistent theme switching",
+    icon: "feature-dark-mode",
+  },
+  {
+    key: "eas",
+    label: "EAS",
+    description: "Development, preview, and production profiles",
+    icon: "feature-eas",
+  },
 ] as const;
 
 const categories: Array<{ key: CategoryKey; label: string }> = [
@@ -684,6 +744,7 @@ export function StackBuilder() {
                           data-active={config[option.key]}
                           onClick={() => toggleFeature(option.key)}
                         >
+                          <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
                           <span className="builder-option-copy">
                             <strong>{option.label}</strong>
                             <small>{option.description}</small>
