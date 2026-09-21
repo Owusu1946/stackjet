@@ -4,6 +4,25 @@ import Link from "next/link";
 const releases = [
   {
     version: releaseVersion,
+    date: "September 21, 2026",
+    summary: "Supabase email OTP authentication and clearer generated-project guidance.",
+    changes: [
+      "Added eight-digit Supabase email OTP authentication with boxed-code verification and resend support.",
+      "Documented Supabase SMTP and Magic link or OTP template setup, including the {{ .Token }} variable.",
+      "Improved generated auth guidance so OTP projects do not depend on localhost redirects.",
+    ],
+  },
+  {
+    version: "0.6.1",
+    date: "September 20, 2026",
+    summary: "Earlier validation and stronger generated Clerk and Convex projects.",
+    changes: [
+      "Validate project names, destinations, presets, and incompatible options before the interactive flow reaches its end.",
+      "Fix generated Clerk and Convex user synchronization, global dark mode, and onboarding-before-auth routing.",
+    ],
+  },
+  {
+    version: "0.5.1",
     date: "September 20, 2026",
     summary: "Configurable social sign-in and a visual Expo stack builder.",
     changes: [
