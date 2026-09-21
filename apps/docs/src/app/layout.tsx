@@ -2,6 +2,7 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import "./global.css";
 import { productName, releaseVersion, tagline } from "@expojet/brand";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
@@ -94,7 +95,10 @@ export default function Layout({ children }: LayoutProps<"/">) {
           // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized from static constants.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <RootProvider>{children}</RootProvider>
+        <RootProvider>
+          {children}
+          <Analytics />
+        </RootProvider>
       </body>
     </html>
   );

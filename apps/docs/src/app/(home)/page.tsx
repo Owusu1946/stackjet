@@ -76,7 +76,7 @@ export default async function HomePage() {
       <div className="console-shell">
         <div className="console-tabs">
           <span className="console-tab console-tab-active">
-            <i /> INIT <b>01</b>
+            <i /> I Mean yh ;)<b>01</b>
           </span>
           <span className="console-tab">
             <i /> CONTRIBUTORS <b>02</b>

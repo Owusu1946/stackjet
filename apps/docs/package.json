@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@expojet/brand": "workspace:*",
+    "@vercel/analytics": "^2.0.1",
     "create-expojet": "workspace:*",
     "fumadocs-core": "16.15.11",
     "fumadocs-mdx": "15.4.1",

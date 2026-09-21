@@ -6,6 +6,22 @@
     "orientation": "portrait",
     "scheme": "expojet-app",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.svg",
+    "splash": {
+      "image": "./assets/splash-icon.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#111318"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon-foreground.svg",
+        "backgroundImage": "./assets/adaptive-icon-background.svg",
+        "monochromeImage": "./assets/adaptive-icon-monochrome.svg"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.svg"
+    },
     "plugins": ["expo-router", "expo-splash-screen"],
     "experiments": {
       "typedRoutes": true

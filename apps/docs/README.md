@@ -43,3 +43,12 @@ resources:
   features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 - [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
+# Expojet Docs and Landing Site
+
+The `apps/docs` package contains Expojet's landing page and documentation site.
+
+## Analytics
+
+The site uses Vercel Web Analytics to measure page views and visitors without adding a third-party tracking key or placing secrets in the browser bundle.
+
+After deploying, enable **Analytics** for the project in the Vercel dashboard. The `Analytics` component is already installed in the root layout; Vercel will begin collecting data after the next production deployment. View results under the project's **Analytics** tab.
