@@ -19,6 +19,7 @@ function input(destination: string): CreateInput {
     state: "none",
     liquidGlass: false,
     analytics: "none",
+    monitoring: "none",
     backend: "none",
     auth: "none",
     style: "stylesheet",
@@ -1254,6 +1255,138 @@ describe("Phase 2 generation", () => {
     const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
     expect(pkg.dependencies["posthog-react-native"]).toBeUndefined();
     expect(pkg.dependencies["@aptabase/react-native"]).toBeUndefined();
+  });
+
+  it("generates a standalone app with Sentry monitoring, wired layout, app plugin, and passes doctor checks", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-sentry-")), "sentry-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        monitoring: "sentry",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "src/monitoring/init.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/monitoring/index.ts"))).toBe(true);
+
+    const initContent = readFileSync(join(destination, "src/monitoring/init.ts"), "utf8");
+    expect(initContent).toContain("Sentry.init");
+    expect(initContent).toContain("EXPO_PUBLIC_SENTRY_DSN");
+
+    const indexContent = readFileSync(join(destination, "src/monitoring/index.ts"), "utf8");
+    expect(indexContent).toContain("captureException");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@sentry/react-native"]).toBeDefined();
+
+    const envExample = readFileSync(join(destination, ".env.example"), "utf8");
+    expect(envExample).toContain("EXPO_PUBLIC_SENTRY_DSN");
+    expect(envExample).toContain("SENTRY_AUTH_TOKEN");
+    expect(envExample).toContain("SENTRY_ORG");
+    expect(envExample).toContain("SENTRY_PROJECT");
+
+    const appConfig = JSON.parse(readFileSync(join(destination, "app.json"), "utf8"));
+    expect(appConfig.expo.plugins).toContain("@sentry/react-native/expo");
+
+    const layout = readFileSync(join(destination, "app/_layout.tsx"), "utf8");
+    const lines = layout.split("\n");
+    expect(lines[0]).toContain("monitoring/init");
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.monitoring).toBe("sentry");
+    const checks = runDoctorChecks(project);
+    const initCheck = checks.find((c) => c.name === "Mobile monitoring init");
+    expect(initCheck?.status).toBe("pass");
+    const modCheck = checks.find((c) => c.name === "Mobile monitoring module");
+    expect(modCheck?.status).toBe("pass");
+    const pluginCheck = checks.find((c) => c.name === "Sentry Expo plugin");
+    expect(pluginCheck?.status).toBe("pass");
+  });
+
+  it("generates a standalone app with none monitoring having no-op stubs and no Sentry deps", () => {
+    const destination = join(
+      mkdtempSync(join(tmpdir(), "expojet-no-monitoring-")),
+      "no-monitoring",
+    );
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        monitoring: "none",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "src/monitoring/init.ts"))).toBe(true);
+    expect(existsSync(join(destination, "src/monitoring/index.ts"))).toBe(true);
+
+    const initContent = readFileSync(join(destination, "src/monitoring/init.ts"), "utf8");
+    expect(initContent).not.toContain("Sentry");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["@sentry/react-native"]).toBeUndefined();
+
+    const layout = readFileSync(join(destination, "app/_layout.tsx"), "utf8");
+    expect(layout).toContain("monitoring/init");
+  });
+
+  it("generates a monorepo app with Sentry monitoring under apps/mobile", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-sentry-mono-")), "sentry-mono");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        structure: "monorepo",
+        backend: "hono",
+        monitoring: "sentry",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    expect(existsSync(join(destination, "apps/mobile/src/monitoring/init.ts"))).toBe(true);
+    expect(existsSync(join(destination, "apps/mobile/src/monitoring/index.ts"))).toBe(true);
+
+    const mobilePkg = JSON.parse(
+      readFileSync(join(destination, "apps/mobile/package.json"), "utf8"),
+    );
+    expect(mobilePkg.dependencies["@sentry/react-native"]).toBeDefined();
+
+    const mobileEnv = readFileSync(join(destination, "apps/mobile/.env.example"), "utf8");
+    expect(mobileEnv).toContain("EXPO_PUBLIC_SENTRY_DSN");
+
+    const appConfig = JSON.parse(readFileSync(join(destination, "apps/mobile/app.json"), "utf8"));
+    expect(appConfig.expo.plugins).toContain("@sentry/react-native/expo");
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.adapters.monitoring).toBe("sentry");
+    const checks = runDoctorChecks(project);
+    const initCheck = checks.find((c) => c.name === "Mobile monitoring init");
+    expect(initCheck?.status).toBe("pass");
+    const pluginCheck = checks.find((c) => c.name === "Sentry Expo plugin");
+    expect(pluginCheck?.status).toBe("pass");
+  });
+
+  it("generates a standalone React Navigation app with Sentry wired into App.tsx", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-sentry-rnav-")), "sentry-rnav");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        navigation: "react-navigation",
+        monitoring: "sentry",
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const appTsx = readFileSync(join(destination, "src/App.tsx"), "utf8");
+    const lines = appTsx.split("\n");
+    expect(lines[0]).toContain("monitoring/init");
+
+    expect(existsSync(join(destination, "src/monitoring/init.ts"))).toBe(true);
+    const initContent = readFileSync(join(destination, "src/monitoring/init.ts"), "utf8");
+    expect(initContent).toContain("Sentry.init");
   });
 
   it("generates a standalone app with EAS Build configuration and passes doctor check", () => {
