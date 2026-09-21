@@ -96,11 +96,6 @@ html > body[data-scroll-locked] {
   color: var(--color-fd-foreground);
   text-shadow: 14px 0 32px color-mix(in oklab, var(--color-fd-primary) 45%, transparent);
 }
-.brand-logo {
-  display: block;
-  width: min(300px, 72vw);
-  height: auto;
-}
 .console-lede {
   margin-top: clamp(2rem, 5vh, 4rem);
   max-width: 35rem;

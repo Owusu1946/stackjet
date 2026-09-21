@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" role="img" aria-labelledby="title">
   <title id="title">Expojet</title>
-  <g><path fill="#fff" d="M12 19 24 7h29L42 19H27l-7 7H8z"/><path fill="#38BDF8" d="M8 29h18L14 41z"/><path fill="#fff" d="m27 28 11-11h17L43 29 31 41h17l10 12H30L18 41z"/></g>
+  <g><path fill="#fff" d="M8 24 26 6h32L46 20H30l-4 4H8Z"/><path fill="#38BDF8" d="M4 28h22L14 40 4 30v-2Z"/><path fill="#fff" d="M30 24h16L34 36h12l12 14H30L18 38l12-14Z"/></g>
   <text x="76" y="45" fill="#fff" font-family="Inter,ui-sans-serif,system-ui,sans-serif" font-size="38" font-weight="700" letter-spacing="-1.8">expojet</text>
 </svg>
