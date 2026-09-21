@@ -8,7 +8,7 @@ Expojet is an Expo-first project generator for composing production-ready mobile
 
 [![CI](https://github.com/Owusu1946/stackjet/actions/workflows/ci.yml/badge.svg)](https://github.com/Owusu1946/stackjet/actions) [![npm](https://img.shields.io/npm/v/create-expojet?color=cb3837&logo=npm)](https://www.npmjs.com/package/create-expojet) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Expo SDK](https://img.shields.io/badge/Expo%20SDK-57-000020.svg)](https://expo.dev)
 
-[Website](https://www.expojet.dev) · [Documentation](https://docs.expojet.com) · [Changelog](https://www.expojet.dev/changelog) · [Issues](https://github.com/Owusu1946/stackjet/issues)
+[Website](https://www.expojet.dev) · [Documentation](https://www.expojet.dev/docs) · [Changelog](https://www.expojet.dev/changelog) · [Issues](https://github.com/Owusu1946/stackjet/issues)
 
 </div>
 
