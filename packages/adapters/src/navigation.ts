@@ -12,8 +12,10 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
   return { workspace, root: workspace === "." ? "" : `${workspace}/` };
 }
 
-function makeRouterRootLayout() {
-  return `import "../src/style-entry";
+function makeRouterRootLayout(hasGesture: boolean) {
+  if (hasGesture) {
+    return `import "../src/monitoring/init";
+import "../src/style-entry";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Stack } from "expo-router";
@@ -37,6 +39,33 @@ export default function RootLayout() {
         </SessionProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
+  );
+}
+`;
+  }
+  return `import "../src/monitoring/init";
+import "../src/style-entry";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { DataProvider } from "../src/data/provider";
+import { OnboardingProvider } from "../src/onboarding/provider";
+import { SessionProvider } from "../src/session/provider";
+import { ThemeProvider } from "../src/theme/provider";
+
+export default function RootLayout() {
+  return (
+    <>
+      <StatusBar style="auto" />
+      <ThemeProvider>
+        <SessionProvider>
+          <DataProvider>
+            <OnboardingProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </OnboardingProvider>
+          </DataProvider>
+        </SessionProvider>
+      </ThemeProvider>
+    </>
   );
 }
 `;
@@ -488,7 +517,8 @@ const styles = StyleSheet.create({
 
 function makeReactNavApp(hasGesture: boolean) {
   if (hasGesture) {
-    return `import "react-native-gesture-handler";
+    return `import "./monitoring/init";
+import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
@@ -528,7 +558,8 @@ export default function App() {
 `;
   }
 
-  return `import { NavigationContainer } from "@react-navigation/native";
+  return `import "./monitoring/init";
+import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DataProvider } from "./data/provider";
@@ -1024,7 +1055,8 @@ export const routerNavigationAdapter: Adapter = {
     const navType = input.navigationType ?? "tabs";
     const operations: Operation[] = [];
 
-    if (navType === "drawer" || navType === "both") {
+    const hasGesture = navType === "drawer" || navType === "both";
+    if (hasGesture) {
       operations.push(
         {
           type: "add-dependency",
@@ -1042,14 +1074,15 @@ export const routerNavigationAdapter: Adapter = {
           kind: "dependencies",
           owner: this.id,
         },
-        {
-          type: "write-file",
-          path: `${root}app/_layout.tsx`,
-          content: makeRouterRootLayout(),
-          owner: this.id,
-        },
       );
     }
+
+    operations.push({
+      type: "write-file",
+      path: `${root}app/_layout.tsx`,
+      content: makeRouterRootLayout(hasGesture),
+      owner: this.id,
+    });
 
     operations.push({
       type: "write-file",

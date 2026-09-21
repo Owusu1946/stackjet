@@ -4,6 +4,7 @@ import {
   databaseAdapter,
   getLiquidGlassAdapter,
   iconAdapter,
+  monitoringAdapter,
   monorepoPlatformAdapter,
   navigationAdapter,
   ormAdapter,
@@ -52,11 +53,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
         if (path === "app/(app)/_layout.tsx" || path === "app/(app)/index.tsx") {
           return false;
         }
-        if (
-          (normalizedInput.navigationType === "drawer" ||
-            normalizedInput.navigationType === "both") &&
-          path === "app/_layout.tsx"
-        ) {
+        if (path === "app/_layout.tsx") {
           return false;
         }
       }
@@ -120,6 +117,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
             icons: normalizedInput.icons,
             state: normalizedInput.state,
             analytics: normalizedInput.analytics,
+            monitoring: normalizedInput.monitoring,
           },
           features: {
             onboarding: normalizedInput.onboarding,
@@ -162,6 +160,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
   operations.push(...analyticsAdapter(normalizedInput.analytics).plan(normalizedInput, {}));
+  operations.push(...monitoringAdapter(normalizedInput.monitoring).plan(normalizedInput, {}));
   if (isReactNav) {
     for (let index = operations.length - 1; index >= 0; index -= 1) {
       const operation = operations[index];
