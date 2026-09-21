@@ -1,212 +1,173 @@
 <div align="center">
 
-# ⚡️ Expojet
+# Expojet
 
-### The production-ready, Expo-first full-stack TypeScript application generator.
+### Build the Expo app you meant to build.
 
-[![CI](https://github.com/Owusu1946/stackjet/actions/workflows/ci.yml/badge.svg)](https://github.com/Owusu1946/stackjet/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Expo SDK 57](https://img.shields.io/badge/Expo_SDK-57-000020.svg)](https://expo.dev)
-[![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB.svg)](https://reactnative.dev)
-[![TypeScript: Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6.svg)](https://www.typescriptlang.org)
+Expojet is an Expo-first project generator for composing production-ready mobile apps and full-stack TypeScript workspaces from compatible, declarative adapters.
 
-Scaffold battle-tested Expo SDK 57 mobile apps, type-safe Hono backends, and Next.js 15 web monorepos in seconds.
+[![CI](https://github.com/Owusu1946/stackjet/actions/workflows/ci.yml/badge.svg)](https://github.com/Owusu1946/stackjet/actions) [![npm](https://img.shields.io/npm/v/create-expojet?color=cb3837&logo=npm)](https://www.npmjs.com/package/create-expojet) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Expo SDK](https://img.shields.io/badge/Expo%20SDK-57-000020.svg)](https://expo.dev)
 
-[Quick Start](#-quick-start) • [Why Expojet?](#-why-expojet) • [Feature Matrix](#-feature-matrix) • [CLI Flags](#-cli-options--flags) • [Architecture](#-project-architectures) • [Contributing](#-contributing)
+[Website](https://www.expojet.dev) · [Documentation](https://docs.expojet.com) · [Changelog](https://www.expojet.dev/changelog) · [Issues](https://github.com/Owusu1946/stackjet/issues)
 
 </div>
 
----
+## Why Expojet?
 
-## 🚀 Quick Start
+Modern Expo projects are rarely just a blank app. Authentication, navigation, styling, persistence, analytics, backend boundaries, environment variables, and deployment profiles need to agree from the first commit.
 
-Create a new project interactively:
+Expojet turns those decisions into a tested project plan and materializes the result atomically. Choose the pieces you need, generate a clean workspace, and keep the configuration visible in `expojet.jsonc`.
+
+## Quick start
+
+Run the interactive generator:
 
 ```bash
 npx create-expojet@latest
 ```
 
-Or using your favorite package manager:
+Or provide a project name and options directly:
 
 ```bash
-# Using pnpm
-pnpm dlx create-expojet@latest
-
-# Using bun
-bunx create-expojet@latest
+npx create-expojet@latest my-app --style nativewind --auth clerk --yes
 ```
 
-You can also run with the `expojet` command:
-```bash
-npx expojet my-app
-```
-
-### Non-Interactive Quickstarts
-
-Generate a standalone Expo app with NativeWind:
-```bash
-npx create-expojet my-app --style nativewind --auth clerk --yes
-```
-
-Generate a full-stack Expo + Next.js 15 + Hono API monorepo with Unistyles 3.0:
-```bash
-npx create-expojet my-monorepo --structure monorepo-web --style unistyles --auth clerk --yes
-```
-
----
-
-## 💡 Why Expojet?
-
-Setting up a modern, production-grade Expo mobile app or full-stack monorepo is notoriously complex:
-- **Version Hell**: Mismatched versions of React Native, React 19, Expo Router, and Tailwind often fail silently or crash in release builds.
-- **Leaky Secrets**: Many generators inadvertently bundle server database URLs (`DATABASE_URL`) or API secret keys directly into client mobile JS bundles.
-- **Corrupted Scaffolding**: Failed installations or network hiccups often leave directories half-written and dirty.
-
-### The Expojet Guarantees:
-1. **Verified Compatibility**: Every combination is locked against **Expo SDK 57**, React Native 0.86, and React 19.
-2. **Strict Secret Isolation**: Mobile bundles are statically scanned and forbidden from containing server secrets. All client variables require the `EXPO_PUBLIC_` prefix.
-3. **Atomic Generation**: Scaffolding always executes in an isolated sibling staging sandbox. Files commit to the destination path only after passing static integrity checks.
-4. **Declarative Architecture**: Adapters never write directly to disk; they emit typed declarative operations executed atomically by the core engine.
-
----
-
-## 🧩 Feature Matrix
-
-| Category | Supported Options | Highlights |
-|---|---|---|
-| **Project Structure** | `standalone`<br>`monorepo`<br>`monorepo-web` | • Standalone Expo app<br>• Expo + Hono API backend monorepo<br>• Full-stack Expo + Next.js 15 App Router + shared Hono API |
-| **Styling** | `uniwind`<br>`nativewind`<br>`unistyles`<br>`stylesheet` | • **Uniwind**: Tailwind CSS v4 with Metro integration<br>• **NativeWind v4**: Tailwind CSS with `withNativeWind`<br>• **Unistyles 3.0**: Nitro C++ JSI engine with reactive theme tokens<br>• **StyleSheet**: Zero-runtime vanilla React Native |
-| **Authentication** | `clerk`<br>`better-auth`<br>`none` | • **Clerk**: Hosted auth, session provider, token caching via `expo-secure-store`, Maestro E2E flows<br>• **Better Auth**: Full-stack auth with Drizzle schema<br>• **None**: Clean, unopinionated base |
-| **Theme Engine** | Dynamic Dark Mode | • System / manual toggle (`ThemeProvider`, `ThemeToggle`, `useTheme`)<br>• Secure token persistence via `expo-secure-store` |
-| **Navigation** | Expo Router | • File-based routing with typed route groups (`(app)`, `(public)`, `(onboarding)`) |
-| **Full-Stack Sharing** | `@expojet/api-contract` | • End-to-end type safety between backend and mobile/web clients using Hono RPC and TanStack React Query |
-| **Deployment & Ops** | EAS & Doctor | • Preconfigured `eas.json` profiles for development, preview, and production<br>• Built-in `doctor` command for project health diagnostics |
-
----
-
-## 🛠 Project Architectures
-
-### 1. Single Expo App (`standalone`)
-Ideal for focused mobile apps without a dedicated custom backend:
-```text
-my-app/
-├── app/
-│   ├── (app)/index.tsx         # Authenticated / main screens
-│   ├── (onboarding)/index.tsx  # First-time user onboarding
-│   ├── (public)/sign-in.tsx    # Authentication screens
-│   ├── _layout.tsx             # Root layout with providers
-│   └── index.tsx               # Auth & onboarding router gate
-├── src/
-│   ├── components/             # Reusable UI components (BrandCard, ThemeToggle)
-│   ├── session/                # Session provider & token storage
-│   ├── theme/                  # Theme tokens & Dark Mode engine
-│   └── env.ts                  # T3-env client environment validation
-├── app.json                    # Expo configuration
-├── eas.json                    # EAS build profiles
-├── metro.config.js             # Composed Metro styling configuration
-└── expojet.jsonc               # Expojet project manifest
-```
-
-### 2. Full-Stack Monorepo (`monorepo-web`)
-Ideal for teams sharing domain logic, API contracts, and types between mobile, web, and server:
-```text
-my-monorepo/
-├── apps/
-│   ├── mobile/                 # Expo SDK 57 mobile application
-│   ├── web/                    # Next.js 15 App Router web application
-│   └── api/                    # Hono serverless backend with Drizzle ORM
-├── packages/
-│   └── api-contract/           # Shared Zod schemas, Hono RPC types, and models
-├── turbo.json                  # Turborepo task pipeline
-├── package.json                # Workspace root with packageManager
-└── expojet.jsonc               # Monorepo manifest
-```
-
----
-
-## ⚙️ CLI Options & Flags
-
-The `create-expojet` command supports rich interactive prompts or fully scriptable CLI flags:
+Create a full-stack workspace:
 
 ```bash
-create-expojet [project-name] [options]
+npx create-expojet@latest my-product \
+  --structure monorepo-web \
+  --backend hono \
+  --database postgres \
+  --orm drizzle \
+  --auth clerk \
+  --yes
 ```
 
-### Available Flags
+Supported package managers include npm, pnpm, Bun, and Yarn. The generated project includes the selected adapters, configuration, environment template, diagnostics, and EAS profiles where requested.
 
-| Flag | Description | Default | Choices |
-|---|---|---|---|
-| `--structure <type>` | Project architecture | `standalone` | `standalone`, `monorepo`, `monorepo-web` |
-| `--package-manager <name>` | Package manager to configure | `pnpm` | `pnpm`, `npm`, `bun` |
-| `--auth <adapter>` | Authentication provider | `clerk` | `clerk`, `better-auth`, `none` |
-| `--style <adapter>` | Styling system | `uniwind` | `uniwind`, `nativewind`, `unistyles`, `stylesheet` |
-| `--dark-mode` / `--no-dark-mode` | Include theme toggle engine | `true` | Boolean flag |
-| `--onboarding` / `--no-onboarding` | Include onboarding flow gate | `true` | Boolean flag |
-| `--eas` / `--no-eas` | Generate EAS build profiles | `true` | Boolean flag |
-| `--install` / `--no-install` | Automatically install dependencies | `true` | Boolean flag |
-| `--git` / `--no-git` | Initialize a Git repository | `true` | Boolean flag |
-| `--dry-run` | Preview file plan without writing disk | `false` | Boolean flag |
-| `--yes` | Accept defaults / skip prompts | `false` | Boolean flag |
-| `--config <path>` | Load options from a JSON config file | - | File path |
+## What it can generate
 
----
+| Area | Options |
+| --- | --- |
+| Structure | `standalone`, `monorepo`, `monorepo-web` |
+| Navigation | Expo Router, React Navigation; tabs, drawer, tabs + drawer, stack |
+| Authentication | Clerk, Supabase, Firebase, Better Auth (experimental), JWT (experimental), none |
+| Styling | Uniwind, NativeWind, Unistyles, StyleSheet |
+| Icons | Lucide, Hugeicons, Expo Icons |
+| Backend | Hono, Express, NestJS, Convex |
+| Database | Neon, PostgreSQL, SQLite, Supabase |
+| ORM | Drizzle, Prisma |
+| State | Zustand, MobX, React state |
+| Analytics | PostHog, Aptabase |
+| Features | Dark mode, onboarding, Liquid Glass, EAS profiles |
 
-## 🩺 Built-in Diagnostics (`doctor`)
+Use the [Stack Builder](https://www.expojet.dev/builder) to explore compatible choices before generating a project.
 
-Expojet includes built-in diagnostics to audit your environment and project health:
+## Design guarantees
+
+Expojet is built around a few project-generation invariants:
+
+- **Compatibility-first:** generated combinations target Expo SDK 57 and are covered by adapter and generation tests.
+- **Atomic output:** generation runs in an isolated staging directory and commits to the destination only after validation succeeds.
+- **Secret isolation:** mobile-accessible variables must use the `EXPO_PUBLIC_` prefix; server secrets are rejected from mobile output.
+- **Declarative adapters:** adapters return typed operations; the core executor owns filesystem writes and applies them atomically.
+- **Inspectable output:** every generated project contains a manifest that records the selected structure and adapters.
+
+## CLI examples
 
 ```bash
-# Audit the current project
+# See all commands and options
+npx create-expojet@latest --help
+
+# Generate a minimal client-only app
+npx create-expojet@latest my-app \
+  --structure standalone \
+  --auth none \
+  --backend none \
+  --database none \
+  --orm none \
+  --no-onboarding \
+  --no-dark-mode \
+  --no-eas \
+  --yes
+
+# Generate with a saved configuration
+npx create-expojet@latest my-app --config ./expojet.config.json --yes
+
+# Inspect a generated project
 npx expojet doctor
-
-# Validate environment variables against .env.example
-npx expojet env check
-
-# Inspect system info, package managers, and SDK support
 npx expojet info
+npx expojet env check
 ```
 
----
+The installed CLI is the authoritative source for available flags. Experimental adapters require `--experimental` when the option is not part of the stable interactive flow.
 
-## 💻 Local Development
+## Repository layout
 
-Expojet is developed as an open-source monorepo. To contribute or inspect the codebase:
+```text
+stackjet/
+├── packages/
+│   ├── cli/          # create-expojet command and generation workflow
+│   ├── core/         # plans, staging, execution, validation, diagnostics
+│   ├── adapters/     # auth, styling, backend, database, and feature adapters
+│   ├── schemas/      # shared input, config, and manifest schemas
+│   ├── sdk-packs/    # immutable Expo SDK 57 template pack
+│   └── brand/        # centralized product and package identity
+├── apps/docs/        # Expojet website, docs, changelog, and Stack Builder
+├── fixtures/         # certified generated-project fixtures
+├── docs/             # ADRs, compatibility records, and verification notes
+└── scripts/          # SDK pack and packaging checks
+```
+
+## Development
+
+Requirements: Node.js `>=22.12.0` and pnpm `10.33.0`.
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/Owusu1946/stackjet.git
 cd stackjet
-
-# 2. Install dependencies
 pnpm install
 
-# 3. Full repository health check (lint, checksums, typechecks, tests)
+# Full health check: formatting, SDK checksums, typechecks, and tests
 pnpm check
 
-# 4. Build all packages
+# Build every package
 pnpm build
 
-# 5. Run the local CLI
-node packages/cli/dist/cli.js --help
+# Test the public package tarball
+pnpm smoke:pack
 ```
 
----
+Useful focused commands:
 
-## 🤝 Contributing
+```bash
+pnpm test
+pnpm typecheck
+pnpm sdk:check
+pnpm --filter @expojet/docs dev
+```
 
-Contributions are warmly welcomed! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before opening a pull request or submitting an issue.
+## Contributing
 
-- [Contributing Guide](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Security Policy](SECURITY.md)
-- [Architecture Decisions (ADRs)](docs/decisions/)
+Issues, documentation improvements, adapter ideas, and pull requests are welcome. Before contributing:
 
----
+1. Read the [contributing guide](CONTRIBUTING.md).
+2. Check existing [issues](https://github.com/Owusu1946/stackjet/issues) and discussions.
+3. Keep adapter behavior declarative and preserve the repository invariants.
+4. Add or update tests for behavior changes.
+5. Run `pnpm check` before opening a pull request.
 
-## 📄 License
+Please report security issues privately using the instructions in [SECURITY.md](SECURITY.md).
 
-Expojet is open-source software licensed under the [MIT License](LICENSE).
+## Project status
 
-## 🌐 Documentation
+Expojet is in active public development. The first public release is `v0.6.2`. APIs and adapter details may evolve while the compatibility surface is established; experimental options are labeled in the documentation and CLI.
 
-The latest landing page, documentation, and changelog are available at [expojet.dev](https://expojet.dev).
+## License
+
+Expojet is released under the [MIT License](LICENSE).
+
+## Acknowledgements
+
+Expojet is built on the Expo and React Native ecosystems and integrates with open-source projects including Expo Router, Hono, Drizzle, NativeWind, Unistyles, Clerk, Supabase, Convex, and others. Please see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and license information.
