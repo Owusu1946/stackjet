@@ -1,4 +1,3 @@
-import { productName } from "@expojet/brand";
 import { describe, expect, it } from "vitest";
 import {
   nativewindAdapter,
@@ -64,7 +63,7 @@ describe("style adapters", () => {
     expect(styleAdapter("stylesheet")).toBe(stylesheetAdapter);
   });
 
-  it("ensures BrandCard uses centralized brand uppercase and never STACKJET", () => {
+  it("ensures all BrandCard components reference EXPOJET and never STACKJET", () => {
     const adapters = [stylesheetAdapter, uniwindAdapter, nativewindAdapter, unistylesAdapter];
     for (const adapter of adapters) {
       const operations = adapter.plan({ structure: "standalone" } as never, {});
@@ -73,7 +72,7 @@ describe("style adapters", () => {
       );
       expect(brandCardOp).toBeDefined();
       if (brandCardOp && "content" in brandCardOp) {
-        expect(brandCardOp.content).toContain(productName.toUpperCase());
+        expect(brandCardOp.content).toContain("EXPOJET");
         expect(brandCardOp.content).not.toContain("STACKJET");
       }
     }

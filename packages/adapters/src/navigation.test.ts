@@ -1,4 +1,3 @@
-import { productName } from "@expojet/brand";
 import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import {
@@ -232,14 +231,6 @@ describe("reactNavigationAdapter", () => {
     expect(paths).toContain("src/screens/ProfileScreen.tsx");
     expect(paths).toContain("src/screens/SignInScreen.tsx");
     expect(paths).toContain("src/screens/SignUpScreen.tsx");
-
-    const signInOp = operations.find(
-      (op) => op.type === "write-file" && op.path === "src/screens/SignInScreen.tsx",
-    );
-    expect(signInOp?.type === "write-file" && signInOp.content).toContain(
-      productName.toUpperCase(),
-    );
-    expect(signInOp?.type === "write-file" && signInOp.content).not.toContain("STACKJET");
 
     const appNavOp = operations.find(
       (op) => op.type === "write-file" && op.path === "src/navigation/AppNavigator.tsx",

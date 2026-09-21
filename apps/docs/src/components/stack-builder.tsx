@@ -1,6 +1,6 @@
 "use client";
 
-import { appendAuthCreateFlags, commandName, createPackageName } from "@expojet/brand";
+import { commandName, createPackageName } from "@expojet/brand";
 import { Code2, Settings2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -474,7 +474,9 @@ export function StackBuilder() {
       config.eas ? "--eas" : "--no-eas",
       "--yes",
     ];
-    appendAuthCreateFlags(flags, config.auth, config.socials);
+    if (config.auth === "better-auth") flags.push("--experimental");
+    if (config.auth === "clerk" && config.socials.length)
+      flags.push(`--socials ${config.socials.join(" ")}`);
     return `${starters[packageManager]} ${safeName} ${flags.join(" ")}`;
   }, [config, packageManager, projectName]);
 

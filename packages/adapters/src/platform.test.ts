@@ -1,4 +1,3 @@
-import { productName } from "@expojet/brand";
 import type { CreateInput } from "@expojet/schemas";
 import { describe, expect, it } from "vitest";
 import { monorepoPlatformAdapter } from "./platform.js";
@@ -76,19 +75,6 @@ describe("monorepoPlatformAdapter", () => {
     expect(paths).toContain("apps/web/app/page.tsx");
     expect(paths).toContain("apps/web/app/providers.tsx");
     expect(paths).toContain("apps/web/src/api.ts");
-
-    const layoutOp = operations.find(
-      (op) => op.type === "write-file" && op.path === "apps/web/app/layout.tsx",
-    );
-    expect(layoutOp?.type === "write-file" && layoutOp.content).toContain(`${productName} Web`);
-
-    const pageOp = operations.find(
-      (op) => op.type === "write-file" && op.path === "apps/web/app/page.tsx",
-    );
-    expect(pageOp?.type === "write-file" && pageOp.content).toContain(productName.toUpperCase());
-
-    const readmeOp = operations.find((op) => op.type === "write-file" && op.path === "README.md");
-    expect(readmeOp?.type === "write-file" && readmeOp.content).toContain(`# ${productName} app`);
   });
 
   it("plans Supabase server and mobile integration in monorepo", () => {

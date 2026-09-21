@@ -5,4 +5,3 @@ export const createPackageName = "create-expojet";
 export const releaseVersion = "0.6.3";
 export const manifestFileName = "expojet.jsonc";
 export const tagline = "A production-ready Expo stack in one command.";
-export { appendAuthCreateFlags } from "./create-command-flags.js";
