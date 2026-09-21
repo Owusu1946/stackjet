@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CommandPicker } from "@/components/command-picker";
 import { PeoplePanel } from "@/components/people-panel";
@@ -5,12 +6,6 @@ import maintainers from "@/data/maintainers.json";
 import { createPackageName, productName, releaseVersion } from "@/lib/shared";
 
 const repositoryUrl = "https://github.com/Owusu1946/stackjet";
-const asciiLogo = `████████████    ███████╗ ██╗  ██╗ ██████╗   ██████╗       ██╗ ███████╗ ████████╗
-██████████◤     ██╔════╝ ╚██╗██╔╝ ██╔══██╗ ██╔═══██╗      ██║ ██╔════╝ ╚══██╔══╝
-█████   ████◣   █████╗    ╚███╔╝  ██████╔╝ ██║   ██║      ██║ █████╗      ██║
-█████   ████◤   ██╔══╝    ██╔██╗  ██╔═══╝  ██║   ██║ ██   ██║ ██╔══╝      ██║
-██████████◣     ███████╗ ██╔╝ ██╗ ██║      ╚██████╔╝ ╚█████╔╝ ███████╗    ██║
-████████████    ╚══════╝ ╚═╝  ╚═╝ ╚═╝       ╚═════╝   ╚════╝  ╚══════╝    ╚═╝`;
 
 type Contributor = {
   id: number;
@@ -86,7 +81,14 @@ export default async function HomePage() {
         <div className="console-grid">
           <section className="console-hero">
             <div>
-              <pre className="ascii-logo">{asciiLogo}</pre>
+              <Image
+                className="brand-logo"
+                src="/brand/expojet-logo.svg"
+                alt="Expojet"
+                width={300}
+                height={64}
+                priority
+              />
               <p className="console-lede">
                 Build the Expo app you meant to build; not the setup around it.
               </p>

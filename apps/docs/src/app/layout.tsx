@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   },
   description: `${productName} is the most configurable way to create a production-ready Expo SDK 57 mobile app with authentication, database, styling, navigation, and backend — all in one command.`,
   metadataBase: new URL("https://expojet.dev"),
+  icons: {
+    icon: "/brand/favicon.svg",
+    shortcut: "/brand/favicon.svg",
+    apple: "/brand/site-icon.svg",
+  },
   openGraph: {
     type: "website",
     siteName: productName,
