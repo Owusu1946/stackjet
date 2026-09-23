@@ -751,7 +751,7 @@ html > body[data-scroll-locked] {
 }
 .builder-tabs::-webkit-scrollbar,
 .preview-tree::-webkit-scrollbar,
-.preview-code-pane > pre::-webkit-scrollbar {
+.preview-code-scroll::-webkit-scrollbar {
   display: none;
 }
 .builder-tabs button {
@@ -957,38 +957,28 @@ html > body[data-scroll-locked] {
   cursor: pointer;
   font: 700 0.62rem / 1 var(--font-mono);
 }
-.preview-code-pane > pre {
-  max-height: calc(65dvh - 3rem);
+.builder-preview .preview-code-pane .builder-preview-code {
+  --padding-left: 1.75rem;
+  --padding-right: 1.5rem;
   margin: 0;
-  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.builder-preview .preview-code-pane .preview-code-scroll {
+  max-height: calc(65dvh - 3rem);
   scrollbar-width: none;
   padding: 0.75rem 0;
   background: transparent;
   font: 500 0.7rem / 1.55 var(--font-mono);
+}
+.builder-preview .preview-code-pane .builder-preview-code pre {
+  font: inherit;
   tab-size: 2;
 }
-.preview-code-pane code {
-  display: table;
-  min-width: 100%;
-}
-.builder-preview .preview-code-pane code > span {
-  display: table-row;
-}
-.preview-code-pane code i {
-  display: table-cell;
-  width: 3.5rem;
-  padding: 0 1rem;
+.builder-preview .preview-code-pane .builder-preview-code .line::after {
   color: var(--color-fd-muted-foreground);
-  text-align: right;
-  user-select: none;
-  font-style: normal;
-}
-.preview-code-line {
-  display: table-cell;
-  padding-right: 1.5rem;
-  color: var(--color-fd-foreground);
-  font: inherit;
-  white-space: pre;
 }
 .preview-state {
   display: grid;
@@ -1094,7 +1084,7 @@ html > body[data-scroll-locked] {
     border-right: 0;
     border-bottom: 1px solid var(--color-fd-border);
   }
-  .preview-code-pane > pre {
+  .builder-preview .preview-code-pane .preview-code-scroll {
     max-height: 31rem;
   }
   .preview-toolbar {

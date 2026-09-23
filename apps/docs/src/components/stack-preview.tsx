@@ -11,6 +11,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { useEffect, useMemo, useState } from "react";
 import { useCopyFeedback } from "@/hooks/use-copy-feedback";
 
@@ -45,13 +46,35 @@ function countFolders(node: TreeNode): number {
   );
 }
 
-function numberedLines(content: string) {
-  const occurrences = new Map<string, number>();
-  return content.split("\n").map((line) => {
-    const occurrence = (occurrences.get(line) ?? 0) + 1;
-    occurrences.set(line, occurrence);
-    return { id: `${line}:${occurrence}`, line };
-  });
+function languageForFile(path: string) {
+  const name = path.split("/").at(-1) ?? "";
+  if (name.startsWith(".env")) return "dotenv";
+  if (name === "Dockerfile") return "dockerfile";
+
+  const extension = name.split(".").at(-1)?.toLowerCase();
+  const languages: Record<string, string> = {
+    ts: "typescript",
+    tsx: "tsx",
+    js: "javascript",
+    jsx: "jsx",
+    mjs: "javascript",
+    cjs: "javascript",
+    json: "json",
+    jsonc: "jsonc",
+    css: "css",
+    scss: "scss",
+    md: "markdown",
+    mdx: "mdx",
+    yml: "yaml",
+    yaml: "yaml",
+    toml: "toml",
+    sh: "bash",
+    sql: "sql",
+    graphql: "graphql",
+    prisma: "prisma",
+    xml: "xml",
+  };
+  return languages[extension ?? ""] ?? "text";
 }
 
 function FileTreeNode({
@@ -222,16 +245,19 @@ export function StackPreview({
               )}
             </button>
           </header>
-          <pre>
-            <code>
-              {numberedLines(selected?.content ?? "").map(({ id, line }, index) => (
-                <span key={id}>
-                  <i>{index + 1}</i>
-                  <span className="preview-code-line">{line || " "}</span>
-                </span>
-              ))}
-            </code>
-          </pre>
+          {selected ? (
+            <DynamicCodeBlock
+              key={selected.path}
+              lang={languageForFile(selected.path)}
+              code={selected.content}
+              codeblock={{
+                allowCopy: false,
+                className: "builder-preview-code",
+                "data-line-numbers": true,
+                viewportProps: { className: "preview-code-scroll" },
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </section>
