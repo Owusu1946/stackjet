@@ -32,6 +32,7 @@ function makeZustandCounterCard(liquidGlass: boolean = false) {
     return `import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { GlassCard } from "./ui/glass-card";
+import { haptic } from "../haptics";
 import { useAppStore } from "../store/use-app-store";
 import { useTheme } from "../theme/provider";
 
@@ -39,14 +40,27 @@ export function CounterCard() {
   const { count, increment, decrement, reset } = useAppStore();
   const { colors } = useTheme();
 
+  const handleDecrement = () => {
+    haptic.light();
+    decrement();
+  };
+  const handleReset = () => {
+    haptic.medium();
+    reset();
+  };
+  const handleIncrement = () => {
+    haptic.light();
+    increment();
+  };
+
   return (
     <GlassCard style={styles.card} testID="counter-card">
       <Text style={[styles.eyebrow, { color: colors.primary }]}>Zustand Store</Text>
       <Text style={[styles.count, { color: colors.text }]} testID="counter-value">{count}</Text>
       <View style={styles.actions}>
-        <Button title="-" onPress={decrement} testID="counter-decrement" />
-        <Button title="Reset" onPress={reset} testID="counter-reset" />
-        <Button title="+" onPress={increment} testID="counter-increment" />
+        <Button title="-" onPress={handleDecrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={handleReset} testID="counter-reset" />
+        <Button title="+" onPress={handleIncrement} testID="counter-increment" />
       </View>
     </GlassCard>
   );
@@ -78,6 +92,7 @@ const styles = StyleSheet.create({
 
   return `import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+import { haptic } from "../haptics";
 import { useAppStore } from "../store/use-app-store";
 import { useTheme } from "../theme/provider";
 
@@ -85,14 +100,27 @@ export function CounterCard() {
   const { count, increment, decrement, reset } = useAppStore();
   const { colors } = useTheme();
 
+  const handleDecrement = () => {
+    haptic.light();
+    decrement();
+  };
+  const handleReset = () => {
+    haptic.medium();
+    reset();
+  };
+  const handleIncrement = () => {
+    haptic.light();
+    increment();
+  };
+
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]} testID="counter-card">
       <Text style={[styles.eyebrow, { color: colors.primary }]}>Zustand Store</Text>
       <Text style={[styles.count, { color: colors.text }]} testID="counter-value">{count}</Text>
       <View style={styles.actions}>
-        <Button title="-" onPress={decrement} testID="counter-decrement" />
-        <Button title="Reset" onPress={reset} testID="counter-reset" />
-        <Button title="+" onPress={increment} testID="counter-increment" />
+        <Button title="-" onPress={handleDecrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={handleReset} testID="counter-reset" />
+        <Button title="+" onPress={handleIncrement} testID="counter-increment" />
       </View>
     </View>
   );
@@ -170,6 +198,7 @@ function makeMobxCounterCard(liquidGlass: boolean = false) {
 import { Button, StyleSheet, Text, View } from "react-native";
 import { observer } from "mobx-react-lite";
 import { GlassCard } from "./ui/glass-card";
+import { haptic } from "../haptics";
 import { useAppStore } from "../store/provider";
 import { useTheme } from "../theme/provider";
 
@@ -177,14 +206,27 @@ export const CounterCard = observer(function CounterCard() {
   const store = useAppStore();
   const { colors } = useTheme();
 
+  const handleDecrement = () => {
+    haptic.light();
+    store.decrement();
+  };
+  const handleReset = () => {
+    haptic.medium();
+    store.reset();
+  };
+  const handleIncrement = () => {
+    haptic.light();
+    store.increment();
+  };
+
   return (
     <GlassCard style={styles.card} testID="counter-card">
       <Text style={[styles.eyebrow, { color: colors.primary }]}>MobX Store</Text>
       <Text style={[styles.count, { color: colors.text }]} testID="counter-value">{store.count}</Text>
       <View style={styles.actions}>
-        <Button title="-" onPress={store.decrement} testID="counter-decrement" />
-        <Button title="Reset" onPress={store.reset} testID="counter-reset" />
-        <Button title="+" onPress={store.increment} testID="counter-increment" />
+        <Button title="-" onPress={handleDecrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={handleReset} testID="counter-reset" />
+        <Button title="+" onPress={handleIncrement} testID="counter-increment" />
       </View>
     </GlassCard>
   );
@@ -217,6 +259,7 @@ const styles = StyleSheet.create({
   return `import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { observer } from "mobx-react-lite";
+import { haptic } from "../haptics";
 import { useAppStore } from "../store/provider";
 import { useTheme } from "../theme/provider";
 
@@ -224,14 +267,27 @@ export const CounterCard = observer(function CounterCard() {
   const store = useAppStore();
   const { colors } = useTheme();
 
+  const handleDecrement = () => {
+    haptic.light();
+    store.decrement();
+  };
+  const handleReset = () => {
+    haptic.medium();
+    store.reset();
+  };
+  const handleIncrement = () => {
+    haptic.light();
+    store.increment();
+  };
+
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]} testID="counter-card">
       <Text style={[styles.eyebrow, { color: colors.primary }]}>MobX Store</Text>
       <Text style={[styles.count, { color: colors.text }]} testID="counter-value">{store.count}</Text>
       <View style={styles.actions}>
-        <Button title="-" onPress={store.decrement} testID="counter-decrement" />
-        <Button title="Reset" onPress={store.reset} testID="counter-reset" />
-        <Button title="+" onPress={store.increment} testID="counter-increment" />
+        <Button title="-" onPress={handleDecrement} testID="counter-decrement" />
+        <Button title="Reset" onPress={handleReset} testID="counter-reset" />
+        <Button title="+" onPress={handleIncrement} testID="counter-increment" />
       </View>
     </View>
   );

@@ -29,6 +29,7 @@ describe("non-interactive create", () => {
       style: "uniwind",
       onboarding: true,
       darkMode: true,
+      haptics: true,
       eas: true,
       install: true,
       git: true,
@@ -40,13 +41,22 @@ describe("non-interactive create", () => {
     const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
     const input = normalizeNonInteractiveCreate(
       "minimal-app",
-      { yes: true, onboarding: false, darkMode: false, eas: false, install: false, git: false },
+      {
+        yes: true,
+        onboarding: false,
+        darkMode: false,
+        haptics: false,
+        eas: false,
+        install: false,
+        git: false,
+      },
       {},
       cwd,
     );
     expect(input).toMatchObject({
       onboarding: false,
       darkMode: false,
+      haptics: false,
       eas: false,
       install: false,
       git: false,

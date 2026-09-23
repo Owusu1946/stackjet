@@ -57,6 +57,7 @@ const createInputObjectSchema = z.object({
   icons: z.enum(iconLibraries).default("lucide"),
   state: z.enum(stateAdapters).default("none"),
   liquidGlass: z.boolean().default(false),
+  haptics: z.boolean().default(true),
   analytics: z.enum(analyticsAdapters).default("none"),
   monitoring: z.enum(monitoringAdapters).default("none"),
   preset: z.string().optional(),

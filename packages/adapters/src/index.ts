@@ -3,6 +3,7 @@ export * from "./auth.js";
 export * from "./backend.js";
 export * from "./contract.js";
 export * from "./database.js";
+export * from "./haptics.js";
 export * from "./icons.js";
 export * from "./liquid-glass.js";
 export * from "./monitoring.js";
