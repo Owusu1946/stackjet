@@ -19,12 +19,12 @@ export function ThemeToggle() {
       title={isDark ? "Light mode" : "Dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      <HugeiconsIcon
-        icon={isDark ? Sun03Icon : Moon02Icon}
-        size={18}
-        strokeWidth={1.8}
-        aria-hidden="true"
-      />
+      <span className="site-theme-toggle-icon" data-active={!isDark}>
+        <HugeiconsIcon icon={Sun03Icon} size={16} strokeWidth={1.8} aria-hidden="true" />
+      </span>
+      <span className="site-theme-toggle-icon" data-active={isDark}>
+        <HugeiconsIcon icon={Moon02Icon} size={16} strokeWidth={1.8} aria-hidden="true" />
+      </span>
     </button>
   );
 }

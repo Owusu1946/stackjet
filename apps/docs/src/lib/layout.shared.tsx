@@ -1,3 +1,5 @@
+import { GithubIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -16,17 +18,12 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       {
-        text: "Home",
-        url: "/",
-      },
-      {
         text: "Builder",
         url: "/builder",
       },
       {
-        text: "Docs",
+        text: "Documentation",
         url: "/docs",
-        active: "nested-url",
       },
       {
         text: "Quick Start",
@@ -44,8 +41,15 @@ export function baseOptions(): BaseLayoutProps {
         text: "Changelog",
         url: "/changelog",
       },
+      {
+        type: "icon",
+        text: "GitHub",
+        label: "GitHub",
+        icon: <HugeiconsIcon icon={GithubIcon} size={19} aria-hidden="true" />,
+        url: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+        external: true,
+      },
     ],
-    githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     themeSwitch: { enabled: false },
   };
 }
