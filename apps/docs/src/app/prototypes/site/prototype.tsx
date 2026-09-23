@@ -1,18 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Assembly } from "./assembly";
-import { Blueprint } from "./blueprint";
-import { FieldNotes } from "./field-notes";
-import { Flightpath } from "./flightpath";
+import { Compose } from "./compose";
+import { Guide } from "./guide";
+import { Index } from "./index";
 import type { PreviewProps } from "./shared";
 import "./site.css";
 
 const variants: { name: string; component: (props: PreviewProps) => React.ReactNode }[] = [
-  { name: "Flightpath", component: Flightpath },
-  { name: "Assembly", component: Assembly },
-  { name: "Notes", component: FieldNotes },
-  { name: "Blueprint", component: Blueprint },
+  { name: "Index", component: Index },
+  { name: "Compose", component: Compose },
+  { name: "Guide", component: Guide },
 ];
 
 export function SitePrototype() {

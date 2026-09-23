@@ -32,23 +32,29 @@ export function PreviewNav({ view, setView }: PreviewProps) {
       >
         Docs
       </button>
-      <Link href="/builder">Builder ↗</Link>
+      <Link href="/builder">Builder</Link>
     </nav>
   );
 }
 
-export function CopyCommand({ label = "Copy command" }: { label?: string }) {
+export function CopyCommand({
+  value = command,
+  label = "Copy",
+}: {
+  value?: string;
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    await navigator.clipboard.writeText(command);
+    await navigator.clipboard.writeText(value);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   }
 
   return (
     <button type="button" className="site-copy-command" onClick={copy} aria-live="polite">
-      <code>{command}</code>
+      <code>{value}</code>
       <span>{copied ? "Copied ✓" : label}</span>
     </button>
   );
