@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { appName, gitConfig } from "./shared";
 
 export function baseOptions(): BaseLayoutProps {
@@ -11,14 +12,19 @@ export function baseOptions(): BaseLayoutProps {
           <span className="font-bold">{appName}</span>
         </>
       ),
+      children: <ThemeToggle />,
     },
     links: [
+      {
+        text: "Home",
+        url: "/",
+      },
       {
         text: "Builder",
         url: "/builder",
       },
       {
-        text: "Documentation",
+        text: "Docs",
         url: "/docs",
         active: "nested-url",
       },
@@ -40,5 +46,6 @@ export function baseOptions(): BaseLayoutProps {
       },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+    themeSwitch: { enabled: false },
   };
 }

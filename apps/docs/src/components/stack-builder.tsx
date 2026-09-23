@@ -1,9 +1,29 @@
 "use client";
 
 import { commandName, createPackageName } from "@expojet/brand";
-import { Code2, Settings2 } from "lucide-react";
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  CodeIcon,
+  Copy01Icon,
+  GlassWaterIcon,
+  Layers01Icon,
+  LayoutBottomIcon,
+  LayoutDashboardIcon,
+  Moon02Icon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+  PlusSignIcon,
+  Rocket01Icon,
+  Settings02Icon,
+  SidebarLeftIcon,
+  Tick02Icon,
+  UserAdd01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useCopyFeedback } from "@/hooks/use-copy-feedback";
 import { type PreviewFile, StackPreview } from "./stack-preview";
 
 type PackageManager = "pnpm" | "npm" | "bun" | "yarn";
@@ -388,17 +408,54 @@ function iconPath(icon: string) {
   return `/stack-icons/${icon}.svg`;
 }
 
+const uiIcons = {
+  "layout-tabs": LayoutBottomIcon,
+  "layout-drawer": SidebarLeftIcon,
+  "layout-both": LayoutDashboardIcon,
+  "layout-stack": Layers01Icon,
+  "feature-glass": GlassWaterIcon,
+  "feature-onboarding": UserAdd01Icon,
+  "feature-dark-mode": Moon02Icon,
+  "feature-eas": Rocket01Icon,
+};
+
+function BuilderChoiceIcon({ icon, size }: { icon: string; size: number }) {
+  if (icon in uiIcons) {
+    return (
+      <HugeiconsIcon
+        icon={uiIcons[icon as keyof typeof uiIcons]}
+        size={size}
+        strokeWidth={1.8}
+        aria-hidden="true"
+      />
+    );
+  }
+  return (
+    <Image
+      src={iconPath(icon)}
+      alt=""
+      width={size}
+      height={size}
+      className={icon === "expo" ? "builder-expo-icon" : undefined}
+    />
+  );
+}
+
 export function StackBuilder() {
   const [projectName, setProjectName] = useState("my-expojet-app");
   const [packageManager, setPackageManager] = useState<PackageManager>("pnpm");
   const [config, setConfig] = useState<Config>(defaults);
   const [activeGroup, setActiveGroup] = useState<CategoryKey>("structure");
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [view, setView] = useState<"configure" | "preview">("configure");
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState<string>();
   const [preset, setPreset] = useState("");
+
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 850px)").matches) setSidebarOpen(false);
+  }, []);
 
   const select = (key: keyof Config, value: string) => {
     setConfig((current) => {
@@ -479,6 +536,7 @@ export function StackBuilder() {
       flags.push(`--socials ${config.socials.join(" ")}`);
     return `${starters[packageManager]} ${safeName} ${flags.join(" ")}`;
   }, [config, packageManager, projectName]);
+  const { status: copyStatus, copy: copyCommand } = useCopyFeedback(command);
 
   const active = groups.find((group) => group.key === activeGroup);
   const activeIndex = categories.findIndex((category) => category.key === activeGroup);
@@ -546,16 +604,6 @@ export function StackBuilder() {
     };
   }, [config, packageManager, safeProjectName]);
 
-  async function copyCommand() {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopyStatus("copied");
-    } catch {
-      setCopyStatus("failed");
-    }
-    window.setTimeout(() => setCopyStatus("idle"), 1800);
-  }
-
   function resetBuilder() {
     setProjectName("my-expojet-app");
     setPackageManager("pnpm");
@@ -579,85 +627,109 @@ export function StackBuilder() {
 
   return (
     <section className="stack-builder" id="builder" aria-label="Expo app stack builder">
-      <div className="builder-layout">
+      <div className="builder-layout" data-sidebar-open={sidebarOpen}>
         <aside className="builder-sidebar">
-          <label className="builder-field">
-            <span>PROJECT NAME</span>
-            <input
-              value={projectName}
-              onChange={(event) => setProjectName(event.target.value)}
-              spellCheck={false}
-              aria-describedby="project-name-hint"
+          <button
+            type="button"
+            className="builder-sidebar-toggle"
+            aria-expanded={sidebarOpen}
+            aria-controls="builder-sidebar-content"
+            aria-label={sidebarOpen ? "Collapse builder sidebar" : "Expand builder sidebar"}
+            onClick={() => setSidebarOpen((open) => !open)}
+          >
+            <HugeiconsIcon
+              icon={sidebarOpen ? PanelLeftCloseIcon : PanelLeftOpenIcon}
+              size={18}
+              aria-hidden="true"
             />
-            <small id="project-name-hint">Folder: {safeProjectName}</small>
-          </label>
-          <div className="builder-command-heading">
-            <span>CLI COMMAND</span>
-            <button type="button" onClick={copyCommand}>
-              {copyStatus === "copied"
-                ? "COPIED ✓"
-                : copyStatus === "failed"
-                  ? "TRY AGAIN"
-                  : "COPY"}
+            <span>{sidebarOpen ? "Hide options" : "Show options"}</span>
+          </button>
+          <div
+            id="builder-sidebar-content"
+            className="builder-sidebar-content"
+            hidden={!sidebarOpen}
+          >
+            <label className="builder-field">
+              <span>Project name</span>
+              <input
+                value={projectName}
+                onChange={(event) => setProjectName(event.target.value)}
+                spellCheck={false}
+                aria-describedby="project-name-hint"
+              />
+              <small id="project-name-hint">Folder: {safeProjectName}</small>
+            </label>
+            <div className="builder-command-heading">
+              <span>CLI command</span>
+              <button type="button" onClick={copyCommand}>
+                <HugeiconsIcon
+                  icon={copyStatus === "copied" ? Tick02Icon : Copy01Icon}
+                  size={15}
+                  aria-hidden="true"
+                />
+                {copyStatus === "copied"
+                  ? "Copied"
+                  : copyStatus === "failed"
+                    ? "Try again"
+                    : "Copy"}
+              </button>
+            </div>
+            <code className="builder-command">
+              <span>$</span>
+              {command}
+            </code>
+            <label className="builder-preset">
+              <span className="builder-preset-label">Preset</span>
+              <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
+                <option value="">Choose a starting point</option>
+                {presets.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <small>
+                {presets.find((item) => item.id === preset)?.description ??
+                  "Apply a validated configuration"}
+              </small>
+            </label>
+            <fieldset className="builder-manager" aria-label="Package manager">
+              {(["pnpm", "npm", "bun", "yarn"] as const).map((manager) => (
+                <button
+                  type="button"
+                  key={manager}
+                  data-active={packageManager === manager}
+                  onClick={() => setPackageManager(manager)}
+                >
+                  <Image src={iconPath(manager)} alt="" width={16} height={16} />
+                  {manager}
+                </button>
+              ))}
+            </fieldset>
+            <div className="builder-selected-heading">
+              <span>Selected stack</span>
+              <b>
+                {selected.length +
+                  config.socials.length +
+                  featureOptions.filter((item) => config[item.key]).length}{" "}
+                picks
+              </b>
+            </div>
+            <div className="builder-chips">
+              {selected.map((item) => (
+                <span key={item.group}>
+                  {item.icon ? <BuilderChoiceIcon icon={item.icon} size={15} /> : null}
+                  {item.label}
+                </span>
+              ))}
+              {config.auth === "clerk"
+                ? config.socials.map((social) => <span key={social}>{social}</span>)
+                : null}
+            </div>
+            <button className="builder-reset" type="button" onClick={resetBuilder}>
+              Reset choices
             </button>
           </div>
-          <code className="builder-command">
-            <span>$</span>
-            {command}
-          </code>
-          <label className="builder-preset">
-            <span className="builder-preset-label">PRESET</span>
-            <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
-              <option value="">Choose a starting point</option>
-              {presets.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-            <small>
-              {presets.find((item) => item.id === preset)?.description ??
-                "Apply a validated configuration"}
-            </small>
-          </label>
-          <fieldset className="builder-manager" aria-label="Package manager">
-            {(["pnpm", "npm", "bun", "yarn"] as const).map((manager) => (
-              <button
-                type="button"
-                key={manager}
-                data-active={packageManager === manager}
-                onClick={() => setPackageManager(manager)}
-              >
-                <Image src={iconPath(manager)} alt="" width={16} height={16} />
-                {manager}
-              </button>
-            ))}
-          </fieldset>
-          <div className="builder-selected-heading">
-            <span>SELECTED STACK</span>
-            <b>
-              {selected.length +
-                config.socials.length +
-                featureOptions.filter((item) => config[item.key]).length}{" "}
-              PICKS
-            </b>
-          </div>
-          <div className="builder-chips">
-            {selected.map((item) => (
-              <span key={item.group}>
-                {item.icon ? (
-                  <Image src={iconPath(item.icon)} alt="" width={15} height={15} />
-                ) : null}
-                {item.label}
-              </span>
-            ))}
-            {config.auth === "clerk"
-              ? config.socials.map((social) => <span key={social}>{social}</span>)
-              : null}
-          </div>
-          <button className="builder-reset" type="button" onClick={resetBuilder}>
-            RESET CONFIGURATION
-          </button>
         </aside>
         <div className="builder-main">
           <div className="builder-view-tabs" role="tablist" aria-label="Builder view">
@@ -667,8 +739,8 @@ export function StackBuilder() {
               aria-selected={view === "configure"}
               onClick={() => setView("configure")}
             >
-              <Settings2 aria-hidden="true" size={15} />
-              CONFIGURE
+              <HugeiconsIcon icon={Settings02Icon} aria-hidden="true" size={16} />
+              Configure
             </button>
             <button
               type="button"
@@ -676,8 +748,8 @@ export function StackBuilder() {
               aria-selected={view === "preview"}
               onClick={() => setView("preview")}
             >
-              <Code2 aria-hidden="true" size={15} />
-              PREVIEW
+              <HugeiconsIcon icon={CodeIcon} aria-hidden="true" size={16} />
+              Preview
             </button>
           </div>
           {view === "preview" ? (
@@ -703,11 +775,7 @@ export function StackBuilder() {
               </nav>
               <div className="builder-stage-heading">
                 <div>
-                  <span>STEP {String(activeIndex + 1).padStart(2, "0")}</span>
                   <h2>{categories[activeIndex]?.label}</h2>
-                </div>
-                <div className="builder-progress-track" aria-hidden="true">
-                  <i style={{ width: `${((activeIndex + 1) / categories.length) * 100}%` }} />
                 </div>
               </div>
               <div className="builder-options">
@@ -727,14 +795,18 @@ export function StackBuilder() {
                           }))
                         }
                       >
-                        {option.icon ? (
-                          <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
-                        ) : null}
+                        {option.icon ? <BuilderChoiceIcon icon={option.icon} size={24} /> : null}
                         <span className="builder-option-copy">
                           <strong>{option.label}</strong>
                           <small>{option.description}</small>
                         </span>
-                        <i>{config.socials.includes(option.value) ? "✓" : "+"}</i>
+                        <i>
+                          <HugeiconsIcon
+                            icon={config.socials.includes(option.value) ? Tick02Icon : PlusSignIcon}
+                            size={17}
+                            aria-hidden="true"
+                          />
+                        </i>
                       </button>
                     ))
                   : activeGroup === "features"
@@ -745,7 +817,7 @@ export function StackBuilder() {
                           data-active={config[option.key]}
                           onClick={() => toggleFeature(option.key)}
                         >
-                          <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
+                          <BuilderChoiceIcon icon={option.icon} size={24} />
                           <span className="builder-option-copy">
                             <strong>{option.label}</strong>
                             <small>{option.description}</small>
@@ -773,7 +845,7 @@ export function StackBuilder() {
                             onClick={() => select(active.key, option.value)}
                           >
                             {option.icon ? (
-                              <Image src={iconPath(option.icon)} alt="" width={24} height={24} />
+                              <BuilderChoiceIcon icon={option.icon} size={24} />
                             ) : (
                               <span className="builder-placeholder">
                                 {option.label.slice(0, 1)}
@@ -783,7 +855,15 @@ export function StackBuilder() {
                               <strong>{option.label}</strong>
                               <small>{option.description}</small>
                             </span>
-                            <i>{config[active.key] === option.value ? "✓" : "+"}</i>
+                            <i>
+                              <HugeiconsIcon
+                                icon={
+                                  config[active.key] === option.value ? Tick02Icon : PlusSignIcon
+                                }
+                                size={17}
+                                aria-hidden="true"
+                              />
+                            </i>
                           </button>
                         );
                       })}
@@ -791,11 +871,11 @@ export function StackBuilder() {
               <p className="builder-note">
                 {activeGroup === "socials" && config.auth !== "clerk"
                   ? "Select Clerk authentication to configure hosted social sign-in."
-                  : "Incompatible choices are disabled or normalized automatically."}
+                  : "Options that do not work with this stack are unavailable."}
               </p>
               <div className="builder-step-actions">
                 <button type="button" disabled={activeIndex === 0} onClick={() => moveCategory(-1)}>
-                  ← Previous
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} aria-hidden="true" /> Previous
                 </button>
                 <span>{categories[activeIndex]?.label}</span>
                 <button
@@ -803,7 +883,7 @@ export function StackBuilder() {
                   disabled={activeIndex === categories.length - 1}
                   onClick={() => moveCategory(1)}
                 >
-                  Next →
+                  Next <HugeiconsIcon icon={ArrowRight01Icon} size={16} aria-hidden="true" />
                 </button>
               </div>
             </>

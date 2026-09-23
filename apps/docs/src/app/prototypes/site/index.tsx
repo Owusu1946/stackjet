@@ -1,3 +1,5 @@
+import { ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { Community, CopyCommand, Mark, type PreviewProps } from "./shared";
 
@@ -26,14 +28,17 @@ export function Index({ view, setView, community }: PreviewProps) {
           >
             Quick start
           </button>
-          <Link href="/builder">Builder ↗</Link>
+          <Link href="/builder">
+            Builder <HugeiconsIcon icon={ArrowUpRight01Icon} size={15} aria-hidden="true" />
+          </Link>
         </nav>
       </header>
 
       <div className="index-layout">
         <aside className="index-sidebar" aria-label="Documentation navigation">
           <Link className="index-search" href="/docs">
-            Open full documentation <span>↗</span>
+            Open full documentation
+            <HugeiconsIcon icon={ArrowUpRight01Icon} size={15} aria-hidden="true" />
           </Link>
           <div className="index-nav-group">
             <span>Start</span>
@@ -93,12 +98,16 @@ export function Index({ view, setView, community }: PreviewProps) {
                   <button type="button" onClick={() => setView("docs")}>
                     <strong>Follow the quick start</strong>
                     <span>Create a standalone Expo app, then add services later.</span>
-                    <b>→</b>
+                    <b>
+                      <HugeiconsIcon icon={ArrowRight01Icon} size={17} aria-hidden="true" />
+                    </b>
                   </button>
                   <Link href="/builder">
                     <strong>Configure the stack</strong>
                     <span>Choose the integrations before generating the project.</span>
-                    <b>↗</b>
+                    <b>
+                      <HugeiconsIcon icon={ArrowUpRight01Icon} size={17} aria-hidden="true" />
+                    </b>
                   </Link>
                 </div>
               </section>
@@ -162,7 +171,8 @@ export function Index({ view, setView, community }: PreviewProps) {
                   <code>apps/api</code>, and shared types.
                 </p>
                 <Link className="index-next" href="/builder">
-                  Open the builder →
+                  Open the builder{" "}
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} aria-hidden="true" />
                 </Link>
               </section>
             </article>

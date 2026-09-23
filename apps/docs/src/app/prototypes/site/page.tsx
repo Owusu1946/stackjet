@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getCommunityData } from "./community";
+import { getCommunityData } from "@/lib/community";
 import { SitePrototype } from "./prototype";
 
 export const metadata: Metadata = {

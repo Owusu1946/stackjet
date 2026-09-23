@@ -1,8 +1,8 @@
 import maintainers from "@/data/maintainers.json";
-import { createPackageName } from "@/lib/shared";
+import { createPackageName, gitConfig } from "@/lib/shared";
 
-const repository = "https://github.com/Owusu1946/stackjet";
-const githubApi = "https://api.github.com/repos/Owusu1946/stackjet";
+const repository = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
+const githubApi = `https://api.github.com/repos/${gitConfig.user}/${gitConfig.repo}`;
 const npmApi = "https://api.npmjs.org/downloads/point";
 const revalidate = 21_600;
 

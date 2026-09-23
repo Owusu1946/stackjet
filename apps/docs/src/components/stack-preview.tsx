@@ -1,16 +1,18 @@
 "use client";
 
 import {
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Clipboard,
-  FileCode2,
-  Folder,
-  FolderTree,
-  Info,
-} from "lucide-react";
+  ArrowDown01Icon,
+  ArrowRight01Icon,
+  Copy01Icon,
+  FileCodeIcon,
+  Folder01Icon,
+  FolderTreeIcon,
+  InformationCircleIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
+import { useCopyFeedback } from "@/hooks/use-copy-feedback";
 
 export type PreviewFile = { path: string; content: string };
 
@@ -80,12 +82,12 @@ function FileTreeNode({
       >
         {isFolder ? (
           isExpanded ? (
-            <ChevronDown aria-hidden="true" size={13} />
+            <HugeiconsIcon icon={ArrowDown01Icon} aria-hidden="true" size={13} />
           ) : (
-            <ChevronRight aria-hidden="true" size={13} />
+            <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden="true" size={13} />
           )
         ) : (
-          <FileCode2 aria-hidden="true" size={13} />
+          <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={13} />
         )}
         {node.name}
       </button>
@@ -127,7 +129,10 @@ export function StackPreview({
   const tree = useMemo(() => buildTree(files), [files]);
   const [selectedPath, setSelectedPath] = useState<string>();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [copied, setCopied] = useState(false);
+  const { status: copyStatus, copy: copyFile } = useCopyFeedback(
+    files.find((file) => file.path === selectedPath)?.content ?? "",
+    1500,
+  );
 
   useEffect(() => {
     if (!files.length) return;
@@ -141,13 +146,6 @@ export function StackPreview({
 
   const selected = files.find((file) => file.path === selectedPath);
 
-  async function copyFile() {
-    if (!selected) return;
-    await navigator.clipboard.writeText(selected.content);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
-  }
-
   if (loading && files.length === 0) {
     return <div className="preview-state">Rendering the real generation plan…</div>;
   }
@@ -159,22 +157,23 @@ export function StackPreview({
     <section className="builder-preview" aria-label="Generated project preview">
       <header className="preview-toolbar">
         <span className="preview-toolbar-stat">
-          <FolderTree aria-hidden="true" size={14} />
+          <HugeiconsIcon icon={FolderTreeIcon} aria-hidden="true" size={14} />
           {countFolders(tree)} FOLDERS
         </span>
         <span className="preview-toolbar-stat">
-          <FileCode2 aria-hidden="true" size={14} />
+          <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={14} />
           {files.length} FILES
         </span>
         {loading ? <span className="preview-refreshing">UPDATING…</span> : null}
         <strong>
-          <Info aria-hidden="true" size={14} /> REAL PLAN PREVIEW
+          <HugeiconsIcon icon={InformationCircleIcon} aria-hidden="true" size={14} /> Real plan
+          preview
         </strong>
       </header>
       <div className="preview-workspace">
         <aside className="preview-tree">
           <div className="preview-root">
-            <Folder aria-hidden="true" size={15} /> {projectName}
+            <HugeiconsIcon icon={Folder01Icon} aria-hidden="true" size={15} /> {projectName}
           </div>
           <ul>
             {[...tree.children.values()]
@@ -211,13 +210,14 @@ export function StackPreview({
               disabled={!selected}
               onClick={copyFile}
             >
-              {copied ? (
+              {copyStatus === "copied" ? (
                 <>
-                  <Check aria-hidden="true" size={13} /> COPIED
+                  <HugeiconsIcon icon={Tick02Icon} aria-hidden="true" size={13} /> Copied
                 </>
               ) : (
                 <>
-                  <Clipboard aria-hidden="true" size={13} /> COPY FILE
+                  <HugeiconsIcon icon={Copy01Icon} aria-hidden="true" size={13} />{" "}
+                  {copyStatus === "failed" ? "Try again" : "Copy file"}
                 </>
               )}
             </button>

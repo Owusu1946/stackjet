@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { CommunityData } from "./community";
+import type { CommunityData } from "@/lib/community";
 import { Compose } from "./compose";
 import { Guide } from "./guide";
 import { Index } from "./index";
 import type { PreviewProps } from "./shared";
+import "@/components/site-community.css";
 import "./site.css";
 
 const variants: { name: string; component: (props: PreviewProps) => React.ReactNode }[] = [
