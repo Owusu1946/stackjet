@@ -25,6 +25,7 @@ type Config = {
   liquidGlass: boolean;
   onboarding: boolean;
   darkMode: boolean;
+  haptics: boolean;
   eas: boolean;
 };
 
@@ -321,6 +322,7 @@ const defaults: Config = {
   liquidGlass: true,
   onboarding: true,
   darkMode: true,
+  haptics: true,
   eas: true,
 };
 
@@ -362,6 +364,7 @@ const presets: Array<{ id: string; label: string; description: string; config: C
       liquidGlass: false,
       onboarding: false,
       darkMode: false,
+      haptics: false,
       eas: false,
     },
   },
@@ -385,6 +388,12 @@ const featureOptions = [
     label: "Dark mode",
     description: "Persistent theme switching",
     icon: "feature-dark-mode",
+  },
+  {
+    key: "haptics",
+    label: "Tactile Haptics",
+    description: "Crisp vibration feedback with expo-haptics",
+    icon: "feature-haptics",
   },
   {
     key: "eas",
@@ -488,6 +497,7 @@ export function StackBuilder() {
       config.liquidGlass ? "--liquid-glass" : "--no-liquid-glass",
       config.onboarding ? "--onboarding" : "--no-onboarding",
       config.darkMode ? "--dark-mode" : "--no-dark-mode",
+      config.haptics ? "--haptics" : "--no-haptics",
       config.eas ? "--eas" : "--no-eas",
       "--yes",
     ];
@@ -541,6 +551,7 @@ export function StackBuilder() {
             orm: config.orm,
             onboarding: config.onboarding,
             darkMode: config.darkMode,
+            haptics: config.haptics,
             eas: config.eas,
             install: true,
             git: true,

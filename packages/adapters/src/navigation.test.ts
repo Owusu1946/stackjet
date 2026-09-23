@@ -27,6 +27,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     orm: "none",
     onboarding: true,
     darkMode: true,
+    haptics: true,
     eas: true,
     install: true,
     git: true,

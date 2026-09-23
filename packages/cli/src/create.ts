@@ -62,6 +62,7 @@ export interface CreateFlags {
   orm?: string;
   onboarding?: boolean;
   darkMode?: boolean;
+  haptics?: boolean;
   eas?: boolean;
   install?: boolean;
   git?: boolean;
@@ -194,6 +195,7 @@ export function normalizeNonInteractiveCreate(
     orm,
     onboarding: flags.onboarding ?? effectiveConfig.onboarding ?? true,
     darkMode: flags.darkMode ?? effectiveConfig.darkMode ?? true,
+    haptics: flags.haptics ?? effectiveConfig.haptics ?? true,
     eas: flags.eas ?? effectiveConfig.eas ?? true,
     install: flags.install ?? effectiveConfig.install ?? true,
     git: flags.git ?? effectiveConfig.git ?? true,
@@ -614,6 +616,7 @@ async function promptCreate(
     orm,
     onboarding: true,
     darkMode: true,
+    haptics: true,
     eas: true,
     install: true,
     git: true,
@@ -632,6 +635,14 @@ async function promptCreate(
     activeConfig.darkMode ??
     (await p.confirm({ message: "Include dark mode?", initialValue: true }));
   cancelled(darkMode);
+  const haptics =
+    flags.haptics ??
+    activeConfig.haptics ??
+    (await p.confirm({
+      message: "Include Tactile Haptics Engine (expo-haptics)?",
+      initialValue: true,
+    }));
+  cancelled(haptics);
   const eas =
     flags.eas ??
     activeConfig.eas ??
@@ -670,6 +681,7 @@ async function promptCreate(
     orm,
     onboarding,
     darkMode,
+    haptics,
     eas,
     install,
     git,
