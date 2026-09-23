@@ -42,6 +42,7 @@ export const expojetManifestSchema = z.object({
       onboarding: z.boolean().optional(),
       darkMode: z.boolean().optional(),
       liquidGlass: z.boolean().optional(),
+      haptics: z.boolean().optional(),
       typescript: z.boolean().optional(),
       eas: z.boolean().optional(),
     })

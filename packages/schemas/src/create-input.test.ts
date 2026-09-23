@@ -23,6 +23,7 @@ describe("createInputSchema", () => {
     icons: "lucide" as const,
     state: "none" as const,
     liquidGlass: false,
+    haptics: true,
     analytics: "none" as const,
     monitoring: "none" as const,
     auth: "clerk" as const,
@@ -46,7 +47,9 @@ describe("createInputSchema", () => {
       icons: _ic,
       state: _st,
       liquidGlass: _lg,
+      haptics: _hp,
       analytics: _an,
+      monitoring: _mn,
       ...withoutDefaults
     } = base;
     expect(createInputSchema.parse(withoutDefaults)).toEqual({
@@ -359,6 +362,13 @@ describe("createInputSchema", () => {
       expect(enabled.liquidGlass).toBe(true);
       const disabled = createInputSchema.parse({ ...base, liquidGlass: false });
       expect(disabled.liquidGlass).toBe(false);
+    });
+
+    it("accepts haptics toggle", () => {
+      const enabled = createInputSchema.parse({ ...base, haptics: true });
+      expect(enabled.haptics).toBe(true);
+      const disabled = createInputSchema.parse({ ...base, haptics: false });
+      expect(disabled.haptics).toBe(false);
     });
 
     it.each(["tabs", "both"] as const)(
