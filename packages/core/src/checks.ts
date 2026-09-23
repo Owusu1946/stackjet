@@ -357,6 +357,30 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
     }
   }
 
+  if (project.manifest.features?.haptics) {
+    const hasHapticsModule = existsSync(join(mobileRoot, "src/haptics/index.ts"));
+    const pkgJsonPath = join(mobileRoot, "package.json");
+    let hasHapticsDep = false;
+    if (existsSync(pkgJsonPath)) {
+      try {
+        const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf8")) as {
+          dependencies?: Record<string, string>;
+        };
+        hasHapticsDep = Boolean(pkg.dependencies?.["expo-haptics"]);
+      } catch {
+        // Ignored
+      }
+    }
+    checks.push({
+      name: "Tactile haptics engine",
+      status: hasHapticsModule && hasHapticsDep ? "pass" : "fail",
+      message:
+        hasHapticsModule && hasHapticsDep
+          ? "src/haptics/index.ts and expo-haptics dependency present"
+          : "src/haptics/index.ts or expo-haptics dependency missing",
+    });
+  }
+
   if (project.manifest.features?.eas) {
     const easJsonPath = join(mobileRoot, "eas.json");
     const hasEasJson = existsSync(easJsonPath);
