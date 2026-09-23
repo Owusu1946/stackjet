@@ -2,8 +2,7 @@
 
 import { commandName, createPackageName } from "@expojet/brand";
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
+  Cancel01Icon,
   CodeIcon,
   Copy01Icon,
   GlassWaterIcon,
@@ -161,13 +160,13 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
         value: "uniwind",
         label: "Uniwind",
         description: "Universal utility-first styling",
-        icon: "tailwindcss",
+        icon: "uniwind",
       },
       {
         value: "nativewind",
         label: "NativeWind",
         description: "Tailwind CSS for React Native",
-        icon: "tailwindcss",
+        icon: "nativewind",
       },
       {
         value: "unistyles",
@@ -403,6 +402,13 @@ const categories: Array<{ key: CategoryKey; label: string }> = [
   { key: "socials", label: "Socials" },
   { key: "features", label: "Features" },
 ];
+const requiredChoices = new Set<keyof Config>([
+  "structure",
+  "navigation",
+  "navigationType",
+  "style",
+  "icons",
+]);
 
 function iconPath(icon: string) {
   return `/stack-icons/${icon}.svg`;
@@ -418,6 +424,17 @@ const uiIcons = {
   "feature-dark-mode": Moon02Icon,
   "feature-eas": Rocket01Icon,
 };
+const themeIcons = new Set([
+  "apple",
+  "better-auth",
+  "clerk",
+  "drizzle",
+  "hugeicons",
+  "nativewind",
+  "prisma",
+  "uniwind",
+]);
+const monochromeIcons = new Set(["aptabase", "express", "zustand"]);
 
 function BuilderChoiceIcon({ icon, size }: { icon: string; size: number }) {
   if (icon in uiIcons) {
@@ -430,13 +447,39 @@ function BuilderChoiceIcon({ icon, size }: { icon: string; size: number }) {
       />
     );
   }
+  if (themeIcons.has(icon)) {
+    return (
+      <span className="builder-theme-icon" style={{ width: size, height: size }} aria-hidden="true">
+        <Image
+          className="builder-icon-light"
+          src={iconPath(icon)}
+          alt=""
+          width={size}
+          height={size}
+        />
+        <Image
+          className="builder-icon-dark"
+          src={iconPath(`${icon}-dark`)}
+          alt=""
+          width={size}
+          height={size}
+        />
+      </span>
+    );
+  }
   return (
     <Image
       src={iconPath(icon)}
       alt=""
       width={size}
       height={size}
-      className={icon === "expo" ? "builder-expo-icon" : undefined}
+      className={
+        icon === "expo"
+          ? "builder-expo-icon"
+          : monochromeIcons.has(icon)
+            ? "builder-monochrome-icon"
+            : undefined
+      }
     />
   );
 }
@@ -538,8 +581,49 @@ export function StackBuilder() {
   }, [config, packageManager, projectName]);
   const { status: copyStatus, copy: copyCommand } = useCopyFeedback(command);
 
-  const active = groups.find((group) => group.key === activeGroup);
-  const activeIndex = categories.findIndex((category) => category.key === activeGroup);
+  useEffect(() => {
+    if (view !== "configure") return;
+    const sections = categories
+      .map((category) => document.getElementById(`builder-section-${category.key}`))
+      .filter((section): section is HTMLElement => section !== null);
+    const observer = new IntersectionObserver(
+      () => {
+        const marker = Math.min(window.innerHeight * 0.45, 380);
+        let current: CategoryKey = "structure";
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= marker) {
+            current = section.id.replace("builder-section-", "") as CategoryKey;
+          }
+        }
+        setActiveGroup(current);
+      },
+      { rootMargin: "-80px 0px -45% 0px" },
+    );
+    for (const section of sections) observer.observe(section);
+    return () => observer.disconnect();
+  }, [view]);
+
+  useEffect(() => {
+    if (view !== "configure") return;
+    const pill = document.querySelector<HTMLButtonElement>(
+      `.builder-tabs button[data-section="${activeGroup}"]`,
+    );
+    const nav = pill?.parentElement;
+    if (!pill || !nav) return;
+    nav.scrollTo({
+      left: pill.offsetLeft - nav.offsetLeft - nav.clientWidth / 2 + pill.clientWidth / 2,
+      behavior: "auto",
+    });
+  }, [activeGroup, view]);
+
+  function jumpToSection(key: CategoryKey) {
+    setActiveGroup(key);
+    document.getElementById(`builder-section-${key}`)?.scrollIntoView({
+      behavior: "auto",
+      block: "start",
+    });
+  }
+
   const safeProjectName =
     projectName
       .trim()
@@ -548,9 +632,30 @@ export function StackBuilder() {
   const selected = groups
     .map((group) => {
       const option = group.options.find((item) => item.value === config[group.key]);
-      return option ? { ...option, group: group.label } : null;
+      return option && option.value !== "none" ? { ...option, key: group.key } : null;
     })
-    .filter(Boolean) as Array<Option & { group: string }>;
+    .filter((item): item is Option & { key: keyof Config } => item !== null);
+
+  function canRemoveChoice(key: keyof Config) {
+    if (requiredChoices.has(key)) return false;
+    if (key === "backend" && config.structure !== "standalone") return false;
+    if ((key === "database" || key === "orm") && config.auth === "better-auth") return false;
+    return true;
+  }
+
+  function removeChoice(key: keyof Config) {
+    setConfig((current) => {
+      if (key === "auth") return { ...current, auth: "none", socials: [] };
+      if (key === "backend") {
+        return { ...current, backend: "none", database: "none", orm: "none" };
+      }
+      if (key === "database") return { ...current, database: "none", orm: "none" };
+      if (key === "orm") return { ...current, orm: "none" };
+      if (key === "state") return { ...current, state: "none" };
+      if (key === "analytics") return { ...current, analytics: "none" };
+      return current;
+    });
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -620,11 +725,6 @@ export function StackBuilder() {
     setActiveGroup("structure");
   }
 
-  function moveCategory(offset: number) {
-    const next = categories[activeIndex + offset];
-    if (next) setActiveGroup(next.key);
-  }
-
   return (
     <section className="stack-builder" id="builder" aria-label="Expo app stack builder">
       <div className="builder-layout" data-sidebar-open={sidebarOpen}>
@@ -661,23 +761,51 @@ export function StackBuilder() {
             </label>
             <div className="builder-command-heading">
               <span>CLI command</span>
-              <button type="button" onClick={copyCommand}>
+              <button
+                type="button"
+                onClick={copyCommand}
+                aria-label={
+                  copyStatus === "copied"
+                    ? "Command copied"
+                    : copyStatus === "failed"
+                      ? "Copy failed. Try again"
+                      : "Copy command"
+                }
+                title={copyStatus === "copied" ? "Copied" : "Copy command"}
+              >
                 <HugeiconsIcon
                   icon={copyStatus === "copied" ? Tick02Icon : Copy01Icon}
-                  size={15}
+                  size={17}
                   aria-hidden="true"
                 />
+              </button>
+            </div>
+            <button
+              className="builder-command"
+              type="button"
+              onClick={copyCommand}
+              data-copy-status={copyStatus}
+              aria-label={
+                copyStatus === "copied"
+                  ? "CLI command copied"
+                  : copyStatus === "failed"
+                    ? "Copy failed. Try again"
+                    : "Copy CLI command"
+              }
+              title={copyStatus === "copied" ? "Copied" : "Click to copy"}
+            >
+              <code>
+                <span>$</span>
+                {command}
+              </code>
+              <span className="builder-command-hint" aria-hidden="true">
                 {copyStatus === "copied"
                   ? "Copied"
                   : copyStatus === "failed"
-                    ? "Try again"
-                    : "Copy"}
-              </button>
-            </div>
-            <code className="builder-command">
-              <span>$</span>
-              {command}
-            </code>
+                    ? "Copy failed"
+                    : "Click to copy"}
+              </span>
+            </button>
             <label className="builder-preset">
               <span className="builder-preset-label">Preset</span>
               <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
@@ -710,21 +838,68 @@ export function StackBuilder() {
               <span>Selected stack</span>
               <b>
                 {selected.length +
-                  config.socials.length +
+                  (config.auth === "clerk" ? config.socials.length : 0) +
                   featureOptions.filter((item) => config[item.key]).length}{" "}
                 picks
               </b>
             </div>
             <div className="builder-chips">
               {selected.map((item) => (
-                <span key={item.group}>
+                <span className="builder-chip" key={item.key}>
                   {item.icon ? <BuilderChoiceIcon icon={item.icon} size={15} /> : null}
                   {item.label}
+                  {canRemoveChoice(item.key) ? (
+                    <button
+                      type="button"
+                      aria-label={`Remove ${item.label}`}
+                      title={`Remove ${item.label}`}
+                      onClick={() => removeChoice(item.key)}
+                    >
+                      <HugeiconsIcon icon={Cancel01Icon} size={13} aria-hidden="true" />
+                    </button>
+                  ) : null}
                 </span>
               ))}
               {config.auth === "clerk"
-                ? config.socials.map((social) => <span key={social}>{social}</span>)
+                ? config.socials.map((social) => {
+                    const option = socialOptions.find((item) => item.value === social);
+                    return (
+                      <span className="builder-chip" key={social}>
+                        {option?.icon ? <BuilderChoiceIcon icon={option.icon} size={15} /> : null}
+                        {option?.label ?? social}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${option?.label ?? social}`}
+                          title={`Remove ${option?.label ?? social}`}
+                          onClick={() =>
+                            setConfig((current) => ({
+                              ...current,
+                              socials: current.socials.filter((item) => item !== social),
+                            }))
+                          }
+                        >
+                          <HugeiconsIcon icon={Cancel01Icon} size={13} aria-hidden="true" />
+                        </button>
+                      </span>
+                    );
+                  })
                 : null}
+              {featureOptions
+                .filter((option) => config[option.key])
+                .map((option) => (
+                  <span className="builder-chip" key={option.key}>
+                    <BuilderChoiceIcon icon={option.icon} size={15} />
+                    {option.label}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${option.label}`}
+                      title={`Remove ${option.label}`}
+                      onClick={() => toggleFeature(option.key)}
+                    >
+                      <HugeiconsIcon icon={Cancel01Icon} size={13} aria-hidden="true" />
+                    </button>
+                  </span>
+                ))}
             </div>
             <button className="builder-reset" type="button" onClick={resetBuilder}>
               Reset choices
@@ -766,125 +941,142 @@ export function StackBuilder() {
                   <button
                     type="button"
                     key={group.key}
+                    data-section={group.key}
                     data-active={activeGroup === group.key}
-                    onClick={() => setActiveGroup(group.key)}
+                    aria-current={activeGroup === group.key ? "location" : undefined}
+                    onClick={() => jumpToSection(group.key)}
                   >
                     {group.label}
                   </button>
                 ))}
               </nav>
-              <div className="builder-stage-heading">
-                <div>
-                  <h2>{categories[activeIndex]?.label}</h2>
-                </div>
-              </div>
-              <div className="builder-options">
-                {activeGroup === "socials"
-                  ? socialOptions.map((option) => (
-                      <button
-                        type="button"
-                        key={option.value}
-                        disabled={config.auth !== "clerk"}
-                        data-active={config.socials.includes(option.value)}
-                        onClick={() =>
-                          setConfig((current) => ({
-                            ...current,
-                            socials: current.socials.includes(option.value)
-                              ? current.socials.filter((item) => item !== option.value)
-                              : [...current.socials, option.value],
-                          }))
-                        }
-                      >
-                        {option.icon ? <BuilderChoiceIcon icon={option.icon} size={24} /> : null}
-                        <span className="builder-option-copy">
-                          <strong>{option.label}</strong>
-                          <small>{option.description}</small>
-                        </span>
-                        <i>
-                          <HugeiconsIcon
-                            icon={config.socials.includes(option.value) ? Tick02Icon : PlusSignIcon}
-                            size={17}
-                            aria-hidden="true"
-                          />
-                        </i>
-                      </button>
-                    ))
-                  : activeGroup === "features"
-                    ? featureOptions.map((option) => (
-                        <button
-                          type="button"
-                          key={option.key}
-                          data-active={config[option.key]}
-                          onClick={() => toggleFeature(option.key)}
-                        >
-                          <BuilderChoiceIcon icon={option.icon} size={24} />
-                          <span className="builder-option-copy">
-                            <strong>{option.label}</strong>
-                            <small>{option.description}</small>
-                          </span>
-                          <i>{config[option.key] ? "ON" : "OFF"}</i>
-                        </button>
-                      ))
-                    : active?.options.map((option) => {
-                        const disabled =
-                          (active.key === "backend" &&
-                            config.structure === "standalone" &&
-                            !["none", "convex"].includes(option.value)) ||
-                          (active.key === "database" &&
-                            config.backend === "convex" &&
-                            option.value !== "none") ||
-                          (active.key === "orm" &&
-                            (config.database === "none" || config.backend === "convex") &&
-                            option.value !== "none");
-                        return (
-                          <button
-                            type="button"
-                            key={option.value}
-                            disabled={disabled}
-                            data-active={config[active.key] === option.value}
-                            onClick={() => select(active.key, option.value)}
-                          >
-                            {option.icon ? (
-                              <BuilderChoiceIcon icon={option.icon} size={24} />
-                            ) : (
-                              <span className="builder-placeholder">
-                                {option.label.slice(0, 1)}
-                              </span>
-                            )}
-                            <span className="builder-option-copy">
-                              <strong>{option.label}</strong>
-                              <small>{option.description}</small>
-                            </span>
-                            <i>
-                              <HugeiconsIcon
-                                icon={
-                                  config[active.key] === option.value ? Tick02Icon : PlusSignIcon
+              <div className="builder-sections">
+                {categories.map((category) => {
+                  const group = groups.find((item) => item.key === category.key);
+                  return (
+                    <section
+                      className="builder-section"
+                      id={`builder-section-${category.key}`}
+                      aria-labelledby={`builder-heading-${category.key}`}
+                      key={category.key}
+                    >
+                      <h2 id={`builder-heading-${category.key}`}>{category.label}</h2>
+                      {category.key === "socials" && config.auth !== "clerk" ? (
+                        <p className="builder-note">Select Clerk to use social sign-in.</p>
+                      ) : null}
+                      <div className="builder-options">
+                        {category.key === "socials"
+                          ? socialOptions.map((option) => (
+                              <button
+                                type="button"
+                                key={option.value}
+                                disabled={config.auth !== "clerk"}
+                                data-active={config.socials.includes(option.value)}
+                                aria-pressed={config.socials.includes(option.value)}
+                                onClick={() =>
+                                  setConfig((current) => ({
+                                    ...current,
+                                    socials: current.socials.includes(option.value)
+                                      ? current.socials.filter((item) => item !== option.value)
+                                      : [...current.socials, option.value],
+                                  }))
                                 }
-                                size={17}
-                                aria-hidden="true"
-                              />
-                            </i>
-                          </button>
-                        );
-                      })}
-              </div>
-              <p className="builder-note">
-                {activeGroup === "socials" && config.auth !== "clerk"
-                  ? "Select Clerk authentication to configure hosted social sign-in."
-                  : "Options that do not work with this stack are unavailable."}
-              </p>
-              <div className="builder-step-actions">
-                <button type="button" disabled={activeIndex === 0} onClick={() => moveCategory(-1)}>
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} aria-hidden="true" /> Previous
-                </button>
-                <span>{categories[activeIndex]?.label}</span>
-                <button
-                  type="button"
-                  disabled={activeIndex === categories.length - 1}
-                  onClick={() => moveCategory(1)}
-                >
-                  Next <HugeiconsIcon icon={ArrowRight01Icon} size={16} aria-hidden="true" />
-                </button>
+                              >
+                                {option.icon ? (
+                                  <BuilderChoiceIcon icon={option.icon} size={24} />
+                                ) : null}
+                                <span className="builder-option-copy">
+                                  <strong>{option.label}</strong>
+                                  <small>{option.description}</small>
+                                </span>
+                                <i>
+                                  <HugeiconsIcon
+                                    icon={
+                                      config.socials.includes(option.value)
+                                        ? Tick02Icon
+                                        : PlusSignIcon
+                                    }
+                                    size={17}
+                                    aria-hidden="true"
+                                  />
+                                </i>
+                              </button>
+                            ))
+                          : category.key === "features"
+                            ? featureOptions.map((option) => (
+                                <button
+                                  type="button"
+                                  key={option.key}
+                                  data-active={config[option.key]}
+                                  aria-pressed={config[option.key]}
+                                  onClick={() => toggleFeature(option.key)}
+                                >
+                                  <BuilderChoiceIcon icon={option.icon} size={24} />
+                                  <span className="builder-option-copy">
+                                    <strong>{option.label}</strong>
+                                    <small>{option.description}</small>
+                                  </span>
+                                  <i>{config[option.key] ? "On" : "Off"}</i>
+                                </button>
+                              ))
+                            : group?.options.map((option) => {
+                                const disabled =
+                                  (group.key === "backend" &&
+                                    config.structure === "standalone" &&
+                                    !["none", "convex"].includes(option.value)) ||
+                                  (group.key === "backend" &&
+                                    config.structure !== "standalone" &&
+                                    option.value === "none") ||
+                                  (group.key === "database" &&
+                                    config.backend === "convex" &&
+                                    option.value !== "none") ||
+                                  (group.key === "database" &&
+                                    config.auth === "better-auth" &&
+                                    option.value === "none") ||
+                                  (group.key === "orm" &&
+                                    (config.database === "none" || config.backend === "convex") &&
+                                    option.value !== "none") ||
+                                  (group.key === "orm" &&
+                                    config.auth === "better-auth" &&
+                                    option.value !== "drizzle");
+                                return (
+                                  <button
+                                    type="button"
+                                    key={option.value}
+                                    disabled={disabled}
+                                    data-active={config[group.key] === option.value}
+                                    aria-pressed={config[group.key] === option.value}
+                                    onClick={() => select(group.key, option.value)}
+                                  >
+                                    {option.icon ? (
+                                      <BuilderChoiceIcon icon={option.icon} size={24} />
+                                    ) : (
+                                      <span className="builder-placeholder">
+                                        {option.label.slice(0, 1)}
+                                      </span>
+                                    )}
+                                    <span className="builder-option-copy">
+                                      <strong>{option.label}</strong>
+                                      <small>{option.description}</small>
+                                    </span>
+                                    <i>
+                                      <HugeiconsIcon
+                                        icon={
+                                          config[group.key] === option.value
+                                            ? Tick02Icon
+                                            : PlusSignIcon
+                                        }
+                                        size={17}
+                                        aria-hidden="true"
+                                      />
+                                    </i>
+                                  </button>
+                                );
+                              })}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
             </>
           )}

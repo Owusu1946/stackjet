@@ -177,15 +177,15 @@
 }
 
 .dark .site-home {
-  --home-bg: #111a2d;
-  --home-fg: #f4f7ff;
-  --home-muted: #b5c2d7;
-  --home-border: #314261;
+  --home-bg: #101114;
+  --home-fg: #f3f4f6;
+  --home-muted: #afb3bd;
+  --home-border: #30333a;
 }
 
 .dark .site-home .home-command {
-  background: #1a2945;
-  box-shadow: 0 3px 0 #0b1122;
+  background: #1a1c21;
+  box-shadow: 0 3px 0 #08090b;
 }
 
 .dark .site-home .home-command .site-copy-command > span,
@@ -215,8 +215,8 @@
 
 .dark .site-home .site-avatar-list a {
   box-shadow:
-    0 0 0 2px #111a2d,
-    0 0 0 3px #4a6084;
+    0 0 0 2px #101114,
+    0 0 0 3px #434750;
 }
 
 @media (max-width: 850px) {
