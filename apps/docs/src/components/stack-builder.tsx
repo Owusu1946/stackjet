@@ -880,7 +880,7 @@ export function StackBuilder() {
             </button>
           </div>
         </aside>
-        <div className="builder-main">
+        <div className="builder-main" data-view={view}>
           <div className="builder-view-tabs" role="tablist" aria-label="Builder view">
             <button
               type="button"

@@ -725,6 +725,24 @@ html > body[data-scroll-locked] {
 .builder-main {
   min-width: 0;
 }
+@media (min-width: 481px) {
+  .builder-main[data-view="preview"] {
+    display: flex;
+    min-height: calc(100dvh - 66px);
+    flex-direction: column;
+  }
+  .builder-main[data-view="preview"] .builder-preview {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .builder-main[data-view="preview"] .preview-workspace {
+    flex: 1;
+  }
+  .builder-main[data-view="preview"] .preview-tree {
+    max-height: none;
+  }
+}
 .builder-view-tabs {
   display: flex;
   min-height: 2.8rem;
