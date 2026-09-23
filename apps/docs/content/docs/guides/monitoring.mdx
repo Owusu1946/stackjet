@@ -1,0 +1,82 @@
+---
+title: Error Monitoring
+description: Crash reporting and error monitoring for Expo SDK 57 with Sentry.
+---
+
+Expojet provides production-ready, type-safe error monitoring for Expo SDK 57 applications powered by **Sentry** (`@sentry/react-native`).
+
+---
+
+## Adapter Matrix
+
+| Provider | Library | Plugin | Best For |
+|---|---|---|---|
+| **Sentry** | `@sentry/react-native` | `@sentry/react-native/expo` | Production crash reporting, performance tracing, session tracking, and EAS source map uploads |
+| **None** | — | — | Local development or apps requiring zero external telemetry |
+
+---
+
+## CLI & Builder Usage
+
+Select error monitoring interactively during scaffolding, via CLI flags, or using the visual Stack Builder:
+
+```bash
+# Sentry monitoring
+npx create-expojet@latest my-app --monitoring sentry
+# Or using the shortcut:
+npx create-expojet@latest my-app --sentry
+
+# Explicitly disable monitoring (default)
+npx create-expojet@latest my-app --monitoring none
+```
+
+---
+
+## Architecture & Secret Boundary Isolation
+
+Expojet strictly enforces the **Mobile Secret Boundary** invariant. Mobile client code only receives public environment variables:
+
+```text
+# Public client DSN (bundled into the mobile client)
+EXPO_PUBLIC_SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
+
+# Build-time / CI secrets (configured in EAS or GitHub Secrets, never bundled)
+SENTRY_AUTH_TOKEN=sntrys_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SENTRY_ORG=my-org
+SENTRY_PROJECT=my-project
+```
+
+> [!NOTE]
+> `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` are classified as `server-secret` by Expojet and are used during EAS Build source map generation. They are never imported or bundled into client code.
+
+---
+
+## Typed Monitoring Module
+
+When Sentry is configured, Expojet wires initialization in `src/monitoring/init.ts` and exports convenient typed utilities from `src/monitoring/index.ts`:
+
+```typescript
+import {
+  captureException,
+  captureMessage,
+  setUser,
+  addBreadcrumb,
+  withScope,
+  wrap,
+} from "@/monitoring";
+
+// Capture an exception
+try {
+  riskyOperation();
+} catch (error) {
+  captureException(error);
+}
+
+// Track user identity
+setUser({ id: "user_123" });
+
+// Add a breadcrumb
+addBreadcrumb({ category: "auth", message: "User tapped sign-in button" });
+```
+
+When monitoring is set to `none`, Expojet generates no-op stubs with identical type signatures, ensuring application code compiles cleanly without modifying imports if monitoring is enabled later.

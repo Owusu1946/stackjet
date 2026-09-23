@@ -21,6 +21,7 @@ type Config = {
   database: "neon" | "postgres" | "sqlite" | "supabase" | "none";
   orm: "drizzle" | "prisma" | "none";
   analytics: "none" | "posthog" | "aptabase";
+  monitoring: "none" | "sentry";
   liquidGlass: boolean;
   onboarding: boolean;
   darkMode: boolean;
@@ -281,6 +282,19 @@ const groups: Array<{ key: keyof Config; label: string; options: Option[] }> = [
       },
     ],
   },
+  {
+    key: "monitoring",
+    label: "Monitoring",
+    options: [
+      { value: "none", label: "No monitoring", description: "No error tracking" },
+      {
+        value: "sentry",
+        label: "Sentry",
+        description: "Crash reporting and performance",
+        icon: "sentry",
+      },
+    ],
+  },
 ];
 
 const socialOptions: Option[] = [
@@ -303,6 +317,7 @@ const defaults: Config = {
   database: "none",
   orm: "none",
   analytics: "none",
+  monitoring: "none",
   liquidGlass: true,
   onboarding: true,
   darkMode: true,
@@ -343,6 +358,7 @@ const presets: Array<{ id: string; label: string; description: string; config: C
       database: "none",
       orm: "none",
       analytics: "none",
+      monitoring: "none",
       liquidGlass: false,
       onboarding: false,
       darkMode: false,
@@ -468,6 +484,7 @@ export function StackBuilder() {
       `--database ${config.database}`,
       `--orm ${config.orm}`,
       `--analytics ${config.analytics}`,
+      `--monitoring ${config.monitoring}`,
       config.liquidGlass ? "--liquid-glass" : "--no-liquid-glass",
       config.onboarding ? "--onboarding" : "--no-onboarding",
       config.darkMode ? "--dark-mode" : "--no-dark-mode",
@@ -515,6 +532,7 @@ export function StackBuilder() {
             state: config.state,
             liquidGlass: config.liquidGlass,
             analytics: config.analytics,
+            monitoring: config.monitoring,
             backend: config.backend,
             auth: config.auth,
             socialProviders: config.auth === "clerk" ? config.socials : [],
