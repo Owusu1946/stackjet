@@ -172,14 +172,21 @@ export function useTheme(): ThemeContextValue {
 `;
 
 const themeToggleSource = `import { Pressable, StyleSheet, Text, View } from "react-native";
+import { haptic } from "../haptics";
 import { useTheme } from "../theme";
 
 export function ThemeToggle() {
   const { colorScheme, toggleTheme } = useTheme();
+
+  const handleToggle = () => {
+    haptic.selection();
+    toggleTheme();
+  };
+
   return (
     <Pressable
       testID="theme-toggle"
-      onPress={toggleTheme}
+      onPress={handleToggle}
       style={({ pressed }) => [
         styles.toggle,
         {
