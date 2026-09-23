@@ -1,16 +1,20 @@
 "use client";
 
 import {
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Clipboard,
-  FileCode2,
-  Folder,
-  FolderTree,
-  Info,
-} from "lucide-react";
+  ArrowDown01Icon,
+  ArrowRight01Icon,
+  Copy01Icon,
+  FileCodeIcon,
+  Folder01Icon,
+  FolderTreeIcon,
+  InformationCircleIcon,
+  TextWrapIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { useEffect, useMemo, useState } from "react";
+import { useCopyFeedback } from "@/hooks/use-copy-feedback";
 
 export type PreviewFile = { path: string; content: string };
 
@@ -43,13 +47,35 @@ function countFolders(node: TreeNode): number {
   );
 }
 
-function numberedLines(content: string) {
-  const occurrences = new Map<string, number>();
-  return content.split("\n").map((line) => {
-    const occurrence = (occurrences.get(line) ?? 0) + 1;
-    occurrences.set(line, occurrence);
-    return { id: `${line}:${occurrence}`, line };
-  });
+function languageForFile(path: string) {
+  const name = path.split("/").at(-1) ?? "";
+  if (name.startsWith(".env")) return "dotenv";
+  if (name === "Dockerfile") return "dockerfile";
+
+  const extension = name.split(".").at(-1)?.toLowerCase();
+  const languages: Record<string, string> = {
+    ts: "typescript",
+    tsx: "tsx",
+    js: "javascript",
+    jsx: "jsx",
+    mjs: "javascript",
+    cjs: "javascript",
+    json: "json",
+    jsonc: "jsonc",
+    css: "css",
+    scss: "scss",
+    md: "markdown",
+    mdx: "mdx",
+    yml: "yaml",
+    yaml: "yaml",
+    toml: "toml",
+    sh: "bash",
+    sql: "sql",
+    graphql: "graphql",
+    prisma: "prisma",
+    xml: "xml",
+  };
+  return languages[extension ?? ""] ?? "text";
 }
 
 function FileTreeNode({
@@ -80,12 +106,12 @@ function FileTreeNode({
       >
         {isFolder ? (
           isExpanded ? (
-            <ChevronDown aria-hidden="true" size={13} />
+            <HugeiconsIcon icon={ArrowDown01Icon} aria-hidden="true" size={13} />
           ) : (
-            <ChevronRight aria-hidden="true" size={13} />
+            <HugeiconsIcon icon={ArrowRight01Icon} aria-hidden="true" size={13} />
           )
         ) : (
-          <FileCode2 aria-hidden="true" size={13} />
+          <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={13} />
         )}
         {node.name}
       </button>
@@ -127,7 +153,11 @@ export function StackPreview({
   const tree = useMemo(() => buildTree(files), [files]);
   const [selectedPath, setSelectedPath] = useState<string>();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [copied, setCopied] = useState(false);
+  const [wrapLines, setWrapLines] = useState(false);
+  const { status: copyStatus, copy: copyFile } = useCopyFeedback(
+    files.find((file) => file.path === selectedPath)?.content ?? "",
+    1500,
+  );
 
   useEffect(() => {
     if (!files.length) return;
@@ -141,13 +171,6 @@ export function StackPreview({
 
   const selected = files.find((file) => file.path === selectedPath);
 
-  async function copyFile() {
-    if (!selected) return;
-    await navigator.clipboard.writeText(selected.content);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
-  }
-
   if (loading && files.length === 0) {
     return <div className="preview-state">Rendering the real generation plan…</div>;
   }
@@ -159,22 +182,23 @@ export function StackPreview({
     <section className="builder-preview" aria-label="Generated project preview">
       <header className="preview-toolbar">
         <span className="preview-toolbar-stat">
-          <FolderTree aria-hidden="true" size={14} />
+          <HugeiconsIcon icon={FolderTreeIcon} aria-hidden="true" size={14} />
           {countFolders(tree)} FOLDERS
         </span>
         <span className="preview-toolbar-stat">
-          <FileCode2 aria-hidden="true" size={14} />
+          <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={14} />
           {files.length} FILES
         </span>
         {loading ? <span className="preview-refreshing">UPDATING…</span> : null}
         <strong>
-          <Info aria-hidden="true" size={14} /> REAL PLAN PREVIEW
+          <HugeiconsIcon icon={InformationCircleIcon} aria-hidden="true" size={14} /> Real plan
+          preview
         </strong>
       </header>
       <div className="preview-workspace">
         <aside className="preview-tree">
           <div className="preview-root">
-            <Folder aria-hidden="true" size={15} /> {projectName}
+            <HugeiconsIcon icon={Folder01Icon} aria-hidden="true" size={15} /> {projectName}
           </div>
           <ul>
             {[...tree.children.values()]
@@ -202,36 +226,51 @@ export function StackPreview({
               ))}
           </ul>
         </aside>
-        <div className="preview-code-pane">
+        <div className="preview-code-pane" data-wrap-lines={wrapLines}>
           <header>
-            <span>{selected?.path ?? "Select a file"}</span>
-            <button
-              type="button"
-              title="Copy file contents"
-              disabled={!selected}
-              onClick={copyFile}
-            >
-              {copied ? (
-                <>
-                  <Check aria-hidden="true" size={13} /> COPIED
-                </>
-              ) : (
-                <>
-                  <Clipboard aria-hidden="true" size={13} /> COPY FILE
-                </>
-              )}
-            </button>
+            <span className="preview-code-path">{selected?.path ?? "Select a file"}</span>
+            <div className="preview-code-actions">
+              <button
+                type="button"
+                aria-pressed={wrapLines}
+                disabled={!selected}
+                onClick={() => setWrapLines((current) => !current)}
+              >
+                <HugeiconsIcon icon={TextWrapIcon} aria-hidden="true" size={14} />
+                {wrapLines ? "Unwrap lines" : "Wrap lines"}
+              </button>
+              <button
+                type="button"
+                title="Copy file contents"
+                disabled={!selected}
+                onClick={copyFile}
+              >
+                {copyStatus === "copied" ? (
+                  <>
+                    <HugeiconsIcon icon={Tick02Icon} aria-hidden="true" size={13} /> Copied
+                  </>
+                ) : (
+                  <>
+                    <HugeiconsIcon icon={Copy01Icon} aria-hidden="true" size={13} />{" "}
+                    {copyStatus === "failed" ? "Try again" : "Copy file"}
+                  </>
+                )}
+              </button>
+            </div>
           </header>
-          <pre>
-            <code>
-              {numberedLines(selected?.content ?? "").map(({ id, line }, index) => (
-                <span key={id}>
-                  <i>{index + 1}</i>
-                  <span className="preview-code-line">{line || " "}</span>
-                </span>
-              ))}
-            </code>
-          </pre>
+          {selected ? (
+            <DynamicCodeBlock
+              key={selected.path}
+              lang={languageForFile(selected.path)}
+              code={selected.content}
+              codeblock={{
+                allowCopy: false,
+                className: "builder-preview-code",
+                "data-line-numbers": true,
+                viewportProps: { className: "preview-code-scroll" },
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </section>

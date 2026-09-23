@@ -1,0 +1,270 @@
+.site-home {
+  --expo-blue: #315efb;
+  --expo-cyan: #38bdf8;
+  --home-bg: #fff;
+  --home-fg: #1e2430;
+  --home-muted: #5e6878;
+  --home-border: #dce3ef;
+  min-height: 100dvh;
+  background: var(--home-bg);
+  color: var(--home-fg);
+}
+
+.home-main {
+  max-width: 1320px;
+  margin: auto;
+  padding: clamp(32px, 4.5vw, 64px) clamp(22px, 5vw, 72px) 72px;
+}
+
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+.home-hero-content h1 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(44px, 4.5vw, 66px);
+  font-weight: 730;
+  letter-spacing: -0.065em;
+  line-height: 1.05;
+}
+
+.home-hero-content h1::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 4px;
+  margin-top: 20px;
+  border-radius: 2px;
+  background: var(--expo-cyan);
+}
+
+.home-hero-content > p {
+  max-width: 610px;
+  margin: 16px 0 0;
+  color: var(--home-muted);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.home-command {
+  max-width: 640px;
+  margin-top: 24px;
+  border: 1px solid var(--home-border);
+  border-radius: 7px;
+  box-shadow: 0 3px 0 #c9d5ed;
+}
+
+.home-command .site-copy-command {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 58px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-command code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 14px / 1.5 var(--font-mono);
+}
+
+.home-command .site-copy-command > span {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  color: var(--expo-blue);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.home-actions a,
+.home-output > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.home-primary {
+  padding: 13px 16px;
+  border: 1px solid #284fd6;
+  border-radius: 6px;
+  background: var(--expo-blue);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 #7794ff,
+    0 4px 0 #153bb7;
+}
+
+.home-primary:hover {
+  transform: translateY(-1px);
+}
+
+.home-primary:active {
+  transform: translateY(3px);
+  box-shadow: inset 0 1px 0 #7794ff;
+}
+
+.home-secondary,
+.home-output > a {
+  color: var(--expo-blue);
+}
+
+.home-output {
+  padding-top: 4px;
+}
+
+.home-output h2 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.home-output dl {
+  margin: 0 0 18px;
+  border-top: 1px solid var(--home-border);
+}
+
+.home-output dl > div {
+  display: grid;
+  grid-template-columns: 95px minmax(0, 1fr);
+  gap: 17px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--home-border);
+}
+
+.home-output dt {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.home-output dd {
+  margin: 0;
+  color: var(--home-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.home-output code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.site-home .site-community {
+  margin-top: clamp(48px, 6vw, 72px);
+}
+
+.dark .site-home {
+  --home-bg: #101114;
+  --home-fg: #f3f4f6;
+  --home-muted: #afb3bd;
+  --home-border: #30333a;
+}
+
+.dark .site-home .home-command {
+  background: #1a1c21;
+  box-shadow: 0 3px 0 #08090b;
+}
+
+.dark .site-home .home-command .site-copy-command > span,
+.dark .site-home .home-secondary,
+.dark .site-home .home-output > a,
+.dark .site-home .site-community a:not(.site-metric) {
+  color: #8dcff9;
+}
+
+.dark .site-home .site-metrics,
+.dark .site-home .site-metric + .site-metric,
+.dark .site-home .site-person-list,
+.dark .site-home .site-person-list a {
+  border-color: var(--home-border);
+}
+
+.dark .site-home .site-metric-label,
+.dark .site-home .site-people-heading > span,
+.dark .site-home .site-contributor-group > p {
+  color: var(--home-muted);
+}
+
+.dark .site-home .site-metric-label svg,
+.dark .site-home .site-metric:hover strong {
+  color: #8dcff9;
+}
+
+.dark .site-home .site-avatar-list a {
+  box-shadow:
+    0 0 0 2px #101114,
+    0 0 0 3px #434750;
+}
+
+@media (max-width: 850px) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-output {
+    max-width: 660px;
+  }
+}
+
+@media (max-width: 650px) {
+  .home-main {
+    padding-top: 28px;
+    padding-bottom: 64px;
+  }
+
+  .home-hero-content h1 {
+    font-size: 43px;
+  }
+
+  .home-hero-content > p {
+    font-size: 16px;
+  }
+
+  .home-command .site-copy-command {
+    min-height: 56px;
+    padding: 14px;
+  }
+
+  .home-command code {
+    font-size: 12px;
+  }
+
+  .home-output dl > div {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+
+  .site-home .site-community {
+    margin-top: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-primary {
+    transition:
+      transform 140ms ease-out,
+      box-shadow 140ms ease-out;
+  }
+}

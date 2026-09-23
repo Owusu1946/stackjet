@@ -3,6 +3,14 @@ import "./global.css";
 import { productName, releaseVersion, tagline } from "@expojet/brand";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import { Geist_Mono, Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -88,7 +96,7 @@ const structuredData = {
 
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
         <script
           type="application/ld+json"
