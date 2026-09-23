@@ -638,7 +638,10 @@ async function promptCreate(
   const haptics =
     flags.haptics ??
     activeConfig.haptics ??
-    (await p.confirm({ message: "Include Tactile Haptics Engine (expo-haptics)?", initialValue: true }));
+    (await p.confirm({
+      message: "Include Tactile Haptics Engine (expo-haptics)?",
+      initialValue: true,
+    }));
   cancelled(haptics);
   const eas =
     flags.eas ??

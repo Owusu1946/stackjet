@@ -41,7 +41,10 @@ describe("getHapticsAdapter selector", () => {
 
 describe("hapticsAdapter", () => {
   it("plans expo-haptics dependency and haptic utility in standalone mode", () => {
-    const operations = hapticsAdapter.plan(makeInput({ haptics: true, structure: "standalone" }), {});
+    const operations = hapticsAdapter.plan(
+      makeInput({ haptics: true, structure: "standalone" }),
+      {},
+    );
 
     const deps = operations.filter((op) => op.type === "add-dependency");
     expect(deps).toHaveLength(1);
@@ -86,7 +89,10 @@ describe("hapticsAdapter", () => {
 
 describe("noHapticsAdapter", () => {
   it("emits write-file for no-op stubs with no dependencies", () => {
-    const operations = noHapticsAdapter.plan(makeInput({ haptics: false, structure: "standalone" }), {});
+    const operations = noHapticsAdapter.plan(
+      makeInput({ haptics: false, structure: "standalone" }),
+      {},
+    );
     expect(operations).toHaveLength(1);
     expect(operations[0].type).toBe("write-file");
 
@@ -102,7 +108,10 @@ describe("noHapticsAdapter", () => {
   });
 
   it("places no-op stubs under apps/mobile in monorepo mode", () => {
-    const operations = noHapticsAdapter.plan(makeInput({ haptics: false, structure: "monorepo" }), {});
+    const operations = noHapticsAdapter.plan(
+      makeInput({ haptics: false, structure: "monorepo" }),
+      {},
+    );
     const fileOp = operations.find(
       (op) => op.type === "write-file" && op.path === "apps/mobile/src/haptics/index.ts",
     );
