@@ -44,6 +44,7 @@ const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center
 const clerkProvider = `import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { createContext, type PropsWithChildren, useContext, useMemo } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { env } from "../env";
 import type { SessionState } from "./types";
 
@@ -59,6 +60,19 @@ function ClerkSession({ children }: PropsWithChildren) {
   }), [auth.isLoaded, auth.isSignedIn, auth.signOut, user]);
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
+
+function ClerkMissingKeyNotice() {
+  return (
+    <View style={noticeStyles.container} testID="auth-screen">
+      <Text style={noticeStyles.eyebrow}>${brandTitle}</Text>
+      <Text style={noticeStyles.title}>Clerk Key Required</Text>
+      <Text style={noticeStyles.body}>
+        Please set <Text style={noticeStyles.code}>EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY</Text> in your <Text style={noticeStyles.code}>.env</Text> file to enable authentication.
+      </Text>
+    </View>
+  );
+}
+
 export function SessionProvider({ children }: PropsWithChildren) {
   const publishableKey = env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
   if (!publishableKey || publishableKey === "pk_test_placeholder") {
@@ -71,7 +85,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
           signOut: () => {},
         }}
       >
-        {children}
+        <ClerkMissingKeyNotice />
       </SessionContext.Provider>
     );
   }
@@ -82,6 +96,14 @@ export function useSession() {
   if (!value) throw new Error("useSession must be used inside SessionProvider");
   return value;
 }
+
+const noticeStyles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center", gap: 12, padding: 24, backgroundColor: "#f4f6fb" },
+  eyebrow: { color: "#315efb", fontWeight: "700", letterSpacing: 2 },
+  title: { fontSize: 28, fontWeight: "800", color: "#0f172a", textAlign: "center" },
+  body: { fontSize: 15, color: "#64748b", textAlign: "center", lineHeight: 22, maxWidth: 360 },
+  code: { fontWeight: "700", color: "#0f172a" },
+});
 `;
 
 const clerkSignIn = `import { useSignIn } from "@clerk/expo";
@@ -118,7 +140,7 @@ export default function SignUpScreen() {
   async function submit() { setActionError(null); const { error } = await signUp.password({ emailAddress, password }); if (error) return setActionError(error.message); const result = await signUp.verifications.sendEmailCode(); if (result.error) setActionError(result.error.message); }
   async function resend() { const { error } = await signUp.verifications.sendEmailCode(); if (error) setActionError(error.message); else setActionError("A new verification code was sent."); }
   async function verify() { const { error } = await signUp.verifications.verifyEmailCode({ code }); if (error || signUp.status !== "complete") { if (error) setActionError(error.message); return; } await signUp.finalize({ navigate: () => router.replace("/") }); }
-  return <View style={styles.container} testID="sign-up-screen"><Text style={styles.title}>{verifying ? "Check your email" : "Create account"}</Text>{verifying ? <><TextInput testID="code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button testID="verify-sign-up" title="Verify" disabled={fetchStatus === "fetching"} onPress={() => void verify()} /><Button title="Resend code" onPress={() => void resend()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} /><TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /><Button testID="sign-up" title="Create account" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /></>}{actionError || errors?.global?.[0]?.message ? <Text style={styles.error}>{actionError ?? errors.global[0].message}</Text> : null}<View nativeID="clerk-captcha" /><Button title="Back to sign in" onPress={() => router.replace("/(public)/sign-in")} /></View>;
+  return <View style={styles.container} testID="sign-up-screen"><Text style={styles.title}>{verifying ? "Check your email" : "Create account"}</Text>{verifying ? <><TextInput testID="code" keyboardType="number-pad" placeholder="Verification code" value={code} onChangeText={setCode} style={styles.input} /><Button testID="verify-sign-up" title="Verify" disabled={fetchStatus === "fetching"} onPress={() => void verify()} /><Button title="Resend code" onPress={() => void resend()} /></> : <><TextInput testID="email" autoCapitalize="none" keyboardType="email-address" placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} style={styles.input} /><TextInput testID="password" secureTextEntry placeholder="Password" value={password} onChangeText={setPassword} style={styles.input} /><Button testID="sign-up" title="Create account" disabled={fetchStatus === "fetching"} onPress={() => void submit()} /></>}{actionError || errors?.global?.[0]?.message ? <Text style={styles.error}>{actionError ?? errors?.global?.[0]?.message}</Text> : null}<View nativeID="clerk-captcha" /><Button title="Back to sign in" onPress={() => router.replace("/(public)/sign-in")} /></View>;
 }
 const styles = StyleSheet.create({ container: { flex: 1, justifyContent: "center", gap: 16, padding: 24, backgroundColor: "#f4f6fb" }, title: { fontSize: 30, fontWeight: "700" }, input: { borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 12, padding: 14 }, error: { color: "#b42318" } });
 `;
