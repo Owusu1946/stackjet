@@ -10,8 +10,6 @@ import {
   LayoutBottomIcon,
   LayoutDashboardIcon,
   Moon02Icon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
   PlusSignIcon,
   Rocket01Icon,
   Settings02Icon,
@@ -489,16 +487,11 @@ export function StackBuilder() {
   const [packageManager, setPackageManager] = useState<PackageManager>("pnpm");
   const [config, setConfig] = useState<Config>(defaults);
   const [activeGroup, setActiveGroup] = useState<CategoryKey>("structure");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [view, setView] = useState<"configure" | "preview">("configure");
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState<string>();
   const [preset, setPreset] = useState("");
-
-  useEffect(() => {
-    if (window.matchMedia("(max-width: 850px)").matches) setSidebarOpen(false);
-  }, []);
 
   const select = (key: keyof Config, value: string) => {
     setConfig((current) => {
@@ -727,28 +720,9 @@ export function StackBuilder() {
 
   return (
     <section className="stack-builder" id="builder" aria-label="Expo app stack builder">
-      <div className="builder-layout" data-sidebar-open={sidebarOpen}>
+      <div className="builder-layout">
         <aside className="builder-sidebar">
-          <button
-            type="button"
-            className="builder-sidebar-toggle"
-            aria-expanded={sidebarOpen}
-            aria-controls="builder-sidebar-content"
-            aria-label={sidebarOpen ? "Collapse builder sidebar" : "Expand builder sidebar"}
-            onClick={() => setSidebarOpen((open) => !open)}
-          >
-            <HugeiconsIcon
-              icon={sidebarOpen ? PanelLeftCloseIcon : PanelLeftOpenIcon}
-              size={18}
-              aria-hidden="true"
-            />
-            <span>{sidebarOpen ? "Hide options" : "Show options"}</span>
-          </button>
-          <div
-            id="builder-sidebar-content"
-            className="builder-sidebar-content"
-            hidden={!sidebarOpen}
-          >
+          <div className="builder-sidebar-content">
             <label className="builder-field">
               <span>Project name</span>
               <input
