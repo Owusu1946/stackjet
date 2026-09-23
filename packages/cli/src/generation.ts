@@ -2,6 +2,7 @@ import {
   analyticsAdapter,
   authAdapter,
   databaseAdapter,
+  getHapticsAdapter,
   getLiquidGlassAdapter,
   iconAdapter,
   monitoringAdapter,
@@ -123,6 +124,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
             onboarding: normalizedInput.onboarding,
             darkMode: normalizedInput.darkMode,
             liquidGlass: normalizedInput.liquidGlass,
+            haptics: normalizedInput.haptics,
             typescript: normalizedInput.typescript,
             eas: normalizedInput.eas,
           },
@@ -140,6 +142,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           onboarding: normalizedInput.onboarding,
           darkMode: normalizedInput.darkMode,
           liquidGlass: normalizedInput.liquidGlass,
+          haptics: normalizedInput.haptics,
           typescript: normalizedInput.typescript,
           eas: normalizedInput.eas,
         },
@@ -159,6 +162,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
+  operations.push(...getHapticsAdapter(normalizedInput.haptics).plan(normalizedInput, {}));
   operations.push(...analyticsAdapter(normalizedInput.analytics).plan(normalizedInput, {}));
   operations.push(...monitoringAdapter(normalizedInput.monitoring).plan(normalizedInput, {}));
   if (isReactNav) {

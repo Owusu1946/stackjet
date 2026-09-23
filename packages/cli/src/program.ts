@@ -104,6 +104,8 @@ export function createProgram(io: CliIo) {
     .option("--no-onboarding", "exclude onboarding")
     .option("--dark-mode", "include dark mode theme engine")
     .option("--no-dark-mode", "exclude dark mode theme engine")
+    .option("--haptics", "include Tactile Haptics Engine (expo-haptics)")
+    .option("--no-haptics", "exclude Tactile Haptics Engine")
     .option("--eas", "include EAS profiles")
     .option("--no-eas", "exclude EAS profiles")
     .option("--install", "install dependencies after scaffolding (default: true)")

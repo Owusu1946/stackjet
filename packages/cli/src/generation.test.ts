@@ -27,6 +27,7 @@ function input(destination: string): CreateInput {
     orm: "none",
     onboarding: false,
     darkMode: true,
+    haptics: true,
     eas: false,
     install: false,
     git: false,
@@ -1479,5 +1480,63 @@ describe("Phase 2 generation", () => {
     const checks = runDoctorChecks(project);
     const easCheck = checks.find((c) => c.name === "EAS Build configuration");
     expect(easCheck).toBeUndefined();
+  });
+
+  it("generates an app with Tactile Haptics Engine enabled by default", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-haptics-")), "haptics-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        haptics: true,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const hapticsFile = join(destination, "src/haptics/index.ts");
+    expect(existsSync(hapticsFile)).toBe(true);
+    const hapticsContent = readFileSync(hapticsFile, "utf8");
+    expect(hapticsContent).toContain('import * as Haptics from "expo-haptics"');
+    expect(hapticsContent).toContain("selection:");
+    expect(hapticsContent).toContain("light:");
+    expect(hapticsContent).toContain("medium:");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies["expo-haptics"]).toBeDefined();
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.haptics).toBe(true);
+
+    const checks = runDoctorChecks(project);
+    const hapticsCheck = checks.find((c) => c.name === "Tactile haptics engine");
+    expect(hapticsCheck?.status).toBe("pass");
+  });
+
+  it("generates no-op haptics stubs when haptics is false", () => {
+    const destination = join(mkdtempSync(join(tmpdir(), "expojet-no-haptics-")), "no-haptics-app");
+    const result = generateCreatePlan(
+      {
+        ...input(destination),
+        haptics: false,
+      },
+      false,
+    );
+    expect(result.committed).toBe(true);
+
+    const hapticsFile = join(destination, "src/haptics/index.ts");
+    expect(existsSync(hapticsFile)).toBe(true);
+    const hapticsContent = readFileSync(hapticsFile, "utf8");
+    expect(hapticsContent).not.toContain("expo-haptics");
+    expect(hapticsContent).toContain("selection: () => {}");
+
+    const pkg = JSON.parse(readFileSync(join(destination, "package.json"), "utf8"));
+    expect(pkg.dependencies?.["expo-haptics"]).toBeUndefined();
+
+    const project = loadProjectContext(destination);
+    expect(project?.manifest.features?.haptics).toBe(false);
+
+    const checks = runDoctorChecks(project);
+    const hapticsCheck = checks.find((c) => c.name === "Tactile haptics engine");
+    expect(hapticsCheck).toBeUndefined();
   });
 });
