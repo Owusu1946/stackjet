@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { CopyCommand, Mark, type PreviewProps } from "./shared";
+import { Community, CopyCommand, Mark, type PreviewProps } from "./shared";
 
-export function Index({ view, setView }: PreviewProps) {
+export function Index({ view, setView, community }: PreviewProps) {
   return (
     <div className="direction index-direction">
       <header className="index-header">
@@ -119,6 +119,7 @@ export function Index({ view, setView }: PreviewProps) {
                   </p>
                 </div>
               </section>
+              <Community data={community} />
             </article>
           ) : (
             <article>

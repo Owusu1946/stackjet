@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getCommunityData } from "./community";
 import { SitePrototype } from "./prototype";
 
 export const metadata: Metadata = {
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function Page() {
-  return <SitePrototype />;
+export default async function Page() {
+  const community = await getCommunityData();
+  return <SitePrototype community={community} />;
 }

@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CopyCommand, Mark, type PreviewProps } from "./shared";
+import { Community, CopyCommand, Mark, type PreviewProps } from "./shared";
 
 type Structure = "standalone" | "monorepo";
 type Navigation = "router" | "react-navigation";
 type Styling = "stylesheet" | "nativewind";
 
-export function Compose({ view, setView }: PreviewProps) {
+export function Compose({ view, setView, community }: PreviewProps) {
   const [structure, setStructure] = useState<Structure>("standalone");
   const [navigation, setNavigation] = useState<Navigation>("router");
   const [styling, setStyling] = useState<Styling>("stylesheet");
@@ -40,95 +40,98 @@ export function Compose({ view, setView }: PreviewProps) {
       </header>
 
       {view === "landing" ? (
-        <main className="compose-layout">
-          <section className="compose-config">
-            <h1>Configure an Expo project</h1>
-            <p>Choose a few starting options. The command updates as you go.</p>
-            <fieldset>
-              <legend>Structure</legend>
-              <div className="compose-options">
-                <button
-                  type="button"
-                  aria-pressed={structure === "standalone"}
-                  onClick={() => setStructure("standalone")}
-                >
-                  Standalone
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={structure === "monorepo"}
-                  onClick={() => setStructure("monorepo")}
-                >
-                  Monorepo
+        <>
+          <main className="compose-layout">
+            <section className="compose-config">
+              <h1>Configure an Expo project</h1>
+              <p>Choose a few starting options. The command updates as you go.</p>
+              <fieldset>
+                <legend>Structure</legend>
+                <div className="compose-options">
+                  <button
+                    type="button"
+                    aria-pressed={structure === "standalone"}
+                    onClick={() => setStructure("standalone")}
+                  >
+                    Standalone
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={structure === "monorepo"}
+                    onClick={() => setStructure("monorepo")}
+                  >
+                    Monorepo
+                  </button>
+                </div>
+                <p>Monorepo adds a separate API and shared package.</p>
+              </fieldset>
+              <fieldset>
+                <legend>Navigation</legend>
+                <div className="compose-options">
+                  <button
+                    type="button"
+                    aria-pressed={navigation === "router"}
+                    onClick={() => setNavigation("router")}
+                  >
+                    Expo Router
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={navigation === "react-navigation"}
+                    onClick={() => setNavigation("react-navigation")}
+                  >
+                    React Navigation
+                  </button>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Styling</legend>
+                <div className="compose-options">
+                  <button
+                    type="button"
+                    aria-pressed={styling === "stylesheet"}
+                    onClick={() => setStyling("stylesheet")}
+                  >
+                    StyleSheet
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={styling === "nativewind"}
+                    onClick={() => setStyling("nativewind")}
+                  >
+                    NativeWind
+                  </button>
+                </div>
+              </fieldset>
+              <div className="compose-config-footer">
+                <Link href="/builder">Open the full builder ↗</Link>
+                <button type="button" onClick={() => setView("docs")}>
+                  Read setup guide →
                 </button>
               </div>
-              <p>Monorepo adds a separate API and shared package.</p>
-            </fieldset>
-            <fieldset>
-              <legend>Navigation</legend>
-              <div className="compose-options">
-                <button
-                  type="button"
-                  aria-pressed={navigation === "router"}
-                  onClick={() => setNavigation("router")}
-                >
-                  Expo Router
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={navigation === "react-navigation"}
-                  onClick={() => setNavigation("react-navigation")}
-                >
-                  React Navigation
-                </button>
+            </section>
+            <section className="compose-output">
+              <div className="compose-output-top">
+                <span>my-app</span>
+                <span>Expo SDK 57</span>
               </div>
-            </fieldset>
-            <fieldset>
-              <legend>Styling</legend>
-              <div className="compose-options">
-                <button
-                  type="button"
-                  aria-pressed={styling === "stylesheet"}
-                  onClick={() => setStyling("stylesheet")}
-                >
-                  StyleSheet
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={styling === "nativewind"}
-                  onClick={() => setStyling("nativewind")}
-                >
-                  NativeWind
-                </button>
+              <h2>Ready to generate</h2>
+              <p>Run this command in your terminal. It uses the options selected on the left.</p>
+              <div className="compose-command">
+                <CopyCommand value={value} />
               </div>
-            </fieldset>
-            <div className="compose-config-footer">
-              <Link href="/builder">Open the full builder ↗</Link>
-              <button type="button" onClick={() => setView("docs")}>
-                Read setup guide →
-              </button>
-            </div>
-          </section>
-          <section className="compose-output">
-            <div className="compose-output-top">
-              <span>my-app</span>
-              <span>Expo SDK 57</span>
-            </div>
-            <h2>Ready to generate</h2>
-            <p>Run this command in your terminal. It uses the options selected on the left.</p>
-            <div className="compose-command">
-              <CopyCommand value={value} />
-            </div>
-            <div className="compose-tree">
-              <span>Project structure</span>
-              <pre>
-                {structure === "standalone"
-                  ? "my-app/\n├─ app/\n├─ src/\n├─ expojet.jsonc\n└─ package.json"
-                  : "my-app/\n├─ apps/mobile/\n├─ apps/api/\n├─ packages/shared/\n└─ expojet.jsonc"}
-              </pre>
-            </div>
-          </section>
-        </main>
+              <div className="compose-tree">
+                <span>Project structure</span>
+                <pre>
+                  {structure === "standalone"
+                    ? "my-app/\n├─ app/\n├─ src/\n├─ expojet.jsonc\n└─ package.json"
+                    : "my-app/\n├─ apps/mobile/\n├─ apps/api/\n├─ packages/shared/\n└─ expojet.jsonc"}
+                </pre>
+              </div>
+            </section>
+          </main>
+          <Community data={community} />
+        </>
       ) : (
         <main className="compose-docs">
           <aside>

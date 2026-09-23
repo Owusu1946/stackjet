@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { CommunityData } from "./community";
 import { Compose } from "./compose";
 import { Guide } from "./guide";
 import { Index } from "./index";
@@ -13,7 +14,7 @@ const variants: { name: string; component: (props: PreviewProps) => React.ReactN
   { name: "Guide", component: Guide },
 ];
 
-export function SitePrototype() {
+export function SitePrototype({ community }: { community: CommunityData }) {
   const [current, setCurrent] = useState(0);
   const [view, setView] = useState<PreviewProps["view"]>("landing");
   const [mount, setMount] = useState(0);
@@ -78,7 +79,7 @@ export function SitePrototype() {
   return (
     <div className="site-prototype">
       <div key={`${current}-${mount}`} className="site-stage">
-        <Variant view={view} setView={setView} />
+        <Variant view={view} setView={setView} community={community} />
       </div>
       <nav
         ref={picker}

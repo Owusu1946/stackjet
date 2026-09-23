@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { CopyCommand, Mark, type PreviewProps } from "./shared";
+import { Community, CopyCommand, Mark, type PreviewProps } from "./shared";
 
-export function Guide({ view, setView }: PreviewProps) {
+export function Guide({ view, setView, community }: PreviewProps) {
   return (
-    <div className="direction guide-direction">
+    <div className={`direction guide-direction${view === "docs" ? " guide-docs-view" : ""}`}>
       <header className="guide-header">
         <button type="button" className="guide-brand" onClick={() => setView("landing")}>
           <Mark size={29} /> expojet
@@ -75,6 +75,7 @@ export function Guide({ view, setView }: PreviewProps) {
             <span>Expo SDK 57</span>
             <Link href="/docs/folder-structure">See the generated files →</Link>
           </div>
+          <Community data={community} />
         </main>
       ) : (
         <main className="guide-docs">
