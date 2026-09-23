@@ -94,7 +94,7 @@ describe("noHapticsAdapter", () => {
       {},
     );
     expect(operations).toHaveLength(1);
-    expect(operations[0].type).toBe("write-file");
+    expect(operations[0]?.type).toBe("write-file");
 
     const fileOp = operations[0];
     if (fileOp && "content" in fileOp) {
