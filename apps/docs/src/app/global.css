@@ -27,6 +27,11 @@ html > body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0 !important;
 }
 
+.expojet-docs-page {
+  gap: 0.75rem;
+  padding-top: clamp(20px, 3vw, 36px);
+}
+
 .console-page {
   padding: 0;
   min-height: calc(100dvh - 64px);
@@ -551,7 +556,7 @@ html > body[data-scroll-locked] {
 .builder-layout {
   display: grid;
   grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.8fr);
-  min-height: 42rem;
+  min-height: 32rem;
 }
 .builder-sidebar {
   position: sticky;
@@ -560,7 +565,7 @@ html > body[data-scroll-locked] {
   max-height: calc(100dvh - 5rem);
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 1.4rem;
+  padding: 1rem;
   border-right: 1px solid var(--color-fd-border);
 }
 .builder-sidebar::-webkit-scrollbar {
@@ -569,7 +574,7 @@ html > body[data-scroll-locked] {
 .builder-field {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 .stack-builder .builder-field span,
 .builder-command-heading,
@@ -584,7 +589,7 @@ html > body[data-scroll-locked] {
   border-radius: 0.25rem;
   background: var(--color-fd-background);
   color: var(--color-fd-foreground);
-  padding: 0.8rem 0.9rem;
+  padding: 0.7rem 0.85rem;
   outline: none;
   font: 600 0.82rem / 1.2 var(--font-mono);
 }
@@ -601,7 +606,7 @@ html > body[data-scroll-locked] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 .builder-command-heading button,
 .builder-reset,
@@ -636,7 +641,7 @@ html > body[data-scroll-locked] {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  margin-top: 1.25rem;
+  margin-top: 1rem;
 }
 .builder-preset-label {
   color: var(--color-fd-muted-foreground);
@@ -706,7 +711,7 @@ html > body[data-scroll-locked] {
 }
 .builder-reset {
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 0.75rem;
   border: 1px solid var(--color-fd-border);
   border-radius: 0.25rem;
@@ -722,7 +727,7 @@ html > body[data-scroll-locked] {
 }
 .builder-view-tabs {
   display: flex;
-  min-height: 3.2rem;
+  min-height: 2.8rem;
   border-bottom: 1px solid var(--color-fd-border);
 }
 .builder-view-tabs button {
@@ -819,7 +824,7 @@ html > body[data-scroll-locked] {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 .builder-option-copy strong {
   font: 600 0.88rem / 1.1 var(--font-mono);
@@ -844,14 +849,14 @@ html > body[data-scroll-locked] {
   font: 500 0.66rem / 1.5 var(--font-mono);
 }
 .builder-preview {
-  min-height: 39rem;
+  min-height: 28rem;
 }
 .preview-toolbar {
   display: flex;
   align-items: center;
-  gap: 1.35rem;
-  min-height: 3rem;
-  padding: 0 1.25rem;
+  gap: 1rem;
+  min-height: 2.7rem;
+  padding: 0 1rem;
   border-bottom: 1px solid var(--color-fd-border);
   color: var(--color-fd-muted-foreground);
   font: 600 0.64rem / 1 var(--font-mono);
@@ -860,7 +865,7 @@ html > body[data-scroll-locked] {
 .preview-toolbar-stat,
 .preview-toolbar strong,
 .preview-root,
-.preview-code-pane > header button {
+.preview-code-actions button {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -875,7 +880,7 @@ html > body[data-scroll-locked] {
 .preview-workspace {
   display: grid;
   grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.8fr);
-  min-height: 36rem;
+  min-height: 28rem;
 }
 .preview-tree {
   max-height: 65dvh;
@@ -885,10 +890,13 @@ html > body[data-scroll-locked] {
   background: color-mix(in srgb, var(--color-fd-muted) 20%, transparent);
 }
 .preview-root {
+  display: flex;
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 0.9rem 0.8rem;
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0 0.8rem;
   border-bottom: 1px solid var(--color-fd-border);
   background: var(--color-fd-background);
   font: 700 0.74rem / 1 var(--font-mono);
@@ -903,7 +911,7 @@ html > body[data-scroll-locked] {
   width: 100%;
   align-items: center;
   gap: 0.45rem;
-  min-height: 2rem;
+  min-height: 1.8rem;
   padding-right: 0.6rem;
   border: 0;
   background: transparent;
@@ -937,25 +945,40 @@ html > body[data-scroll-locked] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  min-height: 3rem;
+  gap: 0.75rem;
+  min-height: 2.7rem;
   padding: 0 1rem;
   border-bottom: 1px solid var(--color-fd-border);
   color: var(--color-fd-muted-foreground);
   font: 600 0.67rem / 1 var(--font-mono);
 }
-.builder-preview .preview-code-pane > header span {
+.builder-preview .preview-code-pane .preview-code-path {
+  min-width: 0;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.preview-code-pane > header button {
+.preview-code-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.9rem;
+}
+.preview-code-actions button {
   flex: 0 0 auto;
   border: 0;
   background: transparent;
   color: var(--color-fd-primary);
   cursor: pointer;
   font: 700 0.62rem / 1 var(--font-mono);
+}
+.preview-code-actions button[aria-pressed="true"] {
+  color: var(--color-fd-foreground);
+}
+.preview-code-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .builder-preview .preview-code-pane .builder-preview-code {
   --padding-left: 1.75rem;
@@ -976,6 +999,15 @@ html > body[data-scroll-locked] {
 .builder-preview .preview-code-pane .builder-preview-code pre {
   font: inherit;
   tab-size: 2;
+}
+.builder-preview .preview-code-pane[data-wrap-lines="true"] .builder-preview-code pre {
+  width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+}
+.builder-preview .preview-code-pane[data-wrap-lines="true"] .builder-preview-code .line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .builder-preview .preview-code-pane .builder-preview-code .line::after {
   color: var(--color-fd-muted-foreground);
@@ -1333,13 +1365,13 @@ html > body[data-scroll-locked] {
   top: 0;
   z-index: 2;
   gap: 7px;
-  padding: 12px 20px;
+  padding: 8px 20px;
   background: #fff;
 }
 
 .builder-page .builder-tabs button {
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: 30px;
+  padding: 5px 11px;
   border: 1px solid var(--color-fd-border);
   border-radius: 6px;
   background: #fff;
@@ -1360,13 +1392,13 @@ html > body[data-scroll-locked] {
 }
 
 .builder-page .builder-sections {
-  padding: 8px 20px 80px;
+  padding: 0 20px 40px;
 }
 
 .builder-page .builder-section {
-  padding: 28px 0 32px;
+  padding: 18px 0 22px;
   border-bottom: 1px solid var(--color-fd-border);
-  scroll-margin-top: 72px;
+  scroll-margin-top: 56px;
 }
 
 .builder-page .builder-section:last-child {
@@ -1374,7 +1406,7 @@ html > body[data-scroll-locked] {
 }
 
 .builder-page .builder-section h2 {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   font: 700 22px / 1.2 var(--font-sans);
   letter-spacing: -0.035em;
 }
@@ -1401,7 +1433,8 @@ html > body[data-scroll-locked] {
 }
 
 .builder-page .builder-options > button {
-  min-height: 95px;
+  min-height: 78px;
+  padding: 0.85rem 1rem;
   border: 0;
   border-bottom: 1px solid var(--color-fd-border);
   border-radius: 0;

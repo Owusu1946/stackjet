@@ -1,8 +1,8 @@
 /* The same project numbers sit in each direction without becoming a dashboard of cards. */
 .site-community {
-  margin-top: 80px;
+  margin-top: 64px;
   border-top: 2px solid var(--expo-blue);
-  padding-top: 25px;
+  padding-top: 20px;
 }
 
 .site-community-heading,
@@ -35,7 +35,7 @@
 .site-metrics {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-top: 28px;
+  margin-top: 20px;
   border-top: 1px solid #dce3ef;
   border-bottom: 1px solid #dce3ef;
 }
@@ -44,9 +44,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 17px;
+  gap: 12px;
   min-width: 0;
-  padding: 18px 13px 20px;
+  padding: 14px 13px 16px;
 }
 
 .site-metric:first-child {
@@ -88,8 +88,8 @@
 .site-people {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 30px;
-  margin-top: 28px;
+  gap: 24px;
+  margin-top: 22px;
 }
 
 .site-people-group h3 {
@@ -105,7 +105,7 @@
 }
 
 .site-person-list {
-  margin-top: 15px;
+  margin-top: 12px;
   border-top: 1px solid #dce3ef;
 }
 
@@ -137,7 +137,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 22px 0 20px;
+  margin: 16px 0 14px;
 }
 
 .site-avatar-list a {
@@ -155,7 +155,7 @@
 }
 
 .site-contributor-group > p {
-  margin: 20px 0;
+  margin: 16px 0;
   color: #60718b;
   font-size: 13px;
 }
@@ -192,7 +192,7 @@
 @media (max-width: 650px) {
   .site-community,
   .index-direction .site-community {
-    margin-top: 55px;
+    margin-top: 42px;
   }
 
   .compose-direction > .site-community {
@@ -205,8 +205,8 @@
   }
 
   .site-metric {
-    min-height: 92px;
-    padding: 15px 10px;
+    min-height: 84px;
+    padding: 12px 10px;
   }
 
   .site-metric:nth-child(odd) {
@@ -228,6 +228,6 @@
   }
 
   .site-contributor-group {
-    margin-top: 30px;
+    margin-top: 22px;
   }
 }

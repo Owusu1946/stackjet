@@ -13,13 +13,13 @@
 .home-main {
   max-width: 1320px;
   margin: auto;
-  padding: clamp(45px, 6vw, 92px) clamp(22px, 5vw, 72px) 130px;
+  padding: clamp(32px, 4.5vw, 64px) clamp(22px, 5vw, 72px) 72px;
 }
 
 .home-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  gap: clamp(48px, 8vw, 120px);
+  gap: clamp(28px, 5vw, 72px);
   align-items: start;
 }
 
@@ -37,14 +37,14 @@
   display: block;
   width: 46px;
   height: 4px;
-  margin-top: 29px;
+  margin-top: 20px;
   border-radius: 2px;
   background: var(--expo-cyan);
 }
 
 .home-hero-content > p {
   max-width: 610px;
-  margin: 22px 0 0;
+  margin: 16px 0 0;
   color: var(--home-muted);
   font-size: 18px;
   line-height: 1.55;
@@ -52,7 +52,7 @@
 
 .home-command {
   max-width: 640px;
-  margin-top: 38px;
+  margin-top: 24px;
   border: 1px solid var(--home-border);
   border-radius: 7px;
   box-shadow: 0 3px 0 #c9d5ed;
@@ -64,8 +64,8 @@
   justify-content: space-between;
   gap: 14px;
   width: 100%;
-  min-height: 68px;
-  padding: 18px 20px;
+  min-height: 58px;
+  padding: 14px 16px;
   text-align: left;
   cursor: pointer;
 }
@@ -92,8 +92,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
-  margin-top: 28px;
+  gap: 16px;
+  margin-top: 20px;
 }
 
 .home-actions a,
@@ -132,18 +132,18 @@
 }
 
 .home-output {
-  padding-top: 9px;
+  padding-top: 4px;
 }
 
 .home-output h2 {
-  margin: 0 0 26px;
+  margin: 0 0 18px;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.035em;
 }
 
 .home-output dl {
-  margin: 0 0 27px;
+  margin: 0 0 18px;
   border-top: 1px solid var(--home-border);
 }
 
@@ -151,7 +151,7 @@
   display: grid;
   grid-template-columns: 95px minmax(0, 1fr);
   gap: 17px;
-  padding: 18px 0;
+  padding: 13px 0;
   border-bottom: 1px solid var(--home-border);
 }
 
@@ -173,7 +173,7 @@
 }
 
 .site-home .site-community {
-  margin-top: clamp(80px, 10vw, 140px);
+  margin-top: clamp(48px, 6vw, 72px);
 }
 
 .dark .site-home {
@@ -231,8 +231,8 @@
 
 @media (max-width: 650px) {
   .home-main {
-    padding-top: 42px;
-    padding-bottom: 110px;
+    padding-top: 28px;
+    padding-bottom: 64px;
   }
 
   .home-hero-content h1 {
@@ -244,7 +244,7 @@
   }
 
   .home-command .site-copy-command {
-    min-height: 62px;
+    min-height: 56px;
     padding: 14px;
   }
 
@@ -257,7 +257,7 @@
   }
 
   .site-home .site-community {
-    margin-top: 70px;
+    margin-top: 42px;
   }
 }
 

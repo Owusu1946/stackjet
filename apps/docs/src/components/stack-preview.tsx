@@ -8,6 +8,7 @@ import {
   Folder01Icon,
   FolderTreeIcon,
   InformationCircleIcon,
+  TextWrapIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -152,6 +153,7 @@ export function StackPreview({
   const tree = useMemo(() => buildTree(files), [files]);
   const [selectedPath, setSelectedPath] = useState<string>();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [wrapLines, setWrapLines] = useState(false);
   const { status: copyStatus, copy: copyFile } = useCopyFeedback(
     files.find((file) => file.path === selectedPath)?.content ?? "",
     1500,
@@ -224,26 +226,37 @@ export function StackPreview({
               ))}
           </ul>
         </aside>
-        <div className="preview-code-pane">
+        <div className="preview-code-pane" data-wrap-lines={wrapLines}>
           <header>
-            <span>{selected?.path ?? "Select a file"}</span>
-            <button
-              type="button"
-              title="Copy file contents"
-              disabled={!selected}
-              onClick={copyFile}
-            >
-              {copyStatus === "copied" ? (
-                <>
-                  <HugeiconsIcon icon={Tick02Icon} aria-hidden="true" size={13} /> Copied
-                </>
-              ) : (
-                <>
-                  <HugeiconsIcon icon={Copy01Icon} aria-hidden="true" size={13} />{" "}
-                  {copyStatus === "failed" ? "Try again" : "Copy file"}
-                </>
-              )}
-            </button>
+            <span className="preview-code-path">{selected?.path ?? "Select a file"}</span>
+            <div className="preview-code-actions">
+              <button
+                type="button"
+                aria-pressed={wrapLines}
+                disabled={!selected}
+                onClick={() => setWrapLines((current) => !current)}
+              >
+                <HugeiconsIcon icon={TextWrapIcon} aria-hidden="true" size={14} />
+                {wrapLines ? "Unwrap lines" : "Wrap lines"}
+              </button>
+              <button
+                type="button"
+                title="Copy file contents"
+                disabled={!selected}
+                onClick={copyFile}
+              >
+                {copyStatus === "copied" ? (
+                  <>
+                    <HugeiconsIcon icon={Tick02Icon} aria-hidden="true" size={13} /> Copied
+                  </>
+                ) : (
+                  <>
+                    <HugeiconsIcon icon={Copy01Icon} aria-hidden="true" size={13} />{" "}
+                    {copyStatus === "failed" ? "Try again" : "Copy file"}
+                  </>
+                )}
+              </button>
+            </div>
           </header>
           {selected ? (
             <DynamicCodeBlock
