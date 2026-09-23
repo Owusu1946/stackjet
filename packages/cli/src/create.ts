@@ -42,6 +42,7 @@ export interface CreateFlags {
   navigationType?: string;
   backend?: string;
   auth?: string;
+  socials?: string[];
   socialProviders?: string[];
   style?: string;
   icons?: string;
@@ -184,7 +185,8 @@ export function normalizeNonInteractiveCreate(
     monitoring,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
-    socialProviders: (flags.socialProviders ??
+    socialProviders: (flags.socials ??
+      flags.socialProviders ??
       effectiveConfig.socialProviders ??
       []) as SocialProvider[],
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -406,7 +408,8 @@ async function promptCreate(
 
   const selectedSocialProviders =
     auth === "clerk"
-      ? (flags.socialProviders ??
+      ? (flags.socials ??
+        flags.socialProviders ??
         activeConfig.socialProviders ??
         ((await p.multiselect({
           message: "Social sign-in providers (optional)",
@@ -859,6 +862,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           navigationType: input.navigationType,
           backend: input.backend,
           auth: input.auth,
+          socialProviders: input.socialProviders,
           style: input.style,
           icons: input.icons,
           state: input.state,

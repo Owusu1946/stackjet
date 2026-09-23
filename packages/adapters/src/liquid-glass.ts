@@ -11,7 +11,7 @@ function location(structure: "standalone" | "monorepo" | "monorepo-web") {
 }
 
 const glassCardSource = `import React from "react";
-import { Platform, StyleSheet, View, type ViewProps } from "react-native";
+import { Platform, StyleSheet, useColorScheme, View, type ViewProps } from "react-native";
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from "expo-glass-effect";
 import { BlurView } from "expo-blur";
 
@@ -26,9 +26,13 @@ export function GlassCard({
   style,
   glassEffectStyle = "regular",
   intensity = 60,
-  tint = "systemMaterial",
+  tint,
   ...props
 }: GlassCardProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const resolvedTint = tint ?? (Platform.OS === "ios" ? "systemMaterial" : isDark ? "dark" : "light");
+
   let canUseGlass = false;
   try {
     canUseGlass = Platform.OS === "ios" && isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
@@ -49,10 +53,20 @@ export function GlassCard({
   }
 
   return (
-    <View style={[styles.fallbackContainer, style]} {...props}>
+    <View
+      style={[
+        styles.fallbackContainer,
+        Platform.OS === "android" && {
+          backgroundColor: isDark ? "rgba(24, 24, 27, 0.85)" : "rgba(255, 255, 255, 0.85)",
+          borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.2)",
+        },
+        style,
+      ]}
+      {...props}
+    >
       <BlurView
         intensity={intensity}
-        tint={tint as any}
+        tint={resolvedTint as any}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.content}>{children}</View>

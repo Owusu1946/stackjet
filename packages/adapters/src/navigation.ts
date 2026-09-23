@@ -829,14 +829,16 @@ function makeReactNavHomeScreen(state: CreateInput["state"] = "none") {
   return `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
 ${counterImport}import { useSession } from "../session/provider";
+import { useTheme } from "../theme/provider";
 
 export function HomeScreen({ navigation }: { navigation?: any }) {
   const session = useSession();
+  const { colors } = useTheme();
   return (
-    <View style={styles.container} testID="home-screen">
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="home-screen">
       <BrandCard />
 ${counterComponent}      {session.user ? (
-        <Text style={styles.welcome} testID="welcome-text">
+        <Text style={[styles.welcome, { color: colors.textSecondary }]} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
       ) : null}
