@@ -11,6 +11,19 @@ export const metadata: Metadata = {
 const releases = [
   {
     version: releaseVersion,
+    date: "September 23, 2026",
+    summary:
+      "Tactile Haptics Engine, Sentry error monitoring in Stack Builder, and CLI diagnostics.",
+    changes: [
+      "Added Tactile Haptics Engine with expo-haptics integration, cross-platform safety, and pre-wired interactive feedback in ThemeToggle, CounterCard, and navigation tabs.",
+      "Added Sentry error monitoring adapter with native crash handling, side-effect initialization, and Stack Builder integration.",
+      "Added doctor diagnostic checks for haptics integrity and lockfile synchronization.",
+      "Fixed dark mode color consistency and text contrast on the landing page and documentation navigation surfaces.",
+      "Fixed Clerk unconfigured environment runtime safety and socials CLI flag mapping.",
+    ],
+  },
+  {
+    version: "0.6.3",
     date: "September 21, 2026",
     summary: "Landing analytics, generated app assets, and release polish.",
     changes: [

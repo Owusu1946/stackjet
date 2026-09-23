@@ -1,5 +1,12 @@
 # expojet
 
+## 0.7.0
+
+### Patch Changes
+
+- Updated dependencies [create-expojet@0.7.0]
+  - create-expojet@0.7.0
+
 ## 0.6.3
 
 ### Patch Changes
