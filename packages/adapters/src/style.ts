@@ -11,16 +11,18 @@ function makeStylesheetCard(liquidGlass: boolean = false) {
     return `import { StyleSheet, Text, View } from "react-native";
 import { GlassCard } from "./ui/glass-card";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
     <GlassCard style={styles.card}>
       <View style={styles.header}>
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text style={styles.eyebrow}>${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text style={[styles.eyebrow, { color: colors.primary }]}>${brandTitle}</Text>
       </View>
-      <Text style={styles.title}>Your Expo app is ready.</Text>
-      <Text style={styles.body}>The StyleSheet adapter is active with Liquid Glass.</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Your Expo app is ready.</Text>
+      <Text style={[styles.body, { color: colors.textSecondary }]}>The StyleSheet adapter is active with Liquid Glass.</Text>
     </GlassCard>
   );
 }
@@ -28,35 +30,37 @@ export function BrandCard() {
 const styles = StyleSheet.create({
   card: { gap: 10 },
   header: { flexDirection: "row", alignItems: "center", gap: 8 },
-  eyebrow: { color: "#315efb", fontSize: 13, fontWeight: "700", letterSpacing: 2 },
-  title: { color: "#121826", fontSize: 28, fontWeight: "700" },
-  body: { color: "#52606d", fontSize: 16 },
+  eyebrow: { fontSize: 13, fontWeight: "700", letterSpacing: 2 },
+  title: { fontSize: 28, fontWeight: "700" },
+  body: { fontSize: 16 },
 });
 `;
   }
 
   return `import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.header}>
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text style={styles.eyebrow}>${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text style={[styles.eyebrow, { color: colors.primary }]}>${brandTitle}</Text>
       </View>
-      <Text style={styles.title}>Your Expo app is ready.</Text>
-      <Text style={styles.body}>The StyleSheet adapter is active.</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Your Expo app is ready.</Text>
+      <Text style={[styles.body, { color: colors.textSecondary }]}>The StyleSheet adapter is active.</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { gap: 10, padding: 24, borderRadius: 24, backgroundColor: "#ffffff" },
+  card: { gap: 10, padding: 24, borderRadius: 24, borderWidth: 1 },
   header: { flexDirection: "row", alignItems: "center", gap: 8 },
-  eyebrow: { color: "#315efb", fontSize: 13, fontWeight: "700", letterSpacing: 2 },
-  title: { color: "#121826", fontSize: 28, fontWeight: "700" },
-  body: { color: "#52606d", fontSize: 16 },
+  eyebrow: { fontSize: 13, fontWeight: "700", letterSpacing: 2 },
+  title: { fontSize: 28, fontWeight: "700" },
+  body: { fontSize: 16 },
 });
 `;
 }
@@ -66,16 +70,18 @@ function makeUniwindCard(liquidGlass: boolean = false) {
     return `import { Text, View } from "react-native";
 import { GlassCard } from "./ui/glass-card";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
     <GlassCard style={{ gap: 8 }}>
       <View className="flex-row items-center gap-2">
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400" style={{ color: colors.primary }}>${brandTitle}</Text>
       </View>
-      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
-      <Text className="text-base text-slate-600 dark:text-slate-400">The Uniwind adapter is active with Liquid Glass.</Text>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50" style={{ color: colors.text }}>Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400" style={{ color: colors.textSecondary }}>The Uniwind adapter is active with Liquid Glass.</Text>
     </GlassCard>
   );
 }
@@ -84,16 +90,18 @@ export function BrandCard() {
 
   return `import { Text, View } from "react-native";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
-    <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6">
+    <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6" style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}>
       <View className="flex-row items-center gap-2">
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400" style={{ color: colors.primary }}>${brandTitle}</Text>
       </View>
-      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
-      <Text className="text-base text-slate-600 dark:text-slate-400">The Uniwind adapter is active.</Text>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50" style={{ color: colors.text }}>Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400" style={{ color: colors.textSecondary }}>The Uniwind adapter is active.</Text>
     </View>
   );
 }
@@ -105,16 +113,18 @@ function makeNativewindCard(liquidGlass: boolean = false) {
     return `import { Text, View } from "react-native";
 import { GlassCard } from "./ui/glass-card";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
     <GlassCard style={{ gap: 8 }}>
       <View className="flex-row items-center gap-2">
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400" style={{ color: colors.primary }}>${brandTitle}</Text>
       </View>
-      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
-      <Text className="text-base text-slate-600 dark:text-slate-400">The NativeWind adapter is active with Liquid Glass.</Text>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50" style={{ color: colors.text }}>Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400" style={{ color: colors.textSecondary }}>The NativeWind adapter is active with Liquid Glass.</Text>
     </GlassCard>
   );
 }
@@ -123,16 +133,18 @@ export function BrandCard() {
 
   return `import { Text, View } from "react-native";
 import { Icon } from "./ui/icon";
+import { useTheme } from "../theme/provider";
 
 export function BrandCard() {
+  const { colors } = useTheme();
   return (
-    <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6">
+    <View className="gap-2 rounded-3xl bg-white dark:bg-slate-900 p-6" style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}>
       <View className="flex-row items-center gap-2">
-        <Icon name="compass" size={20} color="#315efb" />
-        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400">${brandTitle}</Text>
+        <Icon name="compass" size={20} color={colors.primary} />
+        <Text className="text-xs font-bold tracking-widest text-blue-600 dark:text-blue-400" style={{ color: colors.primary }}>${brandTitle}</Text>
       </View>
-      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50">Your Expo app is ready.</Text>
-      <Text className="text-base text-slate-600 dark:text-slate-400">The NativeWind adapter is active.</Text>
+      <Text className="text-3xl font-bold text-slate-950 dark:text-slate-50" style={{ color: colors.text }}>Your Expo app is ready.</Text>
+      <Text className="text-base text-slate-600 dark:text-slate-400" style={{ color: colors.textSecondary }}>The NativeWind adapter is active.</Text>
     </View>
   );
 }
@@ -141,6 +153,7 @@ export function BrandCard() {
 
 const tailwindConfig = `/** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
