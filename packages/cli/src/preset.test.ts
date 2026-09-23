@@ -56,6 +56,9 @@ describe("CLI preset workflow", () => {
         "starter-pack",
         "--auth",
         "clerk",
+        "--socials",
+        "google",
+        "apple",
         "--style",
         "uniwind",
         "--yes",
@@ -71,6 +74,7 @@ describe("CLI preset workflow", () => {
     expect(presets).toHaveLength(1);
     expect(presets[0]?.name).toBe("starter-pack");
     expect(presets[0]?.config.auth).toBe("clerk");
+    expect(presets[0]?.config.socialProviders).toEqual(["google", "apple"]);
     expect(presets[0]?.config.style).toBe("uniwind");
 
     // Check preset list output
