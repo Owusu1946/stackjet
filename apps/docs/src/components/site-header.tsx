@@ -27,7 +27,6 @@ export function SiteHeader({ active }: { active: "home" | "builder" }) {
           </Link>
         ))}
       </nav>
-      <SiteMenu active={active} />
       <div className="site-header-actions">
         <SiteSearch />
         <ThemeToggle />
@@ -41,6 +40,7 @@ export function SiteHeader({ active }: { active: "home" | "builder" }) {
           <HugeiconsIcon icon={GithubIcon} size={20} aria-hidden="true" />
         </a>
       </div>
+      <SiteMenu active={active} />
     </header>
   );
 }

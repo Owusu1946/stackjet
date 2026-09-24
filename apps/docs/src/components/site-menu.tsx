@@ -1,80 +1,33 @@
 "use client";
 
 import { productName } from "@expojet/brand";
-import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { GithubIcon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
+import { gitConfig } from "@/lib/shared";
+import { ThemeToggle } from "./theme-toggle";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { siteLinks } from "./site-links";
 
-// Slide-in navigation sheet for compact viewports. Always mounted so the
-// open/close transitions can run in both directions.
+// Slide-in navigation sheet for compact viewports. Also carries the theme
+// switcher and GitHub link, which move out of the header on small screens.
 export function SiteMenu({ active }: { active: "home" | "builder" }) {
   const [open, setOpen] = useState(false);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const panelId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-    closeButtonRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        menuButtonRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open]);
 
   return (
-    <>
-      <button
-        ref={menuButtonRef}
-        type="button"
-        className="site-menu-button"
-        aria-expanded={open}
-        aria-controls={panelId}
-        aria-label="Open site navigation"
-        onClick={() => setOpen(true)}
-      >
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger className="site-menu-button" aria-label="Open site navigation">
         <HugeiconsIcon icon={Menu01Icon} size={19} aria-hidden="true" />
-      </button>
-      <div
-        className="site-menu-backdrop"
-        data-open={open}
-        aria-hidden="true"
-        onClick={() => setOpen(false)}
-      />
-      <div
-        id={panelId}
-        className="site-menu-drawer"
-        data-open={open}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Site navigation"
-        aria-hidden={!open}
-        inert={!open}
-      >
+      </SheetTrigger>
+      <SheetContent side="left" aria-label="Site navigation">
+        <SheetTitle className="sr-only">Site navigation</SheetTitle>
         <div className="site-menu-head">
+          <Image src="/brand/expojet-mark.svg" alt="" width={24} height={24} priority />
           <span>{productName}</span>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="site-menu-close"
-            aria-label="Close site navigation"
-            onClick={() => setOpen(false)}
-          >
-            <HugeiconsIcon icon={Cancel01Icon} size={17} aria-hidden="true" />
-          </button>
         </div>
-        <nav aria-label="Site mobile">
+        <nav className="site-menu-nav" aria-label="Site mobile">
           {siteLinks.map((link) => (
             <Link
               key={link.href}
@@ -86,7 +39,20 @@ export function SiteMenu({ active }: { active: "home" | "builder" }) {
             </Link>
           ))}
         </nav>
-      </div>
-    </>
+        <div className="site-menu-foot">
+          <ThemeToggle />
+          <a
+            className="site-menu-github"
+            href={`https://github.com/${gitConfig.user}/${gitConfig.repo}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub"
+          >
+            <HugeiconsIcon icon={GithubIcon} size={20} aria-hidden="true" />
+            <span>GitHub</span>
+          </a>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
