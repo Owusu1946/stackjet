@@ -209,14 +209,26 @@
 }
 
 .dark .site-home .site-metric-label svg,
-.dark .site-home .site-metric:hover strong {
+.dark .site-home .site-metric:hover strong,
+.dark .site-home .site-person-list a:hover span,
+.dark .site-home .site-community a:hover {
   color: #8dcff9;
+}
+
+.dark .site-home .site-person-list svg {
+  color: var(--home-muted);
 }
 
 .dark .site-home .site-avatar-list a {
   box-shadow:
     0 0 0 2px #101114,
     0 0 0 3px #434750;
+}
+
+.dark .site-home .site-avatar-list a:hover {
+  box-shadow:
+    0 0 0 2px #101114,
+    0 0 0 3px #8dcff9;
 }
 
 @media (max-width: 850px) {
