@@ -5,15 +5,47 @@
 :root {
   --font-sans: var(--font-inter), ui-sans-serif, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-fd-background: #fff;
+  --color-fd-foreground: #1e2430;
+  --color-fd-muted: #f4f7fc;
+  --color-fd-muted-foreground: #5e6878;
+  --color-fd-border: #dce3ef;
+  --color-fd-card: #fff;
+  --color-fd-card-foreground: #1e2430;
+  --color-fd-popover: #fff;
+  --color-fd-popover-foreground: #1e2430;
+  --color-fd-secondary: #f4f7fc;
+  --color-fd-secondary-foreground: #1e2430;
+  --color-fd-accent: #f4f7fc;
+  --color-fd-accent-foreground: #1e2430;
   --color-fd-primary: #315efb;
   --color-fd-primary-foreground: #fff;
   --color-fd-ring: #315efb;
 }
 
 .dark {
+  --color-fd-background: #101114;
+  --color-fd-foreground: #f3f4f6;
+  --color-fd-muted: #1a1c21;
+  --color-fd-muted-foreground: #afb3bd;
+  --color-fd-border: #30333a;
+  --color-fd-card: #1a1c21;
+  --color-fd-card-foreground: #f3f4f6;
+  --color-fd-popover: #1a1c21;
+  --color-fd-popover-foreground: #f3f4f6;
+  --color-fd-secondary: #1a1c21;
+  --color-fd-secondary-foreground: #f3f4f6;
+  --color-fd-accent: #242830;
+  --color-fd-accent-foreground: #f3f4f6;
   --color-fd-primary: #83a0ff;
   --color-fd-primary-foreground: #101114;
   --color-fd-ring: #83a0ff;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #1a1c21;
+  --color-fd-secondary: #1a1c21;
+  --color-fd-muted-foreground: #afb3bd;
 }
 
 html {
@@ -1692,6 +1724,24 @@ html > body[data-scroll-locked] {
 }
 
 .dark .builder-page {
+  --color-fd-background: #101114;
+  --color-fd-foreground: #f3f4f6;
+  --color-fd-border: #30333a;
+  --color-fd-muted: #1a1c21;
+  --color-fd-muted-foreground: #afb3bd;
+  background: #101114;
+}
+
+.changelog-page {
+  --color-fd-background: #fff;
+  --color-fd-foreground: #1e2430;
+  --color-fd-border: #dce3ef;
+  --color-fd-muted: #f4f7fc;
+  --color-fd-muted-foreground: #5e6878;
+  background: #fff;
+}
+
+.dark .changelog-page {
   --color-fd-background: #101114;
   --color-fd-foreground: #f3f4f6;
   --color-fd-border: #30333a;
