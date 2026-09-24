@@ -1519,15 +1519,8 @@ html > body[data-scroll-locked] {
 
 @media (max-width: 1100px) {
   .site-header {
-    position: fixed;
+    position: sticky;
     top: 0;
-    right: 0;
-    left: 0;
-  }
-
-  .site-home,
-  .builder-page {
-    padding-top: 60px;
   }
 
   .site-header-links {
@@ -1545,37 +1538,21 @@ html > body[data-scroll-locked] {
     height: 34px;
     flex: none;
     place-items: center;
-    border: 1px solid var(--header-search-border);
-    border-radius: 7px;
+    border: 0;
     background: transparent;
     color: var(--header-menu-button-fg);
     cursor: pointer;
   }
 
   .builder-page .builder-view-tabs {
-    position: fixed;
+    position: sticky;
     top: 60px;
-    right: 0;
-    left: 0;
     z-index: 5;
     background: var(--color-fd-background);
   }
 
   .builder-page .builder-tabs {
-    position: fixed;
     top: calc(60px + 2.8rem);
-    right: 0;
-    left: 0;
-    z-index: 5;
-  }
-
-  .builder-page .builder-sections {
-    /* Fixed view tabs (2.8rem) plus fixed tab bar (8px + 30px + 8px + 1px). */
-    margin-top: calc(2.8rem + 47px);
-  }
-
-  .builder-page .builder-preview {
-    margin-top: 2.8rem;
   }
 
   .builder-page .builder-section {
