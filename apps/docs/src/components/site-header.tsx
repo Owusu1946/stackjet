@@ -9,10 +9,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 const links = [
   { href: "/builder", label: "Builder" },
-  { href: "/docs", label: "Documentation" },
-  { href: "/docs/quick-start", label: "Quick Start" },
-  { href: "/docs/cli/create", label: "CLI" },
-  { href: "/docs/ai-agents", label: "AI Agents" },
+  { href: "/docs", label: "Docs" },
   { href: "/changelog", label: "Changelog" },
 ] as const;
 

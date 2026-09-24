@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CopyCommand } from "@/components/copy-command";
 import { Community } from "@/components/site-community";
 import { SiteHeader } from "@/components/site-header";
+import { StackDemo } from "@/components/stack-demo";
 import { getCommunityData } from "@/lib/community";
 import "@/components/site-community.css";
 import "./home.css";
@@ -17,10 +18,17 @@ export default async function HomePage() {
       <main className="home-main">
         <section className="home-hero">
           <div className="home-hero-content">
-            <h1>Create an Expo app with your stack.</h1>
+            <div className="home-eyebrow">
+              EXPO SDK 57 <span>/</span> YOUR NEXT IDEA
+            </div>
+            <h1>
+              Your stack.
+              <br />
+              <span>Ready to build.</span>
+            </h1>
             <p>
-              Choose navigation, styling, authentication, and backend. Expojet writes an Expo SDK 57
-              project with those pieces configured.
+              Generate an Expo app with your navigation, styling, auth, and backend already
+              connected.
             </p>
             <div className="home-command">
               <CopyCommand />
@@ -30,34 +38,12 @@ export default async function HomePage() {
                 Build your stack{" "}
                 <HugeiconsIcon icon={ArrowUpRight01Icon} size={17} aria-hidden="true" />
               </Link>
-              <Link className="home-secondary" href="/docs">
-                Read the docs <HugeiconsIcon icon={ArrowRight01Icon} size={17} aria-hidden="true" />
+              <Link className="home-secondary" href="/docs/quick-start">
+                Quick start <HugeiconsIcon icon={ArrowRight01Icon} size={17} aria-hidden="true" />
               </Link>
             </div>
           </div>
-          <div className="home-output">
-            <h2>What Expojet writes</h2>
-            <dl>
-              <div>
-                <dt>Mobile</dt>
-                <dd>An Expo app with your navigation and styling choices.</dd>
-              </div>
-              <div>
-                <dt>API</dt>
-                <dd>In a monorepo, backend code and secrets stay outside the mobile app.</dd>
-              </div>
-              <div>
-                <dt>Manifest</dt>
-                <dd>
-                  <code>expojet.jsonc</code> records the choices that created the project.
-                </dd>
-              </div>
-            </dl>
-            <Link href="/docs/quick-start">
-              Start with the guide{" "}
-              <HugeiconsIcon icon={ArrowRight01Icon} size={17} aria-hidden="true" />
-            </Link>
-          </div>
+          <StackDemo />
         </section>
         <Community data={community} />
       </main>
