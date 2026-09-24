@@ -1,8 +1,6 @@
 import {
   ArrowUpRight01Icon,
   Calendar03Icon,
-  Download04Icon,
-  GitForkIcon,
   StarIcon,
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
@@ -13,7 +11,6 @@ import type { CommunityData } from "@/lib/community";
 export function Community({ data }: { data: CommunityData }) {
   const metrics = [
     { label: "Stars", value: data.stars, icon: StarIcon, href: data.repository },
-    { label: "Forks", value: data.forks, icon: GitForkIcon, href: `${data.repository}/forks` },
     {
       label: "Contributors",
       value: data.contributorCount,
@@ -21,15 +18,9 @@ export function Community({ data }: { data: CommunityData }) {
       href: `${data.repository}/graphs/contributors`,
     },
     {
-      label: "Weekly installs",
+      label: "Weekly downloads",
       value: data.weeklyDownloads,
       icon: Calendar03Icon,
-      href: `https://www.npmjs.com/package/${data.packageName}`,
-    },
-    {
-      label: "Total installs",
-      value: data.totalDownloads,
-      icon: Download04Icon,
       href: `https://www.npmjs.com/package/${data.packageName}`,
     },
   ];
@@ -37,21 +28,15 @@ export function Community({ data }: { data: CommunityData }) {
   return (
     <section className="site-community" aria-labelledby="community-title">
       <div className="site-community-heading">
-        <h2 id="community-title">Project activity</h2>
+        <h2 id="community-title">Built in the open.</h2>
         <a href={data.repository} target="_blank" rel="noreferrer">
           GitHub <HugeiconsIcon icon={ArrowUpRight01Icon} size={15} aria-hidden="true" />
         </a>
       </div>
+      <p className="community-context">A small team. An open codebase. Room for your ideas.</p>
       <div className="site-metrics">
         {metrics.map(({ label, value, icon, href }) => (
-          <a
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            className="site-metric"
-            key={label}
-            title={label.includes("installs") ? "Measured by npm downloads" : undefined}
-          >
+          <a href={href} target="_blank" rel="noreferrer" className="site-metric" key={label}>
             <span className="site-metric-label">
               <HugeiconsIcon icon={icon} size={17} strokeWidth={1.8} aria-hidden="true" /> {label}
             </span>
@@ -59,6 +44,10 @@ export function Community({ data }: { data: CommunityData }) {
           </a>
         ))}
       </div>
+      <p className="community-context">
+        {data.forks?.toLocaleString() ?? "—"} forks · {data.totalDownloads?.toLocaleString() ?? "—"}{" "}
+        total npm downloads
+      </p>
       <div className="site-people">
         <div className="site-people-group">
           <div className="site-people-heading">
@@ -78,6 +67,7 @@ export function Community({ data }: { data: CommunityData }) {
         <div className="site-people-group site-contributor-group">
           <div className="site-people-heading">
             <h3>Contributors</h3>
+            <span>{data.contributorCount ?? "—"}</span>
             <a href={`${data.repository}/graphs/contributors`} target="_blank" rel="noreferrer">
               View all <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} aria-hidden="true" />
             </a>

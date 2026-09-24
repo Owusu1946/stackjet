@@ -79,12 +79,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.site-metric:hover strong,
-.site-person-list a:hover span,
-.site-community a:hover {
-  color: var(--expo-blue);
-}
-
 .site-people {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -127,6 +121,12 @@
 
 .site-person-list a span {
   flex: 1;
+}
+
+.site-metric:hover strong,
+.site-person-list a:hover span,
+.site-community a:hover {
+  color: var(--expo-blue);
 }
 
 .site-person-list svg {

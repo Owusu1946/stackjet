@@ -29,6 +29,7 @@ describe("non-interactive create", () => {
       style: "uniwind",
       onboarding: true,
       darkMode: true,
+      haptics: true,
       eas: true,
       install: true,
       git: true,
@@ -40,13 +41,22 @@ describe("non-interactive create", () => {
     const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
     const input = normalizeNonInteractiveCreate(
       "minimal-app",
-      { yes: true, onboarding: false, darkMode: false, eas: false, install: false, git: false },
+      {
+        yes: true,
+        onboarding: false,
+        darkMode: false,
+        haptics: false,
+        eas: false,
+        install: false,
+        git: false,
+      },
       {},
       cwd,
     );
     expect(input).toMatchObject({
       onboarding: false,
       darkMode: false,
+      haptics: false,
       eas: false,
       install: false,
       git: false,
@@ -108,6 +118,17 @@ describe("non-interactive create", () => {
       cwd,
     );
     expect(inputStack.navigationType).toBe("stack");
+  });
+
+  it("supports socials flag", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "expojet-cli-"));
+    const input = normalizeNonInteractiveCreate(
+      "social-app",
+      { yes: true, socials: ["google", "apple"] },
+      {},
+      cwd,
+    );
+    expect(input.socialProviders).toEqual(["google", "apple"]);
   });
 });
 
@@ -192,5 +213,29 @@ describe("commands", () => {
       ),
     ).toBe(0);
     expect(capture.stdout.join("\n")).toContain("Navigation: router (drawer)");
+  });
+
+  it("runs create with --socials google apple --dry-run", async () => {
+    process.exitCode = 0;
+    const capture = captureIo(mkdtempSync(join(tmpdir(), "expojet-cli-")));
+    expect(
+      await runProgram(
+        [
+          "node",
+          "expojet",
+          "create",
+          "social-app",
+          "--yes",
+          "--socials",
+          "google",
+          "apple",
+          "--dry-run",
+          "--no-install",
+          "--no-git",
+        ],
+        capture.io,
+      ),
+    ).toBe(0);
+    expect(capture.stdout.join("\n")).toContain("Dry run validated");
   });
 });

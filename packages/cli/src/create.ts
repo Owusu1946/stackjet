@@ -42,6 +42,7 @@ export interface CreateFlags {
   navigationType?: string;
   backend?: string;
   auth?: string;
+  socials?: string[];
   socialProviders?: string[];
   style?: string;
   icons?: string;
@@ -61,6 +62,7 @@ export interface CreateFlags {
   orm?: string;
   onboarding?: boolean;
   darkMode?: boolean;
+  haptics?: boolean;
   eas?: boolean;
   install?: boolean;
   git?: boolean;
@@ -184,7 +186,8 @@ export function normalizeNonInteractiveCreate(
     monitoring,
     backend,
     auth: flags.auth ?? effectiveConfig.auth ?? "clerk",
-    socialProviders: (flags.socialProviders ??
+    socialProviders: (flags.socials ??
+      flags.socialProviders ??
       effectiveConfig.socialProviders ??
       []) as SocialProvider[],
     style: flags.style ?? effectiveConfig.style ?? "uniwind",
@@ -192,6 +195,7 @@ export function normalizeNonInteractiveCreate(
     orm,
     onboarding: flags.onboarding ?? effectiveConfig.onboarding ?? true,
     darkMode: flags.darkMode ?? effectiveConfig.darkMode ?? true,
+    haptics: flags.haptics ?? effectiveConfig.haptics ?? true,
     eas: flags.eas ?? effectiveConfig.eas ?? true,
     install: flags.install ?? effectiveConfig.install ?? true,
     git: flags.git ?? effectiveConfig.git ?? true,
@@ -406,7 +410,8 @@ async function promptCreate(
 
   const selectedSocialProviders =
     auth === "clerk"
-      ? (flags.socialProviders ??
+      ? (flags.socials ??
+        flags.socialProviders ??
         activeConfig.socialProviders ??
         ((await p.multiselect({
           message: "Social sign-in providers (optional)",
@@ -611,6 +616,7 @@ async function promptCreate(
     orm,
     onboarding: true,
     darkMode: true,
+    haptics: true,
     eas: true,
     install: true,
     git: true,
@@ -629,6 +635,14 @@ async function promptCreate(
     activeConfig.darkMode ??
     (await p.confirm({ message: "Include dark mode?", initialValue: true }));
   cancelled(darkMode);
+  const haptics =
+    flags.haptics ??
+    activeConfig.haptics ??
+    (await p.confirm({
+      message: "Include Tactile Haptics Engine (expo-haptics)?",
+      initialValue: true,
+    }));
+  cancelled(haptics);
   const eas =
     flags.eas ??
     activeConfig.eas ??
@@ -667,6 +681,7 @@ async function promptCreate(
     orm,
     onboarding,
     darkMode,
+    haptics,
     eas,
     install,
     git,
@@ -859,6 +874,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
           navigationType: input.navigationType,
           backend: input.backend,
           auth: input.auth,
+          socialProviders: input.socialProviders,
           style: input.style,
           icons: input.icons,
           state: input.state,

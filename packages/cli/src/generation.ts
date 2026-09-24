@@ -2,6 +2,7 @@ import {
   analyticsAdapter,
   authAdapter,
   databaseAdapter,
+  getHapticsAdapter,
   getLiquidGlassAdapter,
   iconAdapter,
   monitoringAdapter,
@@ -12,7 +13,7 @@ import {
   styleAdapter,
   themeAdapter,
 } from "@expojet/adapters";
-import { commandName, manifestFileName } from "@expojet/brand";
+import { commandName, manifestFileName, releaseVersion } from "@expojet/brand";
 import { executePlan, type GenerationPlan, type Operation } from "@expojet/core";
 import type { CreateInput } from "@expojet/schemas";
 import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
@@ -100,7 +101,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       content: `${JSON.stringify(
         {
           $schema: "https://expojet.dev/schemas/project.schema.json",
-          generatorVersion: "0.6.3",
+          generatorVersion: releaseVersion,
           sdk: 57,
           sdkPackSha256: sdk57FilesSha256,
           structure: normalizedInput.structure,
@@ -123,6 +124,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
             onboarding: normalizedInput.onboarding,
             darkMode: normalizedInput.darkMode,
             liquidGlass: normalizedInput.liquidGlass,
+            haptics: normalizedInput.haptics,
             typescript: normalizedInput.typescript,
             eas: normalizedInput.eas,
           },
@@ -140,6 +142,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
           onboarding: normalizedInput.onboarding,
           darkMode: normalizedInput.darkMode,
           liquidGlass: normalizedInput.liquidGlass,
+          haptics: normalizedInput.haptics,
           typescript: normalizedInput.typescript,
           eas: normalizedInput.eas,
         },
@@ -159,6 +162,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
   operations.push(...ormAdapter(normalizedInput.orm).plan(normalizedInput, {}));
   operations.push(...stateAdapter(normalizedInput.state).plan(normalizedInput, {}));
   operations.push(...getLiquidGlassAdapter(normalizedInput.liquidGlass).plan(normalizedInput, {}));
+  operations.push(...getHapticsAdapter(normalizedInput.haptics).plan(normalizedInput, {}));
   operations.push(...analyticsAdapter(normalizedInput.analytics).plan(normalizedInput, {}));
   operations.push(...monitoringAdapter(normalizedInput.monitoring).plan(normalizedInput, {}));
   if (isReactNav) {

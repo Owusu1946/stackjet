@@ -31,6 +31,7 @@ function makeInput(overrides: Partial<CreateInput> = {}): CreateInput {
     orm: "drizzle",
     onboarding: true,
     darkMode: true,
+    haptics: true,
     eas: true,
     install: true,
     git: true,
@@ -89,7 +90,23 @@ describe("auth adapters", () => {
         .map((op) => op.type === "write-file" && op.path);
       expect(paths).toContain("src/session/provider.tsx");
       expect(paths).toContain("app/(public)/sign-in.tsx");
-      expect(paths).toContain("app/(public)/sign-up.tsx");
+      const provider = ops.find(
+        (op) => op.type === "write-file" && op.path === "src/session/provider.tsx",
+      );
+      expect(provider?.type === "write-file" && provider.content).toContain(
+        "ClerkMissingKeyNotice",
+      );
+      expect(provider?.type === "write-file" && provider.content).toContain(
+        "<ClerkMissingKeyNotice />",
+      );
+
+      const signUp = ops.find(
+        (op) => op.type === "write-file" && op.path === "app/(public)/sign-up.tsx",
+      );
+      expect(signUp?.type === "write-file" && signUp.content).toContain(
+        "errors?.global?.[0]?.message",
+      );
+
       const signIn = ops.find(
         (op) => op.type === "write-file" && op.path === "app/(public)/sign-in.tsx",
       );

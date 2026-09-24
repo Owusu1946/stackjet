@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
   return `import { Redirect, Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Icon } from "../../src/components/ui/icon";
+import { haptic } from "../../src/haptics";
 import { useSession } from "../../src/session/provider";
 
 export default function ProtectedLayout() {
@@ -306,6 +307,11 @@ export default function ProtectedLayout() {
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
+        }}
       />
       <Tabs.Screen
         name="profile"
@@ -313,6 +319,11 @@ export default function ProtectedLayout() {
           title: "Profile",
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
         }}
       />
     </Tabs>
@@ -357,6 +368,7 @@ export default function TabLayout() {
 
   return `import { Tabs } from "expo-router";
 import { Icon } from "../../../src/components/ui/icon";
+import { haptic } from "../../../src/haptics";
 
 export default function TabLayout() {
   return (
@@ -373,6 +385,11 @@ export default function TabLayout() {
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
+        }}
       />
       <Tabs.Screen
         name="profile"
@@ -380,6 +397,11 @@ export default function TabLayout() {
           title: "Profile",
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
         }}
       />
     </Tabs>
@@ -732,6 +754,7 @@ export function AppNavigator() {
 
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Icon } from "../components/ui/icon";
+import { haptic } from "../haptics";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -752,6 +775,11 @@ export function AppNavigator() {
           title: "Home",
           tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
+        }}
       />
       <Tab.Screen
         name="Profile"
@@ -759,6 +787,11 @@ export function AppNavigator() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
         }}
       />
     </Tab.Navigator>
@@ -770,6 +803,7 @@ export function AppNavigator() {
 function makeReactNavTabNavigator() {
   return `import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Icon } from "../components/ui/icon";
+import { haptic } from "../haptics";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 
@@ -790,6 +824,11 @@ export function TabNavigator() {
           title: "Home",
           tabBarIcon: ({ color, size }) => <Icon name="home" color={color} size={size} />,
         }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
+        }}
       />
       <Tab.Screen
         name="Profile"
@@ -797,6 +836,11 @@ export function TabNavigator() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <Icon name="user" color={color} size={size} />,
+        }}
+        listeners={{
+          tabPress: () => {
+            haptic.selection();
+          },
         }}
       />
     </Tab.Navigator>
@@ -829,14 +873,16 @@ function makeReactNavHomeScreen(state: CreateInput["state"] = "none") {
   return `import { Button, StyleSheet, Text, View } from "react-native";
 import { BrandCard } from "../components/brand-card";
 ${counterImport}import { useSession } from "../session/provider";
+import { useTheme } from "../theme/provider";
 
 export function HomeScreen({ navigation }: { navigation?: any }) {
   const session = useSession();
+  const { colors } = useTheme();
   return (
-    <View style={styles.container} testID="home-screen">
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="home-screen">
       <BrandCard />
 ${counterComponent}      {session.user ? (
-        <Text style={styles.welcome} testID="welcome-text">
+        <Text style={[styles.welcome, { color: colors.textSecondary }]} testID="welcome-text">
           Welcome, {session.user.displayName ?? session.user.id}!
         </Text>
       ) : null}

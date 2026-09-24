@@ -1,0 +1,68 @@
+---
+title: Tactile Haptics Engine
+description: Crisp, native vibration feedback on button presses, tab switches, and state changes with expo-haptics.
+---
+
+Expojet provides a pre-configured, zero-config **Tactile Haptics Engine** powered by `expo-haptics`. It turns flat screen taps into a premium, tactile physical experience across iOS and Android, while safely degrading on web and devices without haptic motors.
+
+---
+
+## What It Does
+
+- **Crisp native vibrations**: Triggers subtle ticks on tab presses and theme switches, light impacts on counters and buttons, medium impacts on resets, and notifications on completions.
+- **100% Expo Go compatible**: Built entirely on `expo-haptics`, fully supported in Expo Go and standalone native builds.
+- **Cross-platform safe**: Guards against unhandled rejections on web, simulator, or older hardware without haptic actuators.
+- **Pre-wired into generated components**: Works out-of-the-box in `CounterCard`, `ThemeToggle`, and bottom tabs.
+
+---
+
+## CLI & Builder Usage
+
+Tactile Haptics is enabled by default in all Expojet projects. You can control it via CLI flags or the visual Stack Builder:
+
+```bash
+# Explicitly enable haptics (default)
+npx create-expojet@latest my-app --haptics
+
+# Exclude haptics (generates no-op stubs with zero runtime dependencies)
+npx create-expojet@latest my-app --no-haptics
+```
+
+---
+
+## Typed Haptics Module
+
+Expojet scaffolds a lightweight, centralized utility at `src/haptics/index.ts`:
+
+```typescript
+import { haptic } from "@/haptics";
+
+// Subtle tick for tab switches, segmented controls, picker detents
+haptic.selection();
+
+// Light tap for button presses, icon toggles, counter increments
+haptic.light();
+
+// Medium tap for modal dismissals, state resets, confirmations
+haptic.medium();
+
+// Heavy impact for destructive actions or long-press triggers
+haptic.heavy();
+
+// Notification patterns
+haptic.success();
+haptic.warning();
+haptic.error();
+```
+
+---
+
+## Pre-Wired Integration
+
+When generated with default features, haptic feedback is automatically connected to:
+
+1. **Tabs**: Selection tick triggered on `tabPress` for both Expo Router and React Navigation.
+2. **ThemeToggle**: Crisp tick whenever the user toggles between light and dark themes.
+3. **CounterCard**: Light tap on `+` and `-` increments, medium punch on reset.
+
+When disabled with `--no-haptics`, Expojet generates identical no-op stubs in `src/haptics/index.ts`, ensuring all components compile cleanly without runtime errors or extra dependencies.

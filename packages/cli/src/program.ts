@@ -1,4 +1,4 @@
-import { commandName, productName, tagline } from "@expojet/brand";
+import { commandName, productName, releaseVersion, tagline } from "@expojet/brand";
 import { ExitCode, redactText } from "@expojet/core";
 import {
   analyticsAdapters,
@@ -29,7 +29,7 @@ import { type CreateFlags, runCreate } from "./create.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
-export const cliVersion = "0.6.3";
+export const cliVersion = releaseVersion;
 
 function decorateCommand(command: Command) {
   return command.showHelpAfterError("Run with --help for usage.");
@@ -104,6 +104,8 @@ export function createProgram(io: CliIo) {
     .option("--no-onboarding", "exclude onboarding")
     .option("--dark-mode", "include dark mode theme engine")
     .option("--no-dark-mode", "exclude dark mode theme engine")
+    .option("--haptics", "include Tactile Haptics Engine (expo-haptics)")
+    .option("--no-haptics", "exclude Tactile Haptics Engine")
     .option("--eas", "include EAS profiles")
     .option("--no-eas", "exclude EAS profiles")
     .option("--install", "install dependencies after scaffolding (default: true)")
