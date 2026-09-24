@@ -154,6 +154,7 @@ export function StackPreview({
   const [selectedPath, setSelectedPath] = useState<string>();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [wrapLines, setWrapLines] = useState(false);
+  const [mobilePane, setMobilePane] = useState<"files" | "code">("code");
   const { status: copyStatus, copy: copyFile } = useCopyFeedback(
     files.find((file) => file.path === selectedPath)?.content ?? "",
     1500,
@@ -195,7 +196,27 @@ export function StackPreview({
           preview
         </strong>
       </header>
-      <div className="preview-workspace">
+      <div className="preview-pane-tabs" role="tablist" aria-label="Preview panes">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobilePane === "files"}
+          onClick={() => setMobilePane("files")}
+        >
+          <HugeiconsIcon icon={FolderTreeIcon} aria-hidden="true" size={14} />
+          Files
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mobilePane === "code"}
+          onClick={() => setMobilePane("code")}
+        >
+          <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={14} />
+          {selected?.path.split("/").at(-1) ?? "Code"}
+        </button>
+      </div>
+      <div className="preview-workspace" data-mobile-pane={mobilePane}>
         <aside className="preview-tree">
           <div className="preview-root">
             <HugeiconsIcon icon={Folder01Icon} aria-hidden="true" size={15} /> {projectName}
@@ -221,7 +242,10 @@ export function StackPreview({
                       return next;
                     })
                   }
-                  onSelect={setSelectedPath}
+                  onSelect={(path) => {
+                    setSelectedPath(path);
+                    setMobilePane("code");
+                  }}
                 />
               ))}
           </ul>

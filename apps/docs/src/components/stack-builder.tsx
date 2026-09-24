@@ -640,7 +640,7 @@ export function StackBuilder() {
     setActiveGroup(key);
     document.getElementById(`builder-section-${key}`)?.scrollIntoView({
       behavior: "auto",
-      block: "start",
+      block: "nearest",
     });
   }
 
