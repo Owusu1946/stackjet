@@ -54,6 +54,40 @@
   display: none;
 }
 
+/* The switcher lives in the mobile docs drawer: keep it out of the mobile
+   top bar and the desktop sidebar footer. */
+#nd-subnav .site-theme-toggle {
+  display: none;
+}
+#nd-sidebar .docs-theme-switch {
+  display: none;
+}
+
+/* The docs drawer close button is a fumadocs panel icon; render an X. */
+#nd-sidebar-mobile [aria-label="Close Sidebar"] {
+  position: relative;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"] svg {
+  display: none;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::before,
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
 /* The sidebar footer wraps the lone GitHub icon link in a bordered box.
    Render it as a plain icon row instead. */
 #nd-sidebar > div:last-child > div:has(a[aria-label="GitHub"]) {

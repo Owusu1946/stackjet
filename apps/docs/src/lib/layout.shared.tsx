@@ -2,6 +2,7 @@ import { GithubIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import Image from "next/image";
+import { DocsThemeSwitch } from "@/components/docs-theme-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { appName, gitConfig } from "./shared";
 
@@ -50,6 +51,7 @@ export function baseOptions(): BaseLayoutProps {
         external: true,
       },
     ],
-    themeSwitch: { enabled: false },
+    themeSwitch: { enabled: true },
+    slots: { themeSwitch: DocsThemeSwitch },
   };
 }
