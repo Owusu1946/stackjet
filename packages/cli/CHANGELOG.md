@@ -1,5 +1,18 @@
 # create-expojet
 
+## 0.7.0
+
+### Minor Changes
+
+- Add Tactile Haptics Engine (`expo-haptics`) with cross-platform safe vibration utilities and pre-wired interactive feedback in `ThemeToggle`, `CounterCard`, and navigation tabs.
+- Add Sentry error monitoring adapter with `@sentry/react-native`, native app config plugin, and Stack Builder integration.
+
+### Patch Changes
+
+- Prevent Clerk auth crash when publishable key is missing or unconfigured.
+- Resolve dark theme text contrast on generated home page.
+- Fix `--socials` CLI flag resolution in non-interactive and interactive creation.
+
 ## 0.6.3
 
 ### Patch Changes

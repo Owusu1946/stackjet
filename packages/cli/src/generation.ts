@@ -13,7 +13,7 @@ import {
   styleAdapter,
   themeAdapter,
 } from "@expojet/adapters";
-import { commandName, manifestFileName } from "@expojet/brand";
+import { commandName, manifestFileName, releaseVersion } from "@expojet/brand";
 import { executePlan, type GenerationPlan, type Operation } from "@expojet/core";
 import type { CreateInput } from "@expojet/schemas";
 import { sdk57Files, sdk57FilesSha256 } from "@expojet/sdk-57";
@@ -101,7 +101,7 @@ export function buildCreatePlan(input: CreateInput): GenerationPlan {
       content: `${JSON.stringify(
         {
           $schema: "https://expojet.dev/schemas/project.schema.json",
-          generatorVersion: "0.6.3",
+          generatorVersion: releaseVersion,
           sdk: 57,
           sdkPackSha256: sdk57FilesSha256,
           structure: normalizedInput.structure,

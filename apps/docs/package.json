@@ -20,7 +20,6 @@
     "fumadocs-core": "16.15.11",
     "fumadocs-mdx": "15.4.1",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.15.11",
-    "lucide-react": "^1.43.0",
     "next": "16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

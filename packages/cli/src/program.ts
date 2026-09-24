@@ -1,4 +1,4 @@
-import { commandName, productName, tagline } from "@expojet/brand";
+import { commandName, productName, releaseVersion, tagline } from "@expojet/brand";
 import { ExitCode, redactText } from "@expojet/core";
 import {
   analyticsAdapters,
@@ -29,7 +29,7 @@ import { type CreateFlags, runCreate } from "./create.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
-export const cliVersion = "0.6.3";
+export const cliVersion = releaseVersion;
 
 function decorateCommand(command: Command) {
   return command.showHelpAfterError("Run with --help for usage.");

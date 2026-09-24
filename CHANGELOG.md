@@ -3,6 +3,29 @@
 All notable changes to the Expojet project (`create-expojet`) will be documented in this file.
 See [packages/cli/CHANGELOG.md](packages/cli/CHANGELOG.md) for package-specific details.
 
+## 0.7.0
+
+### Minor Changes
+
+- **Tactile Haptics Engine (`expo-haptics`)**
+  - Add `haptics: z.boolean().default(true)` to `CreateInput` and `manifest.features`.
+  - Generate `src/haptics/index.ts` with cross-platform safe `selection`, `light`, `medium`, `heavy`, `success`, `warning`, and `error` tactile vibration methods.
+  - Pre-wire haptics into generated buttons (`CounterCard`), theme switching (`ThemeToggle`), and tab switching (`tabPress` listener).
+  - Generate safe no-op stubs when `--no-haptics` is specified, requiring zero dependencies while preserving component code compatibility.
+  - Add doctor check for `expo-haptics` module and dependency when enabled.
+  - Expose `--haptics` and `--no-haptics` CLI flags, interactive prompt option, and Stack Builder toggle.
+- **Sentry Error Monitoring Adapter**
+  - Add monitoring adapter kind with Sentry (`@sentry/react-native`) integration.
+  - Wire `Sentry.init()` side-effect import at root layout / App.tsx before component rendering.
+  - Configure `@sentry/react-native/expo` plugin in app.json and declare environment variables (`EXPO_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`).
+  - Integrate Sentry option into documentation Stack Builder with live virtual plan materialization and command generator.
+
+### Patch Changes
+
+- Prevent Clerk auth crash when publishable key is missing or unconfigured with a clear setup notice screen.
+- Resolve dark theme text contrast on generated home page and documentation navigation surfaces.
+- Fix `--socials` CLI flag resolution and preserve social providers in configuration presets.
+
 ## 0.6.2
 
 ### Patch Changes

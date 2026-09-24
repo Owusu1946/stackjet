@@ -1,6 +1,6 @@
 {
   "name": "expojet",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "A production-ready Expo stack in one command.",
   "license": "MIT",
   "publishConfig": {

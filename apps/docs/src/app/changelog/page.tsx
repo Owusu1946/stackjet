@@ -11,6 +11,19 @@ export const metadata: Metadata = {
 const releases = [
   {
     version: releaseVersion,
+    date: "September 23, 2026",
+    summary:
+      "Tactile Haptics Engine, Sentry error monitoring in Stack Builder, and CLI diagnostics.",
+    changes: [
+      "Added Tactile Haptics Engine with expo-haptics integration, cross-platform safety, and pre-wired interactive feedback in ThemeToggle, CounterCard, and navigation tabs.",
+      "Added Sentry error monitoring adapter with native crash handling, side-effect initialization, and Stack Builder integration.",
+      "Added doctor diagnostic checks for haptics integrity and lockfile synchronization.",
+      "Fixed dark mode color consistency and text contrast on the landing page and documentation navigation surfaces.",
+      "Fixed Clerk unconfigured environment runtime safety and socials CLI flag mapping.",
+    ],
+  },
+  {
+    version: "0.6.3",
     date: "September 21, 2026",
     summary: "Landing analytics, generated app assets, and release polish.",
     changes: [
@@ -101,28 +114,25 @@ const releases = [
 
 export default function ChangelogPage() {
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-16 sm:px-10">
+    <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-10 sm:px-10">
       <Link href="/" className="text-sm text-fd-muted-foreground hover:text-fd-foreground">
         ← Back to {productName}
       </Link>
-      <header className="mt-10 border-b border-fd-border pb-8">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-fd-muted-foreground">
-          {productName}
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight">Changelog</h1>
-        <p className="mt-4 max-w-2xl text-lg text-fd-muted-foreground">
+      <header className="mt-6 border-b border-fd-border pb-5">
+        <h1 className="text-4xl font-semibold tracking-tight">Changelog</h1>
+        <p className="mt-2 max-w-2xl text-base text-fd-muted-foreground">
           Product updates for {createPackageName}, the production-ready Expo starter.
         </p>
       </header>
       <div className="divide-y divide-fd-border">
         {releases.map((release) => (
-          <article key={release.version} className="py-10 first:pt-8">
+          <article key={release.version} className="py-7 first:pt-6">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <h2 className="text-2xl font-semibold">v{release.version}</h2>
               <time className="text-sm text-fd-muted-foreground">{release.date}</time>
             </div>
-            <p className="mt-3 text-fd-muted-foreground">{release.summary}</p>
-            <ul className="mt-6 list-disc space-y-3 pl-5 text-fd-foreground/85">
+            <p className="mt-2 text-fd-muted-foreground">{release.summary}</p>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-fd-foreground/85">
               {release.changes.map((change) => (
                 <li key={change}>{change}</li>
               ))}
