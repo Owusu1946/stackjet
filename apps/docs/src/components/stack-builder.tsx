@@ -437,6 +437,38 @@ function iconPath(icon: string) {
   return `/stack-icons/${icon}.svg`;
 }
 
+function getUnavailableReason(key: keyof Config, value: string, config: Config) {
+  if (key === "backend") {
+    if (config.structure === "standalone" && !["none", "convex"].includes(value)) {
+      return "Requires Mobile + API or Mobile + Web + API.";
+    }
+    if (config.structure !== "standalone" && value === "none") {
+      return "Monorepo projects need an API backend.";
+    }
+  }
+
+  if (key === "database") {
+    if (config.backend === "convex" && value !== "none") {
+      return "Convex includes its own database.";
+    }
+    if (config.auth === "better-auth" && value === "none") {
+      return "Better Auth requires a database.";
+    }
+  }
+
+  if (key === "orm" && value !== "none") {
+    if (config.auth === "better-auth" && value !== "drizzle") {
+      return "Better Auth currently requires Drizzle.";
+    }
+    if (config.backend === "convex") {
+      return "Convex does not use an external ORM.";
+    }
+    if (config.database === "none") {
+      return "Choose a database before choosing an ORM.";
+    }
+  }
+}
+
 const uiIcons = {
   "layout-tabs": LayoutBottomIcon,
   "layout-drawer": SidebarLeftIcon,
@@ -1023,30 +1055,16 @@ export function StackBuilder() {
                                 </button>
                               ))
                             : group?.options.map((option) => {
-                                const disabled =
-                                  (group.key === "backend" &&
-                                    config.structure === "standalone" &&
-                                    !["none", "convex"].includes(option.value)) ||
-                                  (group.key === "backend" &&
-                                    config.structure !== "standalone" &&
-                                    option.value === "none") ||
-                                  (group.key === "database" &&
-                                    config.backend === "convex" &&
-                                    option.value !== "none") ||
-                                  (group.key === "database" &&
-                                    config.auth === "better-auth" &&
-                                    option.value === "none") ||
-                                  (group.key === "orm" &&
-                                    (config.database === "none" || config.backend === "convex") &&
-                                    option.value !== "none") ||
-                                  (group.key === "orm" &&
-                                    config.auth === "better-auth" &&
-                                    option.value !== "drizzle");
+                                const unavailableReason = getUnavailableReason(
+                                  group.key,
+                                  option.value,
+                                  config,
+                                );
                                 return (
                                   <button
                                     type="button"
                                     key={option.value}
-                                    disabled={disabled}
+                                    disabled={unavailableReason !== undefined}
                                     data-active={config[group.key] === option.value}
                                     aria-pressed={config[group.key] === option.value}
                                     onClick={() => select(group.key, option.value)}
@@ -1061,6 +1079,11 @@ export function StackBuilder() {
                                     <span className="builder-option-copy">
                                       <strong>{option.label}</strong>
                                       <small>{option.description}</small>
+                                      {unavailableReason ? (
+                                        <small className="builder-option-reason">
+                                          {unavailableReason}
+                                        </small>
+                                      ) : null}
                                     </span>
                                     <i>
                                       <HugeiconsIcon
