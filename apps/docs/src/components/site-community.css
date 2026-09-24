@@ -160,6 +160,25 @@
   font-size: 13px;
 }
 
+.site-contributors-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  padding: 9px 14px;
+  border: 1px solid var(--home-border);
+  border-radius: 8px;
+  color: var(--home-fg);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.site-contributors-all:hover {
+  border-color: var(--expo-blue);
+  color: var(--expo-blue);
+}
+
 .index-direction .site-community {
   margin-top: 75px;
 }
@@ -225,6 +244,17 @@
 
   .site-people {
     display: block;
+  }
+
+  .site-person-list a {
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0;
+    text-align: center;
+  }
+
+  .site-person-list a svg {
+    display: none;
   }
 
   .site-contributor-group {
