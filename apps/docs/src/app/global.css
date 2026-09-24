@@ -1185,21 +1185,21 @@ html > body[data-scroll-locked] {
 
 .dark .site-header {
   --header-bg: #101114;
-  --header-fg: #f5f5f5;
+  --header-fg: #f3f4f6;
   --header-border: #30333a;
-  --header-muted: #aaa;
+  --header-muted: #afb3bd;
   --header-active-underline: #565656;
-  --header-search-bg: #222;
-  --header-search-border: #393939;
-  --header-search-fg: #aaa;
+  --header-search-bg: #1a1c21;
+  --header-search-border: #30333a;
+  --header-search-fg: #afb3bd;
   --header-search-hover-border: #5b5b5b;
-  --header-kbd-border: #3b3b3b;
-  --header-kbd-fg: #a6a6a6;
+  --header-kbd-border: #30333a;
+  --header-kbd-fg: #afb3bd;
   --header-github-hover: #9bb7ff;
-  --header-menu-bg: #202020;
-  --header-menu-hover-bg: #303030;
-  --header-menu-fg: #bdbdbd;
-  --header-menu-button-fg: #d0d0d0;
+  --header-menu-bg: #1a1c21;
+  --header-menu-hover-bg: #242830;
+  --header-menu-fg: #afb3bd;
+  --header-menu-button-fg: #afb3bd;
 }
 
 .site-header-brand {
@@ -1344,11 +1344,11 @@ html > body[data-scroll-locked] {
 }
 
 .dark .site-theme-toggle {
-  --toggle-border: #363636;
-  --toggle-background: #242424;
-  --toggle-active: #3a3a3a;
-  --toggle-color: #a2a2a2;
-  --toggle-active-color: #f5f5f5;
+  --toggle-border: #30333a;
+  --toggle-background: #1a1c21;
+  --toggle-active: #30333a;
+  --toggle-color: #afb3bd;
+  --toggle-active-color: #f3f4f6;
 }
 
 @media (max-width: 1100px) {
