@@ -138,6 +138,20 @@
   display: flex;
   gap: 8px;
   margin: 20px 0 28px;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
+}
+.demo-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .demo-choices button {
   padding: 10px 14px;
@@ -157,34 +171,63 @@
   padding-top: 20px;
 }
 .demo-root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 22px 0 14px;
   font: 14px var(--font-mono);
 }
-.site-home .demo-root span {
+.demo-root svg,
+.demo-tree-row svg {
+  color: var(--expo-blue);
+  flex: 0 0 auto;
+}
+.demo-root-slash {
   color: var(--expo-blue);
 }
-.demo-output dl {
+.demo-file-tree,
+.demo-file-tree ul {
   margin: 0;
-  padding-left: 15px;
+  padding: 0;
+  list-style: none;
+}
+.demo-file-tree {
   border-left: 1px solid var(--home-border);
 }
-.demo-output dl > div {
+.demo-file-tree ul {
+  padding-left: 18px;
+}
+.demo-file-tree li + li {
+  margin-top: 2px;
+}
+.demo-tree-row {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 10px 0;
+  align-items: center;
+  gap: 9px;
+  min-height: 34px;
+  padding: 5px 8px;
   font-size: 11px;
 }
-.demo-output dt {
-  font-family: var(--font-mono);
+.demo-tree-row code {
+  font: 11px var(--font-mono);
 }
-.demo-output dd {
-  margin: 0;
+.demo-tree-row > span:last-child {
+  margin-left: auto;
   color: var(--home-muted);
+  text-align: right;
 }
-.demo-selected dt {
+.demo-tree-nested {
+  padding-left: 8px;
+}
+.demo-selected {
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--expo-blue) 7%, transparent);
+}
+.demo-selected code {
   color: var(--expo-blue);
+}
+.demo-file-tree > li:last-child {
+  margin-top: 2px;
 }
 .demo-footnote {
   margin-top: 22px;
