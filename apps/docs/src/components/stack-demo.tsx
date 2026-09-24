@@ -14,7 +14,7 @@ export function StackDemo() {
   return (
     <section className="stack-demo" aria-label="Example project structure">
       <div className="demo-caption">
-        <span>01 / CONFIGURE</span>
+        <span>Configure</span>
         <span>EXAMPLE</span>
       </div>
       <h2>A few choices. A fresh start.</h2>
@@ -34,8 +34,7 @@ export function StackDemo() {
       </fieldset>
       <div className="demo-output" aria-live="polite" aria-atomic="true">
         <div className="demo-caption">
-          <span>02 / YOUR PROJECT</span>
-          <span>↘</span>
+          <span>Your project</span>
         </div>
         <div className="demo-root">
           <HugeiconsIcon icon={Folder01Icon} size={16} aria-hidden="true" />
@@ -82,9 +81,6 @@ export function StackDemo() {
             </div>
           </li>
         </ul>
-      </div>
-      <div className="demo-footnote">
-        <span aria-hidden="true">↗</span> Your code. Ready to make your own.
       </div>
     </section>
   );

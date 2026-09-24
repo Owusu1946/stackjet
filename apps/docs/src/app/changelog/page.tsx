@@ -1,4 +1,6 @@
 import { createPackageName, productName, releaseVersion } from "@expojet/brand";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -114,9 +116,13 @@ const releases = [
 
 export default function ChangelogPage() {
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-10 sm:px-10">
-      <Link href="/" className="text-sm text-fd-muted-foreground hover:text-fd-foreground">
-        ← Back to {productName}
+    <main className="changelog-page mx-auto min-h-screen w-full max-w-4xl px-6 py-10 sm:px-10">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 text-sm text-fd-muted-foreground hover:text-fd-foreground"
+      >
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={15} aria-hidden="true" />
+        Back to {productName}
       </Link>
       <header className="mt-6 border-b border-fd-border pb-5">
         <h1 className="text-4xl font-semibold tracking-tight">Changelog</h1>

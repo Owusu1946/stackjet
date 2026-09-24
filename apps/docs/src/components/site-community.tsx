@@ -52,7 +52,6 @@ export function Community({ data }: { data: CommunityData }) {
         <div className="site-people-group">
           <div className="site-people-heading">
             <h3>Maintainers</h3>
-            <span>{data.maintainers.length}</span>
           </div>
           <div className="site-person-list">
             {data.maintainers.map((person) => (
@@ -67,10 +66,6 @@ export function Community({ data }: { data: CommunityData }) {
         <div className="site-people-group site-contributor-group">
           <div className="site-people-heading">
             <h3>Contributors</h3>
-            <span>{data.contributorCount ?? "—"}</span>
-            <a href={`${data.repository}/graphs/contributors`} target="_blank" rel="noreferrer">
-              View all <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} aria-hidden="true" />
-            </a>
           </div>
           {data.contributors.length > 0 ? (
             <div className="site-avatar-list">
@@ -91,12 +86,12 @@ export function Community({ data }: { data: CommunityData }) {
             <p>Contributor data is unavailable right now.</p>
           )}
           <a
-            className="site-contribute-link"
-            href={`${data.repository}/blob/main/CONTRIBUTING.md`}
+            className="site-contributors-all"
+            href={`${data.repository}/graphs/contributors`}
             target="_blank"
             rel="noreferrer"
           >
-            Contribute to Expojet{" "}
+            View all contributors{" "}
             <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} aria-hidden="true" />
           </a>
         </div>

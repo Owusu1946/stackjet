@@ -5,15 +5,95 @@
 :root {
   --font-sans: var(--font-inter), ui-sans-serif, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-fd-background: #fafaf8;
+  --color-fd-foreground: #20221f;
+  --color-fd-muted: #f0f1ec;
+  --color-fd-muted-foreground: #636760;
+  --color-fd-border: #e0e2dc;
+  --color-fd-card: #fff;
+  --color-fd-card-foreground: #20221f;
+  --color-fd-popover: #fff;
+  --color-fd-popover-foreground: #20221f;
+  --color-fd-secondary: #f0f1ec;
+  --color-fd-secondary-foreground: #20221f;
+  --color-fd-accent: #f0f1ec;
+  --color-fd-accent-foreground: #20221f;
   --color-fd-primary: #315efb;
   --color-fd-primary-foreground: #fff;
   --color-fd-ring: #315efb;
 }
 
 .dark {
+  --color-fd-background: #131512;
+  --color-fd-foreground: #eef0e9;
+  --color-fd-muted: #1d211a;
+  --color-fd-muted-foreground: #a5ada0;
+  --color-fd-border: #34392f;
+  --color-fd-card: #1d211a;
+  --color-fd-card-foreground: #eef0e9;
+  --color-fd-popover: #1d211a;
+  --color-fd-popover-foreground: #eef0e9;
+  --color-fd-secondary: #1d211a;
+  --color-fd-secondary-foreground: #eef0e9;
+  --color-fd-accent: #34392f;
+  --color-fd-accent-foreground: #eef0e9;
   --color-fd-primary: #83a0ff;
-  --color-fd-primary-foreground: #101114;
+  --color-fd-primary-foreground: #131512;
   --color-fd-ring: #83a0ff;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #1d211a;
+  --color-fd-secondary: #1d211a;
+  --color-fd-muted-foreground: #a5ada0;
+}
+
+/* The top navbar already carries the theme toggle, so the sidebar copy only
+   crowds the collapse button. Hide it inside the sidebar. */
+#nd-sidebar .site-theme-toggle {
+  display: none;
+}
+
+/* The switcher lives in the mobile docs drawer: keep it out of the mobile
+   top bar and the desktop sidebar footer. */
+#nd-subnav .site-theme-toggle {
+  display: none;
+}
+#nd-sidebar .docs-theme-switch {
+  display: none;
+}
+
+/* The docs drawer close button is a fumadocs panel icon; render an X. */
+#nd-sidebar-mobile [aria-label="Close Sidebar"] {
+  position: relative;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"] svg {
+  display: none;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::before,
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+#nd-sidebar-mobile [aria-label="Close Sidebar"]::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* The sidebar footer wraps the lone GitHub icon link in a bordered box.
+   Render it as a plain icon row instead. */
+#nd-sidebar > div:last-child > div:has(a[aria-label="GitHub"]) {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
 }
 
 html {
@@ -571,6 +651,18 @@ html > body[data-scroll-locked] {
 .builder-sidebar::-webkit-scrollbar {
   display: none;
 }
+/* The config column scrolls independently like the sidebar, so scrolling
+   sections never moves the whole page. Preview view keeps page scrolling
+   because its panes already scroll internally. */
+.builder-main[data-view="configure"] {
+  align-self: start;
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.builder-main[data-view="configure"]::-webkit-scrollbar {
+  display: none;
+}
 .builder-field {
   display: flex;
   flex-direction: column;
@@ -895,6 +987,9 @@ html > body[data-scroll-locked] {
 .preview-refreshing {
   color: var(--color-fd-primary);
 }
+.preview-pane-tabs {
+  display: none;
+}
 .preview-workspace {
   display: grid;
   grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.8fr);
@@ -1129,10 +1224,40 @@ html > body[data-scroll-locked] {
   .preview-workspace {
     grid-template-columns: 1fr;
   }
+  .preview-pane-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--color-fd-border);
+  }
+  .preview-pane-tabs button {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.6rem;
+    padding: 0 1rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-fd-muted-foreground);
+    cursor: pointer;
+    font: 700 0.68rem / 1 var(--font-mono);
+    letter-spacing: 0.06em;
+  }
+  .preview-pane-tabs button[aria-selected="true"] {
+    background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
+    box-shadow: inset 0 -2px var(--color-fd-primary);
+    color: var(--color-fd-primary);
+  }
+  .preview-workspace[data-mobile-pane="files"] .preview-code-pane {
+    display: none;
+  }
   .preview-tree {
     max-height: 15rem;
     border-right: 0;
     border-bottom: 1px solid var(--color-fd-border);
+  }
+  .preview-workspace[data-mobile-pane="code"] .preview-tree {
+    display: none;
   }
   .builder-preview .preview-code-pane .preview-code-scroll {
     max-height: 31rem;
@@ -1152,9 +1277,36 @@ html > body[data-scroll-locked] {
   .builder-page-bar a {
     transition: none;
   }
+  .site-menu-backdrop,
+  .site-menu-drawer {
+    transition: none;
+  }
+}
+
+/* Docs navbars stay fully opaque so they read exactly like the landing header. */
+#nd-nav nav,
+#nd-subnav {
+  background-color: var(--color-fd-background);
+  backdrop-filter: none;
 }
 
 .site-header {
+  --header-bg: #fafaf8;
+  --header-fg: #20221f;
+  --header-border: #e0e2dc;
+  --header-muted: #636760;
+  --header-active-underline: #315efb;
+  --header-search-bg: #f0f1ec;
+  --header-search-border: #e0e2dc;
+  --header-search-fg: #636760;
+  --header-search-hover-border: #315efb;
+  --header-kbd-border: #e0e2dc;
+  --header-kbd-fg: #636760;
+  --header-github-hover: #315efb;
+  --header-menu-bg: #fff;
+  --header-menu-hover-bg: #f0f1ec;
+  --header-menu-fg: #636760;
+  --header-menu-button-fg: #20221f;
   position: relative;
   z-index: 10;
   display: flex;
@@ -1162,9 +1314,28 @@ html > body[data-scroll-locked] {
   gap: 22px;
   height: 60px;
   padding: 0 20px;
-  border-bottom: 1px solid #303030;
-  background: #1a1a1a;
-  color: #f5f5f5;
+  border-bottom: 1px solid var(--header-border);
+  background: var(--header-bg);
+  color: var(--header-fg);
+}
+
+.dark .site-header {
+  --header-bg: #131512;
+  --header-fg: #eef0e9;
+  --header-border: #34392f;
+  --header-muted: #a5ada0;
+  --header-active-underline: #565656;
+  --header-search-bg: #1d211a;
+  --header-search-border: #34392f;
+  --header-search-fg: #a5ada0;
+  --header-search-hover-border: #5b5b5b;
+  --header-kbd-border: #34392f;
+  --header-kbd-fg: #a5ada0;
+  --header-github-hover: #9baeff;
+  --header-menu-bg: #1d211a;
+  --header-menu-hover-bg: #242830;
+  --header-menu-fg: #a5ada0;
+  --header-menu-button-fg: #a5ada0;
 }
 
 .site-header-brand {
@@ -1192,17 +1363,17 @@ html > body[data-scroll-locked] {
   align-items: center;
   padding: 2px 12px 0;
   border-bottom: 2px solid transparent;
-  color: #aaa;
+  color: var(--header-muted);
   white-space: nowrap;
 }
 
 .site-header-links a:hover,
 .site-header-links a[aria-current="page"] {
-  color: #f5f5f5;
+  color: var(--header-fg);
 }
 
 .site-header-links a[aria-current="page"] {
-  border-bottom-color: #565656;
+  border-bottom-color: var(--header-active-underline);
 }
 
 .site-header-actions {
@@ -1220,18 +1391,18 @@ html > body[data-scroll-locked] {
   align-items: center;
   gap: 8px;
   padding: 0 8px 0 12px;
-  border: 1px solid #393939;
+  border: 1px solid var(--header-search-border);
   border-radius: 18px;
-  background: #222;
-  color: #aaa;
+  background: var(--header-search-bg);
+  color: var(--header-search-fg);
   cursor: pointer;
   font: 400 14px / 1 var(--font-sans);
   text-align: left;
 }
 
 .site-header-search:hover {
-  border-color: #5b5b5b;
-  color: #f5f5f5;
+  border-color: var(--header-search-hover-border);
+  color: var(--header-fg);
 }
 
 .site-header-shortcut {
@@ -1243,9 +1414,9 @@ html > body[data-scroll-locked] {
 
 .site-header-shortcut kbd {
   padding: 2px 5px;
-  border: 1px solid #3b3b3b;
+  border: 1px solid var(--header-kbd-border);
   border-radius: 5px;
-  color: #a6a6a6;
+  color: var(--header-kbd-fg);
   font: 12px / 1 var(--font-mono);
 }
 
@@ -1255,23 +1426,87 @@ html > body[data-scroll-locked] {
   height: 34px;
   flex: none;
   place-items: center;
-  color: #f5f5f5;
+  color: var(--header-fg);
 }
 
 .site-header-github:hover {
-  color: #9bb7ff;
+  color: var(--header-github-hover);
 }
 
-.site-header-menu {
+.site-menu-button {
   display: none;
 }
 
+/* Restyled by the Sheet component; these classes theme its parts. */
+.site-menu-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 56px 13px 16px;
+  border-bottom: 1px solid var(--header-search-border);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.site-menu-nav {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 2px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.site-menu-nav a {
+  padding: 11px 12px;
+  border-radius: 7px;
+  color: var(--header-menu-fg);
+  font-size: 15px;
+  font-weight: 550;
+}
+
+.site-menu-nav a:hover,
+.site-menu-nav a[aria-current="page"] {
+  background: var(--header-menu-hover-bg);
+  color: var(--header-fg);
+}
+
+.dark .site-menu-nav a:hover,
+.dark .site-menu-nav a[aria-current="page"] {
+  color: #fff;
+}
+
+.site-menu-foot {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--header-search-border);
+}
+
+.site-menu-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--header-menu-fg);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.site-menu-github:hover {
+  color: var(--header-github-hover);
+}
+
 .site-theme-toggle {
-  --toggle-border: #dce3ef;
-  --toggle-background: #f4f7fc;
-  --toggle-active: #fff;
-  --toggle-color: #657082;
-  --toggle-active-color: #1e2430;
+  --toggle-border: #e0e2dc;
+  --toggle-background: #f0f1ec;
+  --toggle-active: #fafaf8;
+  --toggle-color: #636760;
+  --toggle-active-color: #20221f;
   display: inline-flex;
   width: 62px;
   height: 34px;
@@ -1302,70 +1537,60 @@ html > body[data-scroll-locked] {
 
 .site-header a:focus-visible,
 .site-header button:focus-visible,
-.site-header summary:focus-visible,
+.site-menu-button:focus-visible,
 .site-theme-toggle:focus-visible {
-  outline: 2px solid #83a0ff;
+  outline: 2px solid var(--color-fd-ring);
   outline-offset: 2px;
 }
 
-.dark .site-theme-toggle,
-.site-header .site-theme-toggle {
-  --toggle-border: #363636;
-  --toggle-background: #242424;
-  --toggle-active: #3a3a3a;
-  --toggle-color: #a2a2a2;
-  --toggle-active-color: #f5f5f5;
+.dark .site-theme-toggle {
+  --toggle-border: #34392f;
+  --toggle-background: #1d211a;
+  --toggle-active: #34392f;
+  --toggle-color: #a5ada0;
+  --toggle-active-color: #eef0e9;
 }
 
 @media (max-width: 1100px) {
+  .site-header {
+    position: sticky;
+    top: 0;
+  }
+
   .site-header-links {
     display: none;
   }
 
-  .site-header-menu {
-    display: block;
-  }
-
-  .site-header-menu summary {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    border: 1px solid #393939;
-    border-radius: 7px;
-    color: #d0d0d0;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .site-header-menu summary::-webkit-details-marker {
+  .site-header .site-theme-toggle,
+  .site-header-github {
     display: none;
   }
 
-  .site-header-menu nav {
-    position: absolute;
-    top: 59px;
-    left: 20px;
+  .site-menu-button {
     display: grid;
-    min-width: 190px;
-    padding: 6px;
-    border: 1px solid #393939;
-    border-radius: 0 0 8px 8px;
-    background: #202020;
-    box-shadow: 0 14px 30px rgb(0 0 0 / 25%);
+    width: 34px;
+    height: 34px;
+    flex: none;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--header-menu-button-fg);
+    cursor: pointer;
   }
 
-  .site-header-menu nav a {
-    padding: 10px 12px;
-    border-radius: 5px;
-    color: #bdbdbd;
-    font-size: 14px;
+  .builder-page .builder-view-tabs {
+    position: sticky;
+    top: 60px;
+    z-index: 5;
+    background: var(--color-fd-background);
   }
 
-  .site-header-menu nav a:hover,
-  .site-header-menu nav a[aria-current="page"] {
-    background: #303030;
-    color: #fff;
+  .builder-page .builder-tabs {
+    top: calc(60px + 2.8rem);
+  }
+
+  .builder-page .builder-section {
+    scroll-margin-top: 160px;
   }
 }
 
@@ -1388,10 +1613,6 @@ html > body[data-scroll-locked] {
   .site-header-actions {
     gap: 6px;
   }
-
-  .site-header-menu nav {
-    left: 14px;
-  }
 }
 
 @media (max-width: 380px) {
@@ -1401,12 +1622,12 @@ html > body[data-scroll-locked] {
 }
 
 .builder-page {
-  --color-fd-background: #fff;
-  --color-fd-foreground: #1e2430;
-  --color-fd-border: #dce3ef;
-  --color-fd-muted: #f4f7fc;
-  --color-fd-muted-foreground: #5e6878;
-  background: #fff;
+  --color-fd-background: #fafaf8;
+  --color-fd-foreground: #20221f;
+  --color-fd-border: #e0e2dc;
+  --color-fd-muted: #f0f1ec;
+  --color-fd-muted-foreground: #636760;
+  background: #fafaf8;
   color: var(--color-fd-foreground);
   min-height: calc(100dvh - 60px);
 }
@@ -1453,7 +1674,7 @@ html > body[data-scroll-locked] {
   overflow: visible;
   padding: 12px 13px 8px;
   border-radius: 6px;
-  background: #f4f7fc;
+  background: #f0f1ec;
   color: #43516a;
   box-shadow: 0 2px 0 #c9d5ed;
   cursor: copy;
@@ -1653,32 +1874,50 @@ html > body[data-scroll-locked] {
 }
 
 .dark .builder-page {
-  --color-fd-background: #101114;
-  --color-fd-foreground: #f3f4f6;
-  --color-fd-border: #30333a;
-  --color-fd-muted: #1a1c21;
-  --color-fd-muted-foreground: #afb3bd;
-  background: #101114;
+  --color-fd-background: #131512;
+  --color-fd-foreground: #eef0e9;
+  --color-fd-border: #34392f;
+  --color-fd-muted: #1d211a;
+  --color-fd-muted-foreground: #a5ada0;
+  background: #131512;
+}
+
+.changelog-page {
+  --color-fd-background: #fafaf8;
+  --color-fd-foreground: #20221f;
+  --color-fd-border: #e0e2dc;
+  --color-fd-muted: #f0f1ec;
+  --color-fd-muted-foreground: #636760;
+  background: #fafaf8;
+}
+
+.dark .changelog-page {
+  --color-fd-background: #131512;
+  --color-fd-foreground: #eef0e9;
+  --color-fd-border: #34392f;
+  --color-fd-muted: #1d211a;
+  --color-fd-muted-foreground: #a5ada0;
+  background: #131512;
 }
 
 .dark .builder-page .stack-builder,
 .dark .builder-page .builder-options > button {
-  background: #101114;
+  background: #131512;
 }
 
 .dark .builder-page .builder-tabs {
-  background: #101114;
+  background: #131512;
 }
 
 .dark .builder-page .builder-tabs button {
-  background: #1a1c21;
+  background: #1d211a;
   box-shadow: 0 2px 0 #08090b;
 }
 
 .dark .builder-page .builder-tabs button:hover,
 .dark .builder-page .builder-tabs button[data-active="true"] {
   background: #242830;
-  color: #9bb7ff;
+  color: #9baeff;
 }
 
 .dark .builder-page .builder-tabs button[data-active="true"] {
@@ -1686,7 +1925,7 @@ html > body[data-scroll-locked] {
 }
 
 .dark .builder-page .builder-command {
-  background: #1a1c21;
+  background: #1d211a;
   color: #d8dbe1;
   box-shadow: 0 2px 0 #08090b;
 }
@@ -1700,7 +1939,7 @@ html > body[data-scroll-locked] {
 }
 
 .dark .builder-page .builder-command .builder-command-hint {
-  color: #9bb7ff;
+  color: #9baeff;
 }
 
 .dark .builder-page .builder-field input,
