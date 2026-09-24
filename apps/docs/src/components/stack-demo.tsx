@@ -1,9 +1,11 @@
 "use client";
 
+import { FileCodeIcon, Folder01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 
 const choices = {
-  NativeWind: ["global.css", "Utility-first styling"],
+  NativeWind: ["src/global.css", "Utility-first styling"],
   StyleSheet: ["src/theme/tokens.ts", "Shared theme tokens"],
 } as const;
 
@@ -17,7 +19,8 @@ export function StackDemo() {
       </div>
       <h2>A few choices. A fresh start.</h2>
       <p>Pick a styling approach. See where it lands.</p>
-      <div className="demo-choices" role="group" aria-label="Styling approach">
+      <fieldset className="demo-choices">
+        <legend className="demo-sr-only">Styling approach</legend>
         {Object.keys(choices).map((choice) => (
           <button
             key={choice}
@@ -28,33 +31,57 @@ export function StackDemo() {
             {choice}
           </button>
         ))}
-      </div>
+      </fieldset>
       <div className="demo-output" aria-live="polite" aria-atomic="true">
         <div className="demo-caption">
           <span>02 / YOUR PROJECT</span>
           <span>↘</span>
         </div>
         <div className="demo-root">
-          my-app <span>/</span>
+          <HugeiconsIcon icon={Folder01Icon} size={16} aria-hidden="true" />
+          <span>my-app</span>
+          <span className="demo-root-slash">/</span>
         </div>
-        <dl>
-          <div>
-            <dt>app/</dt>
-            <dd>Expo Router</dd>
-          </div>
-          <div>
-            <dt>src/components/</dt>
-            <dd>Your building blocks</dd>
-          </div>
-          <div className="demo-selected">
-            <dt>{choices[style][0]}</dt>
-            <dd>{choices[style][1]}</dd>
-          </div>
-          <div>
-            <dt>expojet.jsonc</dt>
-            <dd>Your stack, recorded</dd>
-          </div>
-        </dl>
+        <ul className="demo-file-tree" aria-label="Generated project files">
+          <li>
+            <div className="demo-tree-row">
+              <HugeiconsIcon icon={Folder01Icon} size={15} aria-hidden="true" />
+              <code>app/</code>
+              <span>Expo Router</span>
+            </div>
+          </li>
+          <li>
+            <div className="demo-tree-row">
+              <HugeiconsIcon icon={Folder01Icon} size={15} aria-hidden="true" />
+              <code>src/</code>
+              <span>Your source</span>
+            </div>
+            <ul>
+              {style === "StyleSheet" ? (
+                <li>
+                  <div className="demo-tree-row demo-tree-nested">
+                    <HugeiconsIcon icon={Folder01Icon} size={15} aria-hidden="true" />
+                    <code>theme/</code>
+                  </div>
+                </li>
+              ) : null}
+              <li>
+                <div className="demo-tree-row demo-tree-nested demo-selected">
+                  <HugeiconsIcon icon={FileCodeIcon} size={15} aria-hidden="true" />
+                  <code>{choices[style][0].split("/").at(-1)}</code>
+                  <span>{choices[style][1]}</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <div className="demo-tree-row">
+              <HugeiconsIcon icon={FileCodeIcon} size={15} aria-hidden="true" />
+              <code>expojet.jsonc</code>
+              <span>Your stack, recorded</span>
+            </div>
+          </li>
+        </ul>
       </div>
       <div className="demo-footnote">
         <span aria-hidden="true">↗</span> Your code. Ready to make your own.
