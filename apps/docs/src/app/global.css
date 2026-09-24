@@ -1184,9 +1184,9 @@ html > body[data-scroll-locked] {
 }
 
 .dark .site-header {
-  --header-bg: #1a1a1a;
+  --header-bg: #101114;
   --header-fg: #f5f5f5;
-  --header-border: #303030;
+  --header-border: #30333a;
   --header-muted: #aaa;
   --header-active-underline: #565656;
   --header-search-bg: #222;
