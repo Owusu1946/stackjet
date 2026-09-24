@@ -28,16 +28,6 @@
   gap: 72px;
   align-items: center;
 }
-.home-eyebrow {
-  font: 11px var(--font-mono);
-  letter-spacing: 0.1em;
-  color: var(--home-muted);
-  margin-bottom: 28px;
-}
-.home-eyebrow span {
-  color: var(--expo-blue);
-  margin-inline: 10px;
-}
 .home-hero-content h1 {
   margin: 0;
   font-size: clamp(48px, 5.4vw, 76px);
@@ -120,8 +110,8 @@
 .demo-caption {
   display: flex;
   justify-content: space-between;
-  font: 10px var(--font-mono);
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 650;
   color: var(--home-muted);
 }
 .stack-demo h2 {
@@ -228,15 +218,6 @@
 }
 .demo-file-tree > li:last-child {
   margin-top: 2px;
-}
-.demo-footnote {
-  margin-top: 22px;
-  font-size: 11px;
-  color: var(--home-muted);
-}
-.site-home .demo-footnote span {
-  color: var(--expo-blue);
-  margin-right: 6px;
 }
 .site-home .site-header {
   background: var(--home-bg);

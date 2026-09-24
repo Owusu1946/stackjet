@@ -18,9 +18,6 @@ export default async function HomePage() {
       <main className="home-main">
         <section className="home-hero">
           <div className="home-hero-content">
-            <div className="home-eyebrow">
-              EXPO SDK 57 <span>/</span> YOUR NEXT IDEA
-            </div>
             <h1>
               Your stack.
               <br />
