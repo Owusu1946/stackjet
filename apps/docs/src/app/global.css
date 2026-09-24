@@ -830,7 +830,7 @@ html > body[data-scroll-locked] {
 }
 .builder-options > button:disabled {
   cursor: not-allowed;
-  opacity: 0.38;
+  opacity: 0.68;
 }
 .builder-options > button > i {
   margin-left: auto;
@@ -850,6 +850,10 @@ html > body[data-scroll-locked] {
 .builder-option-copy small {
   color: var(--color-fd-muted-foreground);
   font: 500 0.7rem / 1.45 var(--font-mono);
+}
+.builder-option-copy small.builder-option-reason {
+  color: var(--color-fd-primary);
+  font-weight: 600;
 }
 .builder-placeholder {
   display: grid;
@@ -1602,6 +1606,11 @@ html > body[data-scroll-locked] {
 
 .builder-page .builder-option-copy small {
   font: 400 13px / 1.45 var(--font-sans);
+}
+
+.builder-page .builder-option-copy small.builder-option-reason {
+  color: var(--color-fd-primary);
+  font-weight: 600;
 }
 
 .builder-page .builder-chips .builder-chip {
