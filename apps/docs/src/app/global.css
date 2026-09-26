@@ -21,6 +21,26 @@
   --color-fd-primary: #315efb;
   --color-fd-primary-foreground: #fff;
   --color-fd-ring: #315efb;
+  /* Header tokens live on :root (not .site-header) so the mobile navigation
+     sheet, which renders in a dialog portal outside the header, can read them.
+     A portal-scoped variable would resolve to nothing and leave the drawer
+     transparent over the page. */
+  --header-bg: #fafaf8;
+  --header-fg: #20221f;
+  --header-border: #e0e2dc;
+  --header-muted: #636760;
+  --header-active-underline: #315efb;
+  --header-search-bg: #f0f1ec;
+  --header-search-border: #e0e2dc;
+  --header-search-fg: #636760;
+  --header-search-hover-border: #315efb;
+  --header-kbd-border: #e0e2dc;
+  --header-kbd-fg: #636760;
+  --header-github-hover: #315efb;
+  --header-menu-bg: #fff;
+  --header-menu-hover-bg: #f0f1ec;
+  --header-menu-fg: #636760;
+  --header-menu-button-fg: #20221f;
 }
 
 .dark {
@@ -40,6 +60,22 @@
   --color-fd-primary: #83a0ff;
   --color-fd-primary-foreground: #131512;
   --color-fd-ring: #83a0ff;
+  --header-bg: #131512;
+  --header-fg: #eef0e9;
+  --header-border: #34392f;
+  --header-muted: #a5ada0;
+  --header-active-underline: #565656;
+  --header-search-bg: #1d211a;
+  --header-search-border: #34392f;
+  --header-search-fg: #a5ada0;
+  --header-search-hover-border: #5b5b5b;
+  --header-kbd-border: #34392f;
+  --header-kbd-fg: #a5ada0;
+  --header-github-hover: #9baeff;
+  --header-menu-bg: #1d211a;
+  --header-menu-hover-bg: #242830;
+  --header-menu-fg: #a5ada0;
+  --header-menu-button-fg: #a5ada0;
 }
 
 .dark #nd-sidebar {
@@ -1295,22 +1331,6 @@ html > body[data-scroll-locked] {
 }
 
 .site-header {
-  --header-bg: #fafaf8;
-  --header-fg: #20221f;
-  --header-border: #e0e2dc;
-  --header-muted: #636760;
-  --header-active-underline: #315efb;
-  --header-search-bg: #f0f1ec;
-  --header-search-border: #e0e2dc;
-  --header-search-fg: #636760;
-  --header-search-hover-border: #315efb;
-  --header-kbd-border: #e0e2dc;
-  --header-kbd-fg: #636760;
-  --header-github-hover: #315efb;
-  --header-menu-bg: #fff;
-  --header-menu-hover-bg: #f0f1ec;
-  --header-menu-fg: #636760;
-  --header-menu-button-fg: #20221f;
   position: relative;
   z-index: 10;
   display: flex;
@@ -1321,25 +1341,6 @@ html > body[data-scroll-locked] {
   border-bottom: 1px solid var(--header-border);
   background: var(--header-bg);
   color: var(--header-fg);
-}
-
-.dark .site-header {
-  --header-bg: #131512;
-  --header-fg: #eef0e9;
-  --header-border: #34392f;
-  --header-muted: #a5ada0;
-  --header-active-underline: #565656;
-  --header-search-bg: #1d211a;
-  --header-search-border: #34392f;
-  --header-search-fg: #a5ada0;
-  --header-search-hover-border: #5b5b5b;
-  --header-kbd-border: #34392f;
-  --header-kbd-fg: #a5ada0;
-  --header-github-hover: #9baeff;
-  --header-menu-bg: #1d211a;
-  --header-menu-hover-bg: #242830;
-  --header-menu-fg: #a5ada0;
-  --header-menu-button-fg: #a5ada0;
 }
 
 .site-header-brand {
