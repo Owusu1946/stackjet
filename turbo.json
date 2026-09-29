@@ -12,6 +12,11 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
+    },
+    "architecture": {
+      "dependsOn": ["build"],
+      "outputs": ["architecture.baseline.json"],
+      "cache": false
     }
   }
 }
