@@ -4,6 +4,7 @@ import { productName, releaseVersion, tagline } from "@expojet/brand";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const geistMono = Geist_Mono({
@@ -103,10 +104,12 @@ export default function Layout({ children }: LayoutProps<"/">) {
           // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized from static constants.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <RootProvider>
-          {children}
-          <Analytics />
-        </RootProvider>
+        <NuqsAdapter>
+          <RootProvider>
+            {children}
+            <Analytics />
+          </RootProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

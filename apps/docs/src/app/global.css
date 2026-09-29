@@ -2036,3 +2036,54 @@ html > body[data-scroll-locked] {
     border-right: 0;
   }
 }
+
+/*
+ * The permalink control. Sits with the command block because it is the other half of "take this
+ * configuration away": one gives you a command to paste, the other a URL to send.
+ */
+.builder-permalink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+.builder-permalink-label {
+  color: var(--color-fd-muted-foreground);
+  font: 600 0.65rem / 1 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.builder-permalink-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--color-fd-foreground);
+  cursor: pointer;
+  font: 600 0.72rem / 1 var(--font-mono);
+  transition:
+    border-color 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.builder-permalink-button:hover {
+  border-color: var(--color-fd-primary);
+  color: var(--color-fd-primary);
+}
+.builder-permalink-button[data-copy-status="copied"] {
+  border-color: #22c55e;
+  color: #16a34a;
+}
+.dark .builder-permalink-button[data-copy-status="copied"] {
+  border-color: #22c55e;
+  color: #4ade80;
+}
+.builder-permalink small {
+  color: var(--color-fd-muted-foreground);
+  font: 500 0.62rem / 1.35 var(--font-mono);
+}

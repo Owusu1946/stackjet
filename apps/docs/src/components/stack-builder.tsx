@@ -9,6 +9,7 @@ import {
   Layers01Icon,
   LayoutBottomIcon,
   LayoutDashboardIcon,
+  Link01Icon,
   Moon02Icon,
   PlusSignIcon,
   Rocket01Icon,
@@ -19,8 +20,15 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useQueryStates } from "nuqs";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCopyFeedback } from "@/hooks/use-copy-feedback";
+import {
+  configParams,
+  serializeBuilderState,
+  socialsFromParam,
+  socialsToParam,
+} from "./stack-builder-permalink";
 import { type PreviewFile, StackPreview } from "./stack-preview";
 
 type PackageManager = "pnpm" | "npm" | "bun" | "yarn";
@@ -370,6 +378,31 @@ const defaults: Config = {
   eas: true,
 };
 
+/** Narrows a resolved configuration back to the URL keys that differ from the defaults. */
+function toUrlPatch(next: Config) {
+  return {
+    sdk: next.sdk,
+    structure: next.structure,
+    navigation: next.navigation,
+    layout: next.navigationType,
+    auth: next.auth,
+    socials: socialsToParam(next.socials),
+    style: next.style,
+    icons: next.icons,
+    state: next.state,
+    backend: next.backend,
+    db: next.database,
+    orm: next.orm,
+    analytics: next.analytics,
+    monitoring: next.monitoring,
+    glass: next.liquidGlass,
+    onboarding: next.onboarding,
+    dark: next.darkMode,
+    haptics: next.haptics,
+    eas: next.eas,
+  };
+}
+
 const presets: Array<{ id: string; label: string; description: string; config: Config }> = [
   {
     id: "mvp",
@@ -568,9 +601,53 @@ function BuilderChoiceIcon({ icon, size }: { icon: string; size: number }) {
 }
 
 export function StackBuilder() {
-  const [projectName, setProjectName] = useState("my-expojet-app");
-  const [packageManager, setPackageManager] = useState<PackageManager>("pnpm");
-  const [config, setConfig] = useState<Config>(defaults);
+  // The configuration is the URL. `useQueryStates` gives back a `useState`-shaped pair, and
+  // `history: "push"` means the browser Back button walks the choices a visitor made, which is the
+  // behaviour people expect from a page that builds something.
+  const [url, setUrl] = useQueryStates(configParams, { history: "push" });
+  const projectName = url.name;
+  const packageManager: PackageManager = url.pm;
+  const config = useMemo<Config>(
+    () =>
+      ({
+        ...defaults,
+        sdk: url.sdk,
+        structure: url.structure,
+        navigation: url.navigation,
+        navigationType: url.layout,
+        auth: url.auth,
+        socials: socialsFromParam(url.socials),
+        style: url.style,
+        icons: url.icons,
+        state: url.state,
+        backend: url.backend,
+        database: url.db,
+        orm: url.orm,
+        analytics: url.analytics,
+        monitoring: url.monitoring,
+        liquidGlass: url.glass,
+        onboarding: url.onboarding,
+        darkMode: url.dark,
+        haptics: url.haptics,
+        eas: url.eas,
+      }) as Config,
+    [url],
+  );
+  const setProjectName = useCallback((name: string) => setUrl({ name }), [setUrl]);
+  const setPackageManager = useCallback(
+    (manager: PackageManager) => setUrl({ pm: manager }),
+    [setUrl],
+  );
+  const setConfig = useCallback(
+    (update: Config | ((current: Config) => Config)) => {
+      // `config` is the render's current value, and this callback is rebuilt whenever it changes,
+      // so the functional form sees the same state the caller would have read from the closure.
+      const next = typeof update === "function" ? update(config) : update;
+      setUrl(toUrlPatch(next));
+    },
+    [setUrl, config],
+  );
+
   const [activeGroup, setActiveGroup] = useState<CategoryKey>("structure");
   const [view, setView] = useState<"configure" | "preview">("configure");
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
@@ -797,9 +874,8 @@ export function StackBuilder() {
   }, [config, packageManager, safeProjectName]);
 
   function resetBuilder() {
-    setProjectName("my-expojet-app");
-    setPackageManager("pnpm");
-    setConfig(defaults);
+    // One write, so Reset is a single history entry rather than three.
+    setUrl({ name: "my-expojet-app", pm: "pnpm", ...toUrlPatch(defaults) });
     setActiveGroup("structure");
     setPreset("");
   }
@@ -815,6 +891,35 @@ export function StackBuilder() {
     setPreset(id);
     setActiveGroup("structure");
   }
+
+  /** The configuration as a shareable, readable link, rather than the raw query string. */
+  const permalink = useMemo(() => {
+    const query = serializeBuilderState("/builder", {
+      sdk: config.sdk,
+      structure: config.structure,
+      navigation: config.navigation,
+      layout: config.navigationType,
+      auth: config.auth,
+      socials: socialsToParam(config.socials),
+      style: config.style,
+      icons: config.icons,
+      state: config.state,
+      backend: config.backend,
+      db: config.database,
+      orm: config.orm,
+      analytics: config.analytics,
+      monitoring: config.monitoring,
+      glass: config.liquidGlass,
+      onboarding: config.onboarding,
+      dark: config.darkMode,
+      haptics: config.haptics,
+      eas: config.eas,
+      name: safeProjectName,
+      pm: packageManager,
+    });
+    return typeof window === "undefined" ? query : new URL(query, window.location.origin).href;
+  }, [config, packageManager, safeProjectName]);
+  const { status: linkStatus, copy: copyLink } = useCopyFeedback(permalink);
 
   return (
     <section className="stack-builder" id="builder" aria-labelledby="builder-heading">
@@ -882,6 +987,36 @@ export function StackBuilder() {
                     : "Click to copy"}
               </span>
             </button>
+            <div className="builder-permalink">
+              <span className="builder-permalink-label" id="builder-permalink-label">
+                Shareable link
+              </span>
+              <button
+                className="builder-permalink-button"
+                type="button"
+                onClick={copyLink}
+                data-copy-status={linkStatus}
+                aria-describedby="builder-permalink-label"
+                aria-label={
+                  linkStatus === "copied"
+                    ? "Link copied"
+                    : linkStatus === "failed"
+                      ? "Copy failed. Try again"
+                      : "Copy a link to this configuration"
+                }
+                title={linkStatus === "copied" ? "Copied" : "Click to copy link"}
+              >
+                <HugeiconsIcon
+                  icon={linkStatus === "copied" ? Tick02Icon : Link01Icon}
+                  size={15}
+                  aria-hidden="true"
+                />
+                {linkStatus === "copied" ? "Link copied" : "Copy link"}
+              </button>
+              <small>
+                Every choice above is in the address bar, so this link reopens exactly this stack.
+              </small>
+            </div>
             <div className="builder-preset">
               <label className="builder-preset-label" htmlFor="builder-preset">
                 Preset
