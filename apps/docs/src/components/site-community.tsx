@@ -6,13 +6,15 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import type { CommunityData } from "@/lib/community";
 
+const compact = new Intl.NumberFormat("en", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 export function Community({ data }: { data: CommunityData }) {
-  const compact = new Intl.NumberFormat("en", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  });
   const formatFull = (value: number | null) => (value === null ? "n/a" : value.toLocaleString());
   const formatShort = (value: number | null) => (value === null ? "n/a" : compact.format(value));
   const metrics = [
@@ -32,7 +34,7 @@ export function Community({ data }: { data: CommunityData }) {
     },
   ];
   return (
-    <section className="site-community" aria-labelledby="community-title">
+    <section className="site-community" aria-labelledby="community-title" data-reveal>
       <div className="site-community-heading">
         <h2 id="community-title">Built in the open.</h2>
         <a href={data.repository} target="_blank" rel="noreferrer">
@@ -41,11 +43,20 @@ export function Community({ data }: { data: CommunityData }) {
       </div>
       <p className="community-context">A small team. An open codebase. Room for your ideas.</p>
       <div className="site-metrics">
-        {metrics.map(({ label, shortLabel, value, icon, href }) => {
+        {metrics.map(({ label, shortLabel, value, icon, href }, index) => {
           const full = formatFull(value);
           const short = formatShort(value);
           return (
-            <a href={href} target="_blank" rel="noreferrer" className="site-metric" key={label}>
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="site-metric"
+              key={label}
+              data-reveal
+              // Stagger the three cards so they land in sequence rather than as one block.
+              style={{ "--reveal-delay": `${index * 70}ms` } as CSSProperties}
+            >
               <span className="site-metric-label">
                 <HugeiconsIcon icon={icon} size={17} strokeWidth={1.8} aria-hidden="true" />{" "}
                 <span className="metric-label-full">{label}</span>

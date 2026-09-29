@@ -1,7 +1,9 @@
 import { ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyCommand } from "@/components/copy-command";
+import { RevealOnScroll } from "@/components/reveal";
 import { Community } from "@/components/site-community";
 import { SiteHeader } from "@/components/site-header";
 import { StackDemo } from "@/components/stack-demo";
@@ -9,28 +11,33 @@ import { getCommunityData } from "@/lib/community";
 import "@/components/site-community.css";
 import "./home.css";
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default async function HomePage() {
   const community = await getCommunityData();
 
   return (
     <div className="site-home">
       <SiteHeader active="home" />
+      <RevealOnScroll />
       <main className="home-main">
         <section className="home-hero">
           <div className="home-hero-content">
-            <h1>
+            <h1 data-reveal>
               Your stack.
               <br />
               <span>Ready to build.</span>
             </h1>
-            <p>
+            <p data-reveal>
               Generate an Expo app with your navigation, styling, auth, and backend already
               connected.
             </p>
-            <div className="home-command">
+            <div className="home-command" data-reveal>
               <CopyCommand />
             </div>
-            <div className="home-actions">
+            <div className="home-actions" data-reveal>
               <Link className="home-primary" href="/builder">
                 Build your stack{" "}
                 <HugeiconsIcon icon={ArrowUpRight01Icon} size={17} aria-hidden="true" />

@@ -135,6 +135,11 @@
 html {
   scrollbar-gutter: stable;
   font-family: var(--font-sans);
+  /* The site-wide motion vocabulary. One duration scale, one easing curve. */
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 420ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 html > body[data-scroll-locked] {
   /* biome-ignore lint/complexity/noImportantStyles: Radix scroll lock must win over inline body styles. */
@@ -1374,6 +1379,17 @@ html > body[data-scroll-locked] {
   border-bottom: 1px solid var(--header-border);
   background: var(--header-bg);
   color: var(--header-fg);
+  transition: box-shadow var(--motion-base, 220ms) var(--motion-ease, ease);
+}
+
+/*
+ * Once the page has scrolled, the sticky header separates itself from the content passing
+ * underneath. `data-scrolled` is set by HeaderScrollState, so this is inert without JavaScript.
+ */
+.site-header[data-scrolled="true"] {
+  box-shadow:
+    0 1px 0 var(--header-border),
+    0 8px 24px -18px rgb(0 0 0 / 45%);
 }
 
 .site-header-brand {

@@ -4,6 +4,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { gitConfig } from "@/lib/shared";
+import { HeaderScrollState } from "./header-scroll-state";
 import { siteLinks } from "./site-links";
 import { SiteMenu } from "./site-menu";
 import { SiteSearch } from "./site-search";
@@ -12,6 +13,7 @@ import { ThemeToggle } from "./theme-toggle";
 export function SiteHeader({ active }: { active: "home" | "builder" }) {
   return (
     <header className="site-header">
+      <HeaderScrollState />
       <Link href="/" className="site-header-brand" aria-label={`${productName} home`}>
         <Image src="/brand/expojet-mark.svg" alt="" width={24} height={24} priority />
         <span>{productName}</span>

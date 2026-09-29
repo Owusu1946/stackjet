@@ -636,3 +636,116 @@
     display: none;
   }
 }
+
+/*
+ * Micro-interactions
+ *
+ * One duration scale and one easing curve, used by every rule below. Motion is a nudge, never the
+ * only signal: each of these is a `transform`/`opacity`/`color` change on an element that is
+ * already in the DOM and already readable. The global `prefers-reduced-motion` override in
+ * `global.css` switches all of it off, so nothing here needs its own media query.
+ */
+.site-home {
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 420ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Scroll reveal. `data-revealed` is set by an IntersectionObserver; without JS the content is
+   simply always visible, because the hidden state is scoped to `[data-reveal]:not([data-revealed])`. */
+[data-reveal] {
+  --reveal-delay: 0ms;
+}
+[data-reveal]:not([data-revealed]) {
+  opacity: 0;
+  transform: translateY(14px);
+}
+[data-reveal] {
+  transition:
+    opacity var(--motion-slow) var(--motion-ease) var(--reveal-delay),
+    transform var(--motion-slow) var(--motion-ease) var(--reveal-delay);
+}
+
+/* The hero title is the first thing on the page, so it gets the shortest rise. */
+.home-hero-content h1 {
+  --reveal-delay: 0ms;
+}
+.home-hero-content > p {
+  --reveal-delay: 60ms;
+}
+.home-command {
+  --reveal-delay: 120ms;
+}
+.home-actions {
+  --reveal-delay: 180ms;
+}
+.stack-demo {
+  --reveal-delay: 90ms;
+}
+
+/* The primary action lifts, and the arrow it holds slides out to meet the pointer. */
+.home-primary {
+  transition:
+    background-color var(--motion-base) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease),
+    transform var(--motion-base) var(--motion-ease);
+}
+.home-primary:hover {
+  box-shadow: 0 8px 22px -8px color-mix(in srgb, #315efb 65%, transparent);
+  transform: translateY(-1px);
+}
+.home-primary:active {
+  transform: translateY(0);
+}
+.home-primary svg {
+  transition: transform var(--motion-base) var(--motion-ease);
+}
+.home-primary:hover svg {
+  transform: translate(2px, -2px);
+}
+.home-secondary {
+  transition: color var(--motion-base) var(--motion-ease);
+}
+.home-secondary:hover {
+  color: var(--home-fg);
+}
+.home-secondary svg {
+  transition: transform var(--motion-base) var(--motion-ease);
+}
+.home-secondary:hover svg {
+  transform: translateX(3px);
+}
+
+/* The command block reads as one pressable surface. */
+.home-command {
+  transition:
+    border-color var(--motion-base) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+.home-command:hover {
+  border-color: color-mix(in srgb, var(--expo-blue) 45%, var(--home-border));
+  box-shadow: 0 6px 18px -10px color-mix(in srgb, var(--home-fg) 40%, transparent);
+}
+
+/* The demo panel answers the pointer. */
+.stack-demo {
+  transition:
+    border-color var(--motion-base) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+.stack-demo:hover {
+  border-color: color-mix(in srgb, var(--expo-blue) 30%, var(--home-border));
+}
+.demo-choices button {
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+.demo-file-tree li,
+.demo-tree-row {
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+}
