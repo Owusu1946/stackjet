@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -11,6 +13,7 @@ permissions:
 
 jobs:
   publish:
+    if: github.event_name != 'release'
     runs-on: ubuntu-latest
     environment: npm
     steps:
@@ -33,3 +36,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  release-balls:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Release Balls
+        id: balls
+        uses: maria-rcks/release-balls@v1.2.0
+        with:
+          format: both
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-balls
+          path: ${{ steps.balls.outputs.directory }}
