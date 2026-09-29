@@ -48,33 +48,61 @@ export const projectNameSchema = z
     message: "Project name cannot start or end with a dot",
   });
 
-const createInputObjectSchema = z.object({
+/**
+ * The accepted create fields, without defaults attached.
+ *
+ * `createConfigSchema` is built from this shape so a `--config` file and a saved preset stay
+ * partial. Zod's `.partial()` wraps a field in `ZodOptional` but leaves an inner `ZodDefault` in
+ * place, so deriving the config schema from the defaulted object would materialise a value for
+ * every omitted key and let an empty config file outrank both `--preset` and the CLI defaults.
+ */
+const createConfigShape = {
   projectName: projectNameSchema,
   destination: z.string().min(1),
   structure: z.enum(structures),
   packageManager: z.enum(packageManagers),
-  navigation: z.enum(navigationAdapters).default("router"),
-  navigationType: z.enum(navigationTypes).default("tabs"),
-  typescript: z.boolean().default(true),
-  icons: z.enum(iconLibraries).default("lucide"),
-  state: z.enum(stateAdapters).default("none"),
-  liquidGlass: z.boolean().default(false),
-  haptics: z.boolean().default(true),
-  analytics: z.enum(analyticsAdapters).default("none"),
-  monitoring: z.enum(monitoringAdapters).default("none"),
+  navigation: z.enum(navigationAdapters),
+  navigationType: z.enum(navigationTypes),
+  typescript: z.boolean(),
+  icons: z.enum(iconLibraries),
+  state: z.enum(stateAdapters),
+  liquidGlass: z.boolean(),
+  haptics: z.boolean(),
+  analytics: z.enum(analyticsAdapters),
+  monitoring: z.enum(monitoringAdapters),
   preset: z.string().optional(),
   backend: z.enum(backendAdapters).optional(),
   auth: z.enum(authAdapters),
-  socialProviders: z.array(z.enum(socialProviders)).default([]),
+  socialProviders: z.array(z.enum(socialProviders)),
   style: z.enum(styleAdapters),
-  database: z.enum(databaseAdapters).default("none"),
-  orm: z.enum(ormAdapters).default("none"),
+  database: z.enum(databaseAdapters),
+  orm: z.enum(ormAdapters),
   onboarding: z.boolean(),
-  darkMode: z.boolean().default(true),
+  darkMode: z.boolean(),
   eas: z.boolean(),
-  install: z.boolean().default(true),
-  git: z.boolean().default(true),
-  sdk: z.union([z.literal(57), z.literal(58)]).default(57),
+  install: z.boolean(),
+  git: z.boolean(),
+  sdk: z.union([z.literal(57), z.literal(58)]),
+} satisfies z.ZodRawShape;
+
+const createInputObjectSchema = z.object({
+  ...createConfigShape,
+  navigation: createConfigShape.navigation.default("router"),
+  navigationType: createConfigShape.navigationType.default("tabs"),
+  typescript: createConfigShape.typescript.default(true),
+  icons: createConfigShape.icons.default("lucide"),
+  state: createConfigShape.state.default("none"),
+  liquidGlass: createConfigShape.liquidGlass.default(false),
+  haptics: createConfigShape.haptics.default(true),
+  analytics: createConfigShape.analytics.default("none"),
+  monitoring: createConfigShape.monitoring.default("none"),
+  socialProviders: createConfigShape.socialProviders.default([]),
+  database: createConfigShape.database.default("none"),
+  orm: createConfigShape.orm.default("none"),
+  darkMode: createConfigShape.darkMode.default(true),
+  install: createConfigShape.install.default(true),
+  git: createConfigShape.git.default(true),
+  sdk: createConfigShape.sdk.default(57),
 });
 
 export const createInputSchema = createInputObjectSchema
@@ -188,8 +216,12 @@ export type CreateInput = Omit<z.infer<typeof createInputSchema>, "socialProvide
   socialProviders?: SocialProvider[];
 };
 
-export const createConfigSchema = createInputObjectSchema
-  .omit({ destination: true })
+/**
+ * A partial create configuration: a `--config` file and a saved preset both use it, so parsing one
+ * must not invent a value for any key the author left out.
+ */
+export const createConfigSchema = z
+  .object(createConfigShape)
   .partial()
   .extend({ projectName: projectNameSchema.optional(), destination: z.string().min(1).optional() })
   .strict();
