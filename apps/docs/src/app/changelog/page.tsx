@@ -8,6 +8,16 @@ export const metadata: Metadata = {
   title: "Changelog",
   description: "Release notes and product updates for Expojet.",
   alternates: { canonical: "/changelog" },
+  openGraph: {
+    title: "Changelog",
+    description: "Release notes and product updates for Expojet.",
+    url: "/changelog",
+  },
+  twitter: {
+    card: "summary",
+    title: "Changelog",
+    description: "Release notes and product updates for Expojet.",
+  },
 };
 
 const releases = [

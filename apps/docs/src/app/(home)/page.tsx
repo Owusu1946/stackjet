@@ -1,5 +1,6 @@
 import { ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyCommand } from "@/components/copy-command";
 import { Community } from "@/components/site-community";
@@ -8,6 +9,10 @@ import { StackDemo } from "@/components/stack-demo";
 import { getCommunityData } from "@/lib/community";
 import "@/components/site-community.css";
 import "./home.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const community = await getCommunityData();

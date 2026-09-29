@@ -11,6 +11,8 @@ export const gitConfig = {
   user: "Owusu1946",
   repo: "stackjet",
   branch: "main",
+  // The MDX collection lives under apps/docs, so a root-relative "content/docs" path 404s.
+  contentPath: "apps/docs/content/docs",
 };
 
 const getContentUrl = createGetUrl(docsContentRoute);

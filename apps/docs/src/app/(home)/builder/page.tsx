@@ -6,6 +6,12 @@ import { StackBuilder } from "@/components/stack-builder";
 export const metadata: Metadata = {
   title: "Stack Builder",
   description: `Configure a production-ready ${productName} app and copy the exact CLI command.`,
+  alternates: { canonical: "/builder" },
+  openGraph: {
+    title: "Stack Builder",
+    description: `Configure a production-ready ${productName} app and copy the exact CLI command.`,
+    url: "/builder",
+  },
 };
 
 export default function BuilderPage() {
