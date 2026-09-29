@@ -3,6 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { type Preset, presetSchema } from "@expojet/schemas";
 
+// Sync and async variants exist because the non-interactive CLI path is synchronous. Every rule is
+// a pure function below so the two cannot disagree about validation or name matching.
+
 export function getPresetsDirectory(customDir?: string): string {
   if (customDir) return customDir;
   if (process.env.EXPOJET_CONFIG_DIR) return process.env.EXPOJET_CONFIG_DIR;
@@ -13,137 +16,84 @@ export function getPresetsFilePath(customDir?: string): string {
   return path.join(getPresetsDirectory(customDir), "presets.json");
 }
 
-function getErrorCode(error: unknown): string | undefined {
-  if (typeof error === "object" && error !== null && "code" in error) {
-    return String((error as { code: unknown }).code);
-  }
-  return undefined;
+const sameName = (left: Preset, right: string) => left.name.toLowerCase() === right.toLowerCase();
+
+function parsePresets(raw: string): Preset[] {
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.flatMap((item) => {
+    const result = presetSchema.safeParse(item);
+    return result.success ? [result.data] : [];
+  });
 }
 
-async function ensureDir(dirPath: string): Promise<void> {
-  try {
-    await fs.mkdir(dirPath, { recursive: true });
-  } catch (error: unknown) {
-    if (getErrorCode(error) !== "EEXIST") {
-      throw error;
-    }
-  }
+function serialize(presets: Preset[]): string {
+  return `${JSON.stringify(presets, null, 2)}\n`;
+}
+
+function upsert(presets: Preset[], preset: Preset): Preset[] {
+  const validated = presetSchema.parse(preset);
+  const index = presets.findIndex((existing) => sameName(existing, validated.name));
+  if (index < 0) return [...presets, validated];
+  return presets.map((existing, at) => (at === index ? validated : existing));
+}
+
+function isMissingFile(error: unknown): boolean {
+  return (
+    typeof error === "object" && error !== null && (error as { code?: unknown }).code === "ENOENT"
+  );
 }
 
 export async function loadPresets(customDir?: string): Promise<Preset[]> {
-  const filePath = getPresetsFilePath(customDir);
   try {
-    const raw = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
+    return parsePresets(await fs.readFile(getPresetsFilePath(customDir), "utf8"));
+  } catch (error) {
+    if (isMissingFile(error) || error instanceof SyntaxError) return [];
+    throw error;
+  }
+}
 
-    const validPresets: Preset[] = [];
-    for (const item of parsed) {
-      const validated = presetSchema.safeParse(item);
-      if (validated.success) {
-        validPresets.push(validated.data);
-      }
-    }
-    return validPresets;
-  } catch (error: unknown) {
-    if (getErrorCode(error) === "ENOENT") {
-      return [];
-    }
+export function loadPresetsSync(customDir?: string): Preset[] {
+  try {
+    return parsePresets(readFileSync(getPresetsFilePath(customDir), "utf8"));
+  } catch {
     return [];
   }
 }
 
-export async function savePreset(preset: Preset, customDir?: string): Promise<void> {
-  const validated = presetSchema.parse(preset);
-  const dir = getPresetsDirectory(customDir);
-  await ensureDir(dir);
-
-  const presets = await loadPresets(customDir);
-  const existingIndex = presets.findIndex(
-    (p) => p.name.toLowerCase() === validated.name.toLowerCase(),
-  );
-
-  if (existingIndex >= 0) {
-    presets[existingIndex] = validated;
-  } else {
-    presets.push(validated);
-  }
-
-  const filePath = getPresetsFilePath(customDir);
-  await fs.writeFile(filePath, `${JSON.stringify(presets, null, 2)}\n`, "utf8");
-}
-
 export async function getPreset(name: string, customDir?: string): Promise<Preset | undefined> {
-  const presets = await loadPresets(customDir);
-  return presets.find((p) => p.name.toLowerCase() === name.toLowerCase());
+  return (await loadPresets(customDir)).find((preset) => sameName(preset, name));
 }
 
-export async function deletePreset(name: string, customDir?: string): Promise<boolean> {
-  const presets = await loadPresets(customDir);
-  const filtered = presets.filter((p) => p.name.toLowerCase() !== name.toLowerCase());
-
-  if (filtered.length === presets.length) {
-    return false;
-  }
-
-  const dir = getPresetsDirectory(customDir);
-  await ensureDir(dir);
-  const filePath = getPresetsFilePath(customDir);
-  await fs.writeFile(filePath, `${JSON.stringify(filtered, null, 2)}\n`, "utf8");
-  return true;
+export function getPresetSync(name: string, customDir?: string): Preset | undefined {
+  return loadPresetsSync(customDir).find((preset) => sameName(preset, name));
 }
 
 export async function listPresets(customDir?: string): Promise<Preset[]> {
   return loadPresets(customDir);
 }
 
-export function loadPresetsSync(customDir?: string): Preset[] {
-  const filePath = getPresetsFilePath(customDir);
-  try {
-    const raw = readFileSync(filePath, "utf8");
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-
-    const validPresets: Preset[] = [];
-    for (const item of parsed) {
-      const validated = presetSchema.safeParse(item);
-      if (validated.success) {
-        validPresets.push(validated.data);
-      }
-    }
-    return validPresets;
-  } catch {
-    return [];
-  }
-}
-
-export function getPresetSync(name: string, customDir?: string): Preset | undefined {
-  const presets = loadPresetsSync(customDir);
-  return presets.find((p) => p.name.toLowerCase() === name.toLowerCase());
+export async function savePreset(preset: Preset, customDir?: string): Promise<void> {
+  const dir = getPresetsDirectory(customDir);
+  await fs.mkdir(dir, { recursive: true });
+  const next = upsert(await loadPresets(customDir), preset);
+  await fs.writeFile(getPresetsFilePath(customDir), serialize(next), "utf8");
 }
 
 export function savePresetSync(preset: Preset, customDir?: string): void {
-  const validated = presetSchema.parse(preset);
-  const dir = getPresetsDirectory(customDir);
-  try {
-    mkdirSync(dir, { recursive: true });
-  } catch (error: unknown) {
-    if (getErrorCode(error) !== "EEXIST") {
-      throw error;
-    }
-  }
-
-  const presets = loadPresetsSync(customDir);
-  const existingIndex = presets.findIndex(
-    (p) => p.name.toLowerCase() === validated.name.toLowerCase(),
+  mkdirSync(getPresetsDirectory(customDir), { recursive: true });
+  writeFileSync(
+    getPresetsFilePath(customDir),
+    serialize(upsert(loadPresetsSync(customDir), preset)),
+    "utf8",
   );
+}
 
-  if (existingIndex >= 0) {
-    presets[existingIndex] = validated;
-  } else {
-    presets.push(validated);
-  }
-
-  const filePath = getPresetsFilePath(customDir);
-  writeFileSync(filePath, `${JSON.stringify(presets, null, 2)}\n`, "utf8");
+export async function deletePreset(name: string, customDir?: string): Promise<boolean> {
+  const presets = await loadPresets(customDir);
+  const remaining = presets.filter((preset) => !sameName(preset, name));
+  if (remaining.length === presets.length) return false;
+  await fs.mkdir(getPresetsDirectory(customDir), { recursive: true });
+  await fs.writeFile(getPresetsFilePath(customDir), serialize(remaining), "utf8");
+  return true;
 }

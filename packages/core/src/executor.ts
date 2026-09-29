@@ -14,15 +14,10 @@ import {
 import { dirname, join, parse } from "node:path";
 import { commandName, manifestFileName } from "@expojet/brand";
 import { expojetManifestSchema } from "@expojet/schemas";
-import { applyEdits, modify, parse as parseJsonc } from "jsonc-parser";
-import { composeAppPlugins, composeMetroConfig } from "./compose.js";
+import { parse as parseJsonc } from "jsonc-parser";
+import { applyPlan, type PlanTarget } from "./apply/plan-applier.js";
 import { detectPlanConflicts } from "./conflicts.js";
-import {
-  type GenerationPlan,
-  type JsonEdit,
-  type JsonValue,
-  PlanConflictError,
-} from "./operations.js";
+import { type GenerationPlan, PlanConflictError } from "./operations.js";
 import { resolvePlanPath } from "./plan-path.js";
 
 export interface ExecutePlanOptions {
@@ -35,123 +30,20 @@ export interface PlanExecutionResult {
   committed: boolean;
 }
 
-function updateJsonText(text: string, edits: JsonEdit[], jsonc: boolean) {
-  let current = text;
-  for (const edit of edits) {
-    current = applyEdits(
-      current,
-      modify(current, edit.path, edit.value, {
-        formattingOptions: { insertSpaces: true, tabSize: 2, eol: "\n" },
-      }),
-    );
-  }
-  if (!jsonc) JSON.parse(current);
-  return current.endsWith("\n") ? current : `${current}\n`;
-}
-
-function readPackage(staging: string, workspace: string) {
-  const relative = workspace === "." ? "package.json" : `${workspace}/package.json`;
-  const path = resolvePlanPath(staging, relative);
-  const data = JSON.parse(readFileSync(path, "utf8")) as Record<string, JsonValue>;
-  return { path, data };
-}
-
-function writeJson(path: string, value: unknown) {
-  writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function renderPlan(plan: GenerationPlan, staging: string) {
-  const metro = new Map<string, Parameters<typeof composeMetroConfig>[0]>();
-  const appPlugins = new Map<string, Parameters<typeof composeAppPlugins>[0]>();
-  for (const operation of plan.operations) {
-    switch (operation.type) {
-      case "write-file": {
-        const path = resolvePlanPath(staging, operation.path);
-        mkdirSync(dirname(path), { recursive: true });
-        writeFileSync(path, operation.content, "utf8");
-        break;
-      }
-      case "copy-tree": {
-        const target = resolvePlanPath(staging, operation.to);
-        if (!statSync(operation.from).isDirectory())
-          throw new Error(`${operation.from} is not a directory`);
-        mkdirSync(dirname(target), { recursive: true });
-        cpSync(operation.from, target, { recursive: true, errorOnExist: true });
-        break;
-      }
-      case "patch-json":
-      case "patch-jsonc": {
-        const path = resolvePlanPath(staging, operation.path);
-        const original = readFileSync(path, "utf8");
-        writeFileSync(
-          path,
-          updateJsonText(original, operation.edits, operation.type === "patch-jsonc"),
-        );
-        break;
-      }
-      case "add-dependency": {
-        const { path, data } = readPackage(staging, operation.workspace);
-        const section = (data[operation.kind] ?? {}) as Record<string, JsonValue>;
-        section[operation.name] = operation.version;
-        data[operation.kind] = Object.fromEntries(
-          Object.entries(section).sort(([a], [b]) => a.localeCompare(b)),
-        );
-        writeJson(path, data);
-        break;
-      }
-      case "add-script": {
-        const { path, data } = readPackage(staging, operation.workspace);
-        const scripts = (data.scripts ?? {}) as Record<string, JsonValue>;
-        scripts[operation.name] = operation.command;
-        data.scripts = Object.fromEntries(
-          Object.entries(scripts).sort(([a], [b]) => a.localeCompare(b)),
-        );
-        writeJson(path, data);
-        break;
-      }
-      case "add-env": {
-        const workspace = operation.workspace === "." ? "" : `${operation.workspace}/`;
-        const path = resolvePlanPath(staging, `${workspace}.env.example`);
-        mkdirSync(dirname(path), { recursive: true });
-        const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
-        const description = operation.variable.description
-          ? `# ${operation.variable.description}\n`
-          : "";
-        writeFileSync(path, `${existing}${description}${operation.variable.name}=\n`, "utf8");
-        break;
-      }
-      case "compose-metro":
-        metro.set(operation.contribution.workspace ?? ".", [
-          ...(metro.get(operation.contribution.workspace ?? ".") ?? []),
-          operation.contribution,
-        ]);
-        break;
-      case "compose-app-config":
-        appPlugins.set(operation.contribution.workspace ?? ".", [
-          ...(appPlugins.get(operation.contribution.workspace ?? ".") ?? []),
-          operation.contribution,
-        ]);
-        break;
-    }
-  }
-  for (const [workspace, contributions] of metro) {
-    const prefix = workspace === "." ? "" : `${workspace}/`;
-    writeFileSync(
-      resolvePlanPath(staging, `${prefix}metro.config.js`),
-      composeMetroConfig(contributions),
-      "utf8",
-    );
-  }
-  for (const [workspace, contributions] of appPlugins) {
-    const prefix = workspace === "." ? "" : `${workspace}/`;
-    const path = resolvePlanPath(staging, `${prefix}app.json`);
-    const data = JSON.parse(readFileSync(path, "utf8")) as { expo?: Record<string, unknown> };
-    data.expo ??= {};
-    const existing = Array.isArray(data.expo.plugins) ? data.expo.plugins : [];
-    data.expo.plugins = [...existing, ...composeAppPlugins(contributions)];
-    writeJson(path, data);
-  }
-}
+const diskTarget = (staging: string): PlanTarget => ({
+  write: (path, content) => {
+    writeFileSync(resolvePlanPath(staging, path), content, "utf8");
+  },
+  prepare: (path) => {
+    mkdirSync(dirname(resolvePlanPath(staging, path)), { recursive: true });
+  },
+  copyTree: (from, to) => {
+    if (!statSync(from).isDirectory()) throw new Error(`${from} is not a directory`);
+    const target = resolvePlanPath(staging, to);
+    mkdirSync(dirname(target), { recursive: true });
+    cpSync(from, target, { recursive: true, errorOnExist: true });
+  },
+});
 
 function listFiles(root: string, directory = root): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -183,6 +75,7 @@ function verifyRenderedTree(staging: string) {
   return files;
 }
 
+// Atomicity comes from the final rename. The target is never cleaned to make generation succeed.
 export function executePlan(
   plan: GenerationPlan,
   options: ExecutePlanOptions = {},
@@ -196,7 +89,10 @@ export function executePlan(
   mkdirSync(parent, { recursive: true });
   const staging = mkdtempSync(join(parent, prefix));
   try {
-    renderPlan(plan, staging);
+    applyPlan(plan, diskTarget(staging), (path) => {
+      const absolute = resolvePlanPath(staging, path);
+      return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined;
+    });
     const files = verifyRenderedTree(staging);
     if (options.dryRun) return { destination, files, committed: false };
     if (existsSync(destination)) {

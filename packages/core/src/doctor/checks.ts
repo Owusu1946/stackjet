@@ -2,30 +2,19 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { manifestFileName, productName } from "@expojet/brand";
 import { supportedSdks } from "@expojet/schemas";
-import type { ProjectContext } from "./project.js";
+import type { ProjectContext } from "../project.js";
+import { MOBILE_SECRET_PATTERN, treeContains } from "./secret-boundary.js";
+
+/** Node's version string, compared against the floor the package declares in `engines`. */
+function majorMinorPatch(version: string) {
+  return version.replace(/^v/, "").split(".").map(Number);
+}
 
 export type CheckStatus = "pass" | "warning" | "fail";
 export interface CheckResult {
   name: string;
   status: CheckStatus;
   message: string;
-}
-
-function majorMinorPatch(version: string) {
-  return version.replace(/^v/, "").split(".").map(Number);
-}
-
-const MOBILE_SECRET_PATTERN =
-  /CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|(?<!EXPO_PUBLIC_)DATABASE_URL|(?<!EXPO_PUBLIC_)SUPABASE_URL|(?<!EXPO_PUBLIC_)POSTHOG_API_KEY|(?<!EXPO_PUBLIC_)POSTHOG_KEY|(?<!EXPO_PUBLIC_)POSTHOG_SECRET|(?<!EXPO_PUBLIC_)APTABASE_KEY|(?<!EXPO_PUBLIC_)APTABASE_SECRET|SENTRY_AUTH_TOKEN|SENTRY_ORG|SENTRY_PROJECT/;
-
-function treeContains(directory: string, pattern: RegExp): boolean {
-  if (!existsSync(directory)) return false;
-  return readdirSync(directory, { withFileTypes: true }).some((entry) => {
-    if (["node_modules", ".expo", "dist", "dist-ios"].includes(entry.name)) return false;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) return treeContains(path, pattern);
-    return /\.(?:ts|tsx|js|jsx|json)$/.test(entry.name) && pattern.test(readFileSync(path, "utf8"));
-  });
 }
 
 export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
@@ -425,48 +414,4 @@ export function runDoctorChecks(project: ProjectContext | null): CheckResult[] {
   }
 
   return checks;
-}
-
-function variableNames(source: string) {
-  return new Set(
-    source
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith("#") && line.includes("="))
-      .map((line) => line.slice(0, line.indexOf("="))),
-  );
-}
-
-export interface EnvCheckResult {
-  workspace: string;
-  variable: string;
-  classification: "mobile-public" | "server-secret";
-  status: "present" | "missing";
-}
-
-export function checkEnvironment(project: ProjectContext): EnvCheckResult[] {
-  const workspaces =
-    project.manifest.structure === "monorepo-web"
-      ? ["apps/mobile", "apps/api", "apps/web"]
-      : project.manifest.structure === "monorepo"
-        ? ["apps/mobile", "apps/api"]
-        : ["."];
-  return workspaces.flatMap((workspace) => {
-    const directory = workspace === "." ? project.root : join(project.root, workspace);
-    const examplePath = join(directory, ".env.example");
-    if (!existsSync(examplePath)) return [];
-    const required = variableNames(readFileSync(examplePath, "utf8"));
-    const actualPath = join(directory, ".env");
-    const actual = existsSync(actualPath)
-      ? variableNames(readFileSync(actualPath, "utf8"))
-      : new Set<string>();
-    return [...required].map((variable) => ({
-      workspace,
-      variable,
-      classification: variable.startsWith("EXPO_PUBLIC_")
-        ? ("mobile-public" as const)
-        : ("server-secret" as const),
-      status: actual.has(variable) ? ("present" as const) : ("missing" as const),
-    }));
-  });
 }
