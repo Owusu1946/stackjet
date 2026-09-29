@@ -102,6 +102,8 @@ function FileTreeNode({
         className="preview-tree-row"
         data-active={selectedPath === node.path}
         style={{ paddingLeft: `${0.7 + depth * 0.9}rem` }}
+        // Without this the expand state is conveyed only by an arrow glyph.
+        aria-expanded={isFolder ? isExpanded : undefined}
         onClick={() => (isFolder ? onToggle(node.path) : onSelect(node.path))}
       >
         {isFolder ? (
@@ -196,11 +198,15 @@ export function StackPreview({
           preview
         </strong>
       </header>
-      <div className="preview-pane-tabs" role="tablist" aria-label="Preview panes">
+      {/*
+       * The same toggle as the Configure/Preview switch: one panel replaces the other, so
+       * `aria-pressed` describes it correctly without the tablist contract.
+       */}
+      <fieldset className="preview-pane-tabs">
+        <legend className="builder-sr-only">Preview panes</legend>
         <button
           type="button"
-          role="tab"
-          aria-selected={mobilePane === "files"}
+          aria-pressed={mobilePane === "files"}
           onClick={() => setMobilePane("files")}
         >
           <HugeiconsIcon icon={FolderTreeIcon} aria-hidden="true" size={14} />
@@ -208,14 +214,13 @@ export function StackPreview({
         </button>
         <button
           type="button"
-          role="tab"
-          aria-selected={mobilePane === "code"}
+          aria-pressed={mobilePane === "code"}
           onClick={() => setMobilePane("code")}
         >
           <HugeiconsIcon icon={FileCodeIcon} aria-hidden="true" size={14} />
           {selected?.path.split("/").at(-1) ?? "Code"}
         </button>
-      </div>
+      </fieldset>
       <div className="preview-workspace" data-mobile-pane={mobilePane}>
         <aside className="preview-tree">
           <div className="preview-root">

@@ -1,6 +1,6 @@
 "use client";
 
-import { commandName, createPackageName } from "@expojet/brand";
+import { commandName, createPackageName, productName } from "@expojet/brand";
 import {
   Cancel01Icon,
   CodeIcon,
@@ -817,20 +817,24 @@ export function StackBuilder() {
   }
 
   return (
-    <section className="stack-builder" id="builder" aria-label="Expo app stack builder">
+    <section className="stack-builder" id="builder" aria-labelledby="builder-heading">
+      <h1 className="builder-heading" id="builder-heading">
+        Build your {productName} stack
+      </h1>
       <div className="builder-layout">
-        <aside className="builder-sidebar">
+        <aside className="builder-sidebar" aria-label="Stack summary and command">
           <div className="builder-sidebar-content">
-            <label className="builder-field">
-              <span>Project name</span>
+            <div className="builder-field">
+              <label htmlFor="builder-project-name">Project name</label>
               <input
+                id="builder-project-name"
                 value={projectName}
                 onChange={(event) => setProjectName(event.target.value)}
                 spellCheck={false}
                 aria-describedby="project-name-hint"
               />
               <small id="project-name-hint">Folder: {safeProjectName}</small>
-            </label>
+            </div>
             <div className="builder-command-heading">
               <span>CLI command</span>
               <button
@@ -878,9 +882,16 @@ export function StackBuilder() {
                     : "Click to copy"}
               </span>
             </button>
-            <label className="builder-preset">
-              <span className="builder-preset-label">Preset</span>
-              <select value={preset} onChange={(event) => applyPreset(event.target.value)}>
+            <div className="builder-preset">
+              <label className="builder-preset-label" htmlFor="builder-preset">
+                Preset
+              </label>
+              <select
+                id="builder-preset"
+                value={preset}
+                onChange={(event) => applyPreset(event.target.value)}
+                aria-describedby="builder-preset-hint"
+              >
                 <option value="">Choose a starting point</option>
                 {presets.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -888,12 +899,13 @@ export function StackBuilder() {
                   </option>
                 ))}
               </select>
-              <small>
+              <small id="builder-preset-hint">
                 {presets.find((item) => item.id === preset)?.description ??
                   "Apply a validated configuration"}
               </small>
-            </label>
-            <fieldset className="builder-manager" aria-label="Package manager">
+            </div>
+            <fieldset className="builder-manager">
+              <legend className="builder-sr-only">Package manager</legend>
               {(["pnpm", "npm", "bun", "yarn"] as const).map((manager) => (
                 <button
                   type="button"
@@ -905,6 +917,7 @@ export function StackBuilder() {
                       : undefined
                   }
                   data-active={packageManager === manager}
+                  aria-pressed={packageManager === manager}
                   onClick={() => setPackageManager(manager)}
                 >
                   <Image src={iconPath(manager)} alt="" width={16} height={16} />
@@ -988,11 +1001,16 @@ export function StackBuilder() {
           </div>
         </aside>
         <div className="builder-main" data-view={view}>
-          <div className="builder-view-tabs" role="tablist" aria-label="Builder view">
+          {/*
+           * `aria-pressed` rather than the tab role: these two buttons swap one panel for
+           * another and are not navigation, so the tablist contract (aria-controls, tabpanel,
+           * roving tabindex) would have been a promise the markup did not keep.
+           */}
+          <fieldset className="builder-view-tabs">
+            <legend className="builder-sr-only">Builder view</legend>
             <button
               type="button"
-              role="tab"
-              aria-selected={view === "configure"}
+              aria-pressed={view === "configure"}
               onClick={() => setView("configure")}
             >
               <HugeiconsIcon icon={Settings02Icon} aria-hidden="true" size={16} />
@@ -1000,21 +1018,22 @@ export function StackBuilder() {
             </button>
             <button
               type="button"
-              role="tab"
-              aria-selected={view === "preview"}
+              aria-pressed={view === "preview"}
               onClick={() => setView("preview")}
             >
               <HugeiconsIcon icon={CodeIcon} aria-hidden="true" size={16} />
               Preview
             </button>
-          </div>
+          </fieldset>
           {view === "preview" ? (
-            <StackPreview
-              projectName={safeProjectName}
-              files={previewFiles}
-              loading={previewLoading}
-              error={previewError}
-            />
+            <section className="builder-panel" aria-label="Generated project preview">
+              <StackPreview
+                projectName={safeProjectName}
+                files={previewFiles}
+                loading={previewLoading}
+                error={previewError}
+              />
+            </section>
           ) : (
             <>
               <nav className="builder-tabs" aria-label="Stack categories">
@@ -1024,7 +1043,7 @@ export function StackBuilder() {
                     key={group.key}
                     data-section={group.key}
                     data-active={activeGroup === group.key}
-                    aria-current={activeGroup === group.key ? "location" : undefined}
+                    aria-pressed={activeGroup === group.key}
                     onClick={() => jumpToSection(group.key)}
                   >
                     {group.label}

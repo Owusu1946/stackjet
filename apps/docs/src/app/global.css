@@ -639,35 +639,23 @@ html > body[data-scroll-locked] {
 .builder-page-bar a:hover {
   color: var(--color-fd-primary);
 }
+/* The page's only h1. The builder has no separate heading bar, so this is the page heading. */
 .builder-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1.5rem clamp(1.25rem, 3vw, 2.5rem);
-  border-bottom: 1px solid var(--color-fd-border);
-}
-.builder-heading h2 {
-  margin: 0.35rem 0 0;
-  font: 600 clamp(1.45rem, 3vw, 2.35rem) / 1.05 var(--font-mono);
-  letter-spacing: -0.055em;
-}
-.builder-heading p {
-  max-width: 34rem;
+  padding: 1.4rem clamp(1.25rem, 3vw, 2.5rem) 0.1rem;
   margin: 0;
-  color: var(--color-fd-muted-foreground);
-  font: 500 0.75rem / 1.55 var(--font-mono);
+  font: 600 clamp(1.35rem, 2.6vw, 1.9rem) / 1.1 var(--font-mono);
+  letter-spacing: -0.045em;
 }
-.builder-progress-copy {
-  display: flex;
-  max-width: 34rem;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-.stack-builder .builder-progress-copy > span {
-  color: var(--color-fd-primary);
-  font: 700 0.65rem / 1 var(--font-mono);
-  letter-spacing: 0.08em;
+.builder-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .builder-layout {
   display: grid;
@@ -704,7 +692,8 @@ html > body[data-scroll-locked] {
   flex-direction: column;
   gap: 0.45rem;
 }
-.stack-builder .builder-field span,
+.stack-builder .builder-field label,
+.builder-preset-label,
 .builder-command-heading,
 .builder-selected-heading {
   font: 600 0.65rem / 1 var(--font-mono);
@@ -745,6 +734,27 @@ html > body[data-scroll-locked] {
   color: inherit;
   cursor: pointer;
   font: inherit;
+}
+
+/*
+ * Most builder controls set `border: 0; background: transparent`, which leaves the UA default
+ * ring as the only focus indicator — and it disappears entirely against the tinted active state.
+ * One shared ring keeps every control in the builder visibly focusable.
+ */
+.builder-reset:focus-visible,
+.builder-manager button:focus-visible,
+.builder-tabs button:focus-visible,
+.builder-view-tabs button:focus-visible,
+.builder-options > button:focus-visible,
+.builder-chip button:focus-visible,
+.builder-command:focus-visible,
+.builder-command-heading button:focus-visible,
+.preview-tree-row:focus-visible,
+.preview-pane-tabs button:focus-visible,
+.preview-code-actions button:focus-visible {
+  outline: 2px solid var(--color-fd-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
 }
 .builder-command-heading button {
   min-width: 5.5rem;
@@ -884,6 +894,9 @@ html > body[data-scroll-locked] {
 .builder-view-tabs {
   display: flex;
   min-height: 2.8rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-bottom: 1px solid var(--color-fd-border);
 }
 .builder-view-tabs button {
@@ -899,7 +912,7 @@ html > body[data-scroll-locked] {
   font: 700 0.72rem / 1 var(--font-mono);
   letter-spacing: 0.06em;
 }
-.builder-view-tabs button[aria-selected="true"] {
+.builder-view-tabs button[aria-pressed="true"] {
   background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
   box-shadow: inset 0 -2px var(--color-fd-primary);
   color: var(--color-fd-primary);
@@ -1051,6 +1064,9 @@ html > body[data-scroll-locked] {
 }
 .preview-pane-tabs {
   display: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .preview-workspace {
   display: grid;
@@ -1212,11 +1228,6 @@ html > body[data-scroll-locked] {
   .console-grid {
     grid-template-columns: 1fr;
   }
-  .builder-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
   .builder-layout {
     grid-template-columns: 1fr;
   }
@@ -1305,7 +1316,7 @@ html > body[data-scroll-locked] {
     font: 700 0.68rem / 1 var(--font-mono);
     letter-spacing: 0.06em;
   }
-  .preview-pane-tabs button[aria-selected="true"] {
+  .preview-pane-tabs button[aria-pressed="true"] {
     background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
     box-shadow: inset 0 -2px var(--color-fd-primary);
     color: var(--color-fd-primary);
@@ -1333,14 +1344,14 @@ html > body[data-scroll-locked] {
   }
 }
 
+/*
+ * One global override rather than a per-component list. `animation` and `transition` are reset
+ * to `none` rather than `0.01ms` so nothing keeps ticking in the background.
+ */
 @media (prefers-reduced-motion: reduce) {
-  .builder-tabs button,
-  .builder-options > button,
-  .builder-page-bar a {
-    transition: none;
-  }
-  .site-menu-backdrop,
-  .site-menu-drawer {
+  * {
+    animation: none;
+    scroll-behavior: auto;
     transition: none;
   }
 }
@@ -1679,7 +1690,7 @@ html > body[data-scroll-locked] {
   background: #eef3ff;
 }
 
-.builder-page .builder-field span,
+.builder-page .builder-field label,
 .builder-page .builder-command-heading,
 .builder-page .builder-selected-heading,
 .builder-page .builder-preset-label {
