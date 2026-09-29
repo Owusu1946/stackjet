@@ -1199,6 +1199,20 @@ html > body[data-scroll-locked] {
 .preview-state-error {
   color: #dc2626;
 }
+/*
+ * Shown inline in the toolbar when a refresh fails, so the last good tree stays on screen
+ * instead of the whole panel being replaced by a dead end. Declared after the base
+ * `.preview-state-error` so the more specific selector wins.
+ */
+.preview-toolbar .preview-state-error {
+  display: inline-block;
+  min-height: 0;
+  max-width: 22rem;
+  padding: 0;
+  color: var(--color-fd-error, #dc2626);
+  font: 500 0.68rem / 1.4 var(--font-sans);
+  text-align: start;
+}
 
 @media (max-width: 850px) {
   .console-page {

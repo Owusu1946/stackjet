@@ -578,6 +578,19 @@ export function StackBuilder() {
   const [previewError, setPreviewError] = useState<string>();
   const [preset, setPreset] = useState("");
 
+  /**
+   * Keeps a candidate configuration inside the combinations `createInputSchema` accepts.
+   *
+   * The generator rejects an ORM without a database, and standalone projects cannot hold a
+   * Postgres backend, so any change that clears `database` has to clear `orm` with it. Without
+   * this the panel produced a command the CLI refused to run.
+   */
+  const normalize = (next: Config): Config => {
+    if (next.database === "none" && next.orm !== "none") next.orm = "none";
+    if (next.structure === "standalone" && next.orm === "prisma") next.orm = "none";
+    return next;
+  };
+
   const select = (key: keyof Config, value: string) => {
     if (key === "sdk" && value === "58" && packageManager === "yarn") {
       setPackageManager("pnpm");
@@ -587,14 +600,16 @@ export function StackBuilder() {
       const next = { ...current, [key]: selectedValue } as Config;
       if (key === "structure") {
         if (value === "standalone") {
+          // A standalone project can only host convex or no backend at all; Hono, Express and
+          // NestJS each need the API workspace this change just left.
           next.backend = next.backend === "convex" ? "convex" : "none";
-          if (["neon", "postgres"].includes(next.database)) next.database = "none";
-          if (next.orm === "prisma") next.orm = "none";
+          next.database = "none";
+          next.orm = "none";
           if (next.auth === "better-auth") next.auth = "clerk";
-        } else if (next.backend === "none") {
-          next.backend = "hono";
-          next.database = "neon";
-          next.orm = "drizzle";
+        } else {
+          if (next.backend === "none" || next.backend === "convex") next.backend = "hono";
+          if (next.database === "none") next.database = "neon";
+          if (next.orm === "none") next.orm = "drizzle";
         }
       }
       if (key === "backend" && value === "convex") {
@@ -610,7 +625,7 @@ export function StackBuilder() {
         next.orm = "drizzle";
       }
       if (key === "navigation" && value === "react-navigation") next.liquidGlass = false;
-      return next;
+      return normalize(next);
     });
   };
 
@@ -730,14 +745,15 @@ export function StackBuilder() {
 
   function removeChoice(key: keyof Config) {
     setConfig((current) => {
-      if (key === "auth") return { ...current, auth: "none", socials: [] };
+      if (key === "auth") return normalize({ ...current, auth: "none", socials: [] });
       if (key === "backend") {
-        return { ...current, backend: "none", database: "none", orm: "none" };
+        return normalize({ ...current, backend: "none", database: "none", orm: "none" });
       }
-      if (key === "database") return { ...current, database: "none", orm: "none" };
+      if (key === "database") return normalize({ ...current, database: "none", orm: "none" });
       if (key === "orm") return { ...current, orm: "none" };
       if (key === "state") return { ...current, state: "none" };
       if (key === "analytics") return { ...current, analytics: "none" };
+      if (key === "monitoring") return { ...current, monitoring: "none" };
       return current;
     });
   }
@@ -780,9 +796,25 @@ export function StackBuilder() {
           }),
           signal: controller.signal,
         });
-        const payload = (await response.json()) as { files?: PreviewFile[]; error?: string };
-        if (!response.ok || !payload.files) throw new Error(payload.error ?? "Preview failed");
+        const payload = (await response.json()) as {
+          files?: PreviewFile[];
+          error?: string;
+          issues?: { path: (string | number)[]; message: string }[];
+        };
+        if (!response.ok || !payload.files) {
+          // The route returns Zod issues; naming the field turns "something is wrong" into
+          // "orm is not allowed here".
+          const detail = payload.issues
+            ?.map((issue) => `${issue.path.join(".") || "config"}: ${issue.message}`)
+            .join(" ");
+          throw new Error(
+            detail
+              ? `${payload.error ?? "Preview failed"} — ${detail}`
+              : (payload.error ?? "Preview failed"),
+          );
+        }
         setPreviewFiles(payload.files);
+        setPreviewError(undefined);
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
         setPreviewError(error instanceof Error ? error.message : "Unable to render preview");
@@ -807,11 +839,15 @@ export function StackBuilder() {
   function applyPreset(id: string) {
     const selectedPreset = presets.find((item) => item.id === id);
     if (!selectedPreset) return;
-    setConfig({
-      ...selectedPreset.config,
-      sdk: config.sdk,
-      socials: [...selectedPreset.config.socials],
-    });
+    // A preset has to travel through the same normalisation as an individual option click,
+    // otherwise it can install a combination the generator rejects.
+    setConfig((current) =>
+      normalize({
+        ...selectedPreset.config,
+        sdk: current.sdk,
+        socials: [...selectedPreset.config.socials],
+      }),
+    );
     setPreset(id);
     setActiveGroup("structure");
   }

@@ -175,8 +175,14 @@ export function StackPreview({
   if (loading && files.length === 0) {
     return <div className="preview-state">Rendering the real generation plan…</div>;
   }
-  if (error) {
-    return <div className="preview-state preview-state-error">{error}</div>;
+  // Keep the last good tree visible when a refresh fails. Replacing the whole panel turned a
+  // transient 400 into a dead end with no way back.
+  if (error && files.length === 0) {
+    return (
+      <div className="preview-state preview-state-error" role="alert">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -191,6 +197,11 @@ export function StackPreview({
           {files.length} FILES
         </span>
         {loading ? <span className="preview-refreshing">UPDATING…</span> : null}
+        {error ? (
+          <span className="preview-state-error" role="alert">
+            {error}
+          </span>
+        ) : null}
         <strong>
           <HugeiconsIcon icon={InformationCircleIcon} aria-hidden="true" size={14} /> Real plan
           preview
