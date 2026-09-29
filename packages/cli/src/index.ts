@@ -1,2 +1,2 @@
-export * from "./create.js";
+export * from "./create/index.js";
 export * from "./program.js";

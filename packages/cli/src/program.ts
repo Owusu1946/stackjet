@@ -26,7 +26,7 @@ import {
   runPresetRemove,
   runPresetShow,
 } from "./commands.js";
-import { type CreateFlags, runCreate } from "./create.js";
+import { type CreateFlags, runCreate } from "./create/index.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
 
