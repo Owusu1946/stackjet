@@ -207,6 +207,37 @@ export function normalizeNonInteractiveCreate(
   });
 }
 
+/**
+ * A preset must round-trip the exact stack the user approved, so it carries every resolved choice
+ * rather than the subset one call site happened to remember. The interactive prompt and
+ * `--save-preset` share this so the two cannot drift.
+ */
+function presetConfigFrom(input: CreateInput): CreateConfig {
+  return {
+    structure: input.structure,
+    packageManager: input.packageManager,
+    navigation: input.navigation,
+    navigationType: input.navigationType,
+    typescript: input.typescript,
+    backend: input.backend,
+    auth: input.auth,
+    socialProviders: input.socialProviders ?? [],
+    style: input.style,
+    icons: input.icons,
+    state: input.state,
+    liquidGlass: input.liquidGlass,
+    haptics: input.haptics,
+    analytics: input.analytics,
+    monitoring: input.monitoring,
+    database: input.database,
+    orm: input.orm,
+    onboarding: input.onboarding,
+    darkMode: input.darkMode,
+    eas: input.eas,
+    sdk: input.sdk,
+  };
+}
+
 function cancelled(value: unknown): asserts value is Exclude<typeof value, symbol> {
   if (p.isCancel(value)) {
     p.cancel("Creation cancelled. No files were written.");
@@ -736,26 +767,7 @@ async function promptCreate(
       await savePreset({
         name: validPresetName,
         createdAt: new Date().toISOString(),
-        config: {
-          structure: input.structure,
-          packageManager: input.packageManager,
-          navigation: input.navigation,
-          navigationType: input.navigationType,
-          backend: input.backend,
-          auth: input.auth,
-          style: input.style,
-          icons: input.icons,
-          state: input.state,
-          liquidGlass: input.liquidGlass,
-          analytics: input.analytics,
-          monitoring: input.monitoring,
-          database: input.database,
-          orm: input.orm,
-          onboarding: input.onboarding,
-          darkMode: input.darkMode,
-          eas: input.eas,
-          typescript: input.typescript,
-        },
+        config: presetConfigFrom(input),
       });
       p.log.success(`Preset "${validPresetName}" saved!`);
     }
@@ -889,26 +901,7 @@ export async function runCreate(projectName: string | undefined, flags: CreateFl
       await savePreset({
         name: flags.savePreset,
         createdAt: new Date().toISOString(),
-        config: {
-          structure: input.structure,
-          packageManager: input.packageManager,
-          navigation: input.navigation,
-          navigationType: input.navigationType,
-          backend: input.backend,
-          auth: input.auth,
-          socialProviders: input.socialProviders,
-          style: input.style,
-          icons: input.icons,
-          state: input.state,
-          liquidGlass: input.liquidGlass,
-          monitoring: input.monitoring,
-          database: input.database,
-          orm: input.orm,
-          onboarding: input.onboarding,
-          darkMode: input.darkMode,
-          eas: input.eas,
-          typescript: input.typescript,
-        },
+        config: presetConfigFrom(input),
       });
       io.stdout(`✓ Preset "${flags.savePreset}" saved.`);
     }
