@@ -6,38 +6,42 @@ import type { ProjectContext } from "../project.js";
 import { checkEnvironment, MOBILE_SECRET_PATTERN, treeContains, workspacesFor } from "./index.js";
 
 describe("MOBILE_SECRET_PATTERN", () => {
-  const forbidden = [
+  const serverCredentials = [
     "CLERK_SECRET_KEY",
     "BETTER_AUTH_SECRET",
     "SUPABASE_SERVICE_ROLE_KEY",
     "DIRECT_DATABASE_URL",
     "JWT_SECRET",
-    "POSTHOG_API_KEY",
-    "APTABASE_SECRET",
+    "JWT_REFRESH_SECRET",
     "SENTRY_AUTH_TOKEN",
+    "SENTRY_ORG",
+    "SENTRY_PROJECT",
   ];
 
-  it.each(forbidden)("flags %s", (name) => {
+  const clientIngestion = [
+    "DATABASE_URL",
+    "SUPABASE_URL",
+    "POSTHOG_API_KEY",
+    "POSTHOG_KEY",
+    "APTABASE_KEY",
+    "APTABASE_SECRET",
+  ];
+
+  it.each([...serverCredentials, ...clientIngestion])("flags a bare %s", (name) => {
     expect(MOBILE_SECRET_PATTERN.test(`const key = process.env.${name};`)).toBe(true);
   });
 
-  it.each([
-    "CLERK_SECRET_KEY",
-    "BETTER_AUTH_SECRET",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "JWT_SECRET",
-    "POSTHOG_API_KEY",
-    "APTABASE_SECRET",
-    "SENTRY_AUTH_TOKEN",
-  ])("allows EXPO_PUBLIC_-prefixed %s", (name) => {
+  // EXPO_PUBLIC_ publishes a value in the bundle. It does not make a server
+  // credential safe, so these stay findings with the prefix.
+  it.each(serverCredentials)("still flags EXPO_PUBLIC_ %s", (name) => {
+    expect(MOBILE_SECRET_PATTERN.test(`const key = process.env.EXPO_PUBLIC_${name};`)).toBe(true);
+  });
+
+  it.each(clientIngestion)("allows the public prefix on %s", (name) => {
     expect(MOBILE_SECRET_PATTERN.test(`const key = process.env.EXPO_PUBLIC_${name};`)).toBe(false);
   });
 
-  it("still flags EXPO_PUBLIC_DIRECT_DATABASE_URL, which embeds a bare DATABASE_URL", () => {
-    expect(MOBILE_SECRET_PATTERN.test("process.env.EXPO_PUBLIC_DIRECT_DATABASE_URL")).toBe(true);
-  });
-
-  it("flags an unprefixed DATABASE_URL that is not a substring of a prefixed one", () => {
+  it("flags an unprefixed DATABASE_URL while allowing the prefixed form", () => {
     expect(MOBILE_SECRET_PATTERN.test("process.env.DATABASE_URL")).toBe(true);
     expect(MOBILE_SECRET_PATTERN.test("process.env.EXPO_PUBLIC_DATABASE_URL")).toBe(false);
   });

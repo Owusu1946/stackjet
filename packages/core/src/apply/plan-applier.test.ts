@@ -1,5 +1,8 @@
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { type GenerationPlan, materializePlan, type Operation } from "../index.js";
+import { executePlan, type GenerationPlan, materializePlan, type Operation } from "../index.js";
 
 // Covers combinations the architecture harness does not enumerate, so the two renderers cannot
 // drift without a test failing here.
@@ -245,5 +248,104 @@ describe("plan operations", () => {
     expect(() =>
       render([{ type: "copy-tree", from: "/somewhere", to: "target", owner: "o" }]),
     ).toThrow("do not support copy-tree");
+  });
+});
+
+// Reproduced in review: a plan read a file, then something overwrote it, and the
+// cache handed back the superseded contents.
+describe("plan reads after an overwrite", () => {
+  const execute = (operations: Operation[], payload?: Record<string, string>) => {
+    const base = mkdtempSync(join(tmpdir(), "expojet-applier-"));
+    const destination = join(base, "out");
+    const from = join(base, "payload");
+    if (payload) {
+      for (const [name, content] of Object.entries(payload)) {
+        mkdirSync(dirname(join(from, name)), { recursive: true });
+        writeFileSync(join(from, name), content);
+      }
+    }
+    // `copy-tree` sources are real paths, not plan paths.
+    executePlan({
+      destination,
+      operations: operations.map((operation) =>
+        operation.type === "copy-tree" ? { ...operation, from } : operation,
+      ),
+    });
+    return (path: string) => readFileSync(join(destination, path), "utf8");
+  };
+
+  it("treats ./package.json and package.json as the same file", () => {
+    const read = execute([
+      { type: "write-file", path: "./package.json", content: '{"name":"demo"}\n', owner: "base" },
+      {
+        type: "add-dependency",
+        workspace: ".",
+        kind: "dependencies",
+        name: "kept",
+        version: "1.0.0",
+        owner: "adapter",
+      },
+      {
+        type: "patch-json",
+        path: "./package.json",
+        edits: [{ path: ["version"], value: "2.0.0" }],
+        owner: "adapter",
+      },
+    ]);
+    expect(JSON.parse(read("package.json"))).toEqual({
+      name: "demo",
+      version: "2.0.0",
+      dependencies: { kept: "1.0.0" },
+    });
+  });
+
+  it("re-reads a file that a copy-tree into the root replaced", () => {
+    const read = execute(
+      [
+        { type: "write-file", path: "package.json", content: '{"name":"old"}\n', owner: "base" },
+        { type: "copy-tree", from: "payload", to: ".", owner: "base" },
+        {
+          type: "patch-json",
+          path: "package.json",
+          edits: [{ path: ["version"], value: "2.0.0" }],
+          owner: "adapter",
+        },
+      ],
+      { "package.json": '{"name":"demo","copied":true}\n' },
+    );
+    expect(JSON.parse(read("package.json"))).toEqual({
+      name: "demo",
+      copied: true,
+      version: "2.0.0",
+    });
+  });
+
+  it("leaves files outside a nested copy destination cached", () => {
+    const read = execute(
+      [
+        { type: "write-file", path: "package.json", content: '{"kept":true}\n', owner: "base" },
+        {
+          type: "write-file",
+          path: "apps/mobile/package.json",
+          content: '{"old":true}\n',
+          owner: "base",
+        },
+        { type: "copy-tree", from: "payload", to: "apps/mobile", owner: "base" },
+        {
+          type: "add-dependency",
+          workspace: "apps/mobile",
+          kind: "dependencies",
+          name: "added",
+          version: "1.0.0",
+          owner: "adapter",
+        },
+      ],
+      { "package.json": '{"copied":true}\n' },
+    );
+    expect(JSON.parse(read("package.json"))).toEqual({ kept: true });
+    expect(JSON.parse(read("apps/mobile/package.json"))).toEqual({
+      copied: true,
+      dependencies: { added: "1.0.0" },
+    });
   });
 });

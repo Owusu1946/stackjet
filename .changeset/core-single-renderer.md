@@ -1,5 +1,5 @@
 ---
-"@expojet/core": patch
+"create-expojet": patch
 ---
 
 Render a plan through one implementation, not two
@@ -17,3 +17,15 @@ secret boundary), `apply/` (the plan applier). `index.ts` lists the public surfa
 instead of `export *`, so an internal helper no longer silently widens what `adapters` and `cli`
 compile against. The preset store's sync and async variants now share pure parse/serialise helpers
 instead of two copies of the rules.
+
+Two behaviour bugs found while doing this are also fixed here:
+
+- The shared applier cached file contents by the path string an operation happened to use, so
+  `./package.json` and `package.json` were different keys and a later patch could read superseded
+  contents. A `copy-tree` also left the cache holding the pre-copy text. Paths are now normalised to
+  one key per file, and a copy drops the entries it replaced.
+
+- The mobile secret boundary exempted every name prefixed `EXPO_PUBLIC_`. That prefix publishes a
+  value in the app bundle; it does not make a server credential safe. `EXPO_PUBLIC_CLERK_SECRET_KEY`
+  and the other server-only names are findings again, while the public identifiers and client
+  ingestion keys keep their exemption.

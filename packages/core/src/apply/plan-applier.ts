@@ -37,6 +37,22 @@ function packageJsonPath(workspace: string) {
   return `${workspacePrefix(workspace)}package.json`;
 }
 
+/**
+ * One cache key per file on disk. Operations spell paths interchangeably --
+ * `./package.json` and `package.json` reach the same file -- so a cache keyed on
+ * the raw string would hand back contents the plan had already superseded.
+ */
+function cacheKey(path: string) {
+  const normalized = path.replaceAll("\\", "/").replace(/\/{2,}/g, "/");
+  return normalized.replace(/^\.\//, "").replace(/\/+$/, "");
+}
+
+/** Whether `path` is `root` itself or something the copy placed underneath it. */
+function isWithin(root: string, path: string) {
+  if (root === "" || root === ".") return true;
+  return path === root || path.startsWith(`${root}/`);
+}
+
 // Sorted so output does not depend on the order adapters ran in.
 function sortSection(section: Record<string, JsonValue>) {
   return Object.fromEntries(Object.entries(section).sort(([a], [b]) => a.localeCompare(b)));
@@ -56,21 +72,22 @@ export class PlanApplier {
   ) {}
 
   private read(path: string): string {
-    const staged = this.texts.get(path);
+    const key = cacheKey(path);
+    const staged = this.texts.get(key);
     if (staged !== undefined) return staged;
     const fromTarget = this.onRead(path);
     if (fromTarget === undefined) throw new Error(`Plan references missing file: ${path}`);
-    this.texts.set(path, fromTarget);
+    this.texts.set(key, fromTarget);
     return fromTarget;
   }
 
   /** `add-env` may create `.env.example` rather than extend one. */
   private readOptional(path: string): string | undefined {
-    return this.texts.get(path) ?? this.onRead(path);
+    return this.texts.get(cacheKey(path)) ?? this.onRead(path);
   }
 
   private write(path: string, content: string) {
-    this.texts.set(path, content);
+    this.texts.set(cacheKey(path), content);
     this.target.prepare(path);
     this.target.write(path, content);
   }
@@ -92,6 +109,7 @@ export class PlanApplier {
 
       case "copy-tree":
         this.target.copyTree(operation.from, operation.to);
+        this.invalidateUnder(operation.to);
         break;
 
       case "patch-json":
@@ -149,6 +167,18 @@ export class PlanApplier {
   private collect<T>(into: Map<string, T[]>, workspace: string | undefined, contribution: T) {
     const key = workspace ?? ".";
     into.set(key, [...(into.get(key) ?? []), contribution]);
+  }
+
+  /**
+   * A copy overwrites whatever was there, so anything the plan read before it is
+   * no longer what is on disk. Dropping the entry is enough: the next read goes
+   * back to the target and picks up the copied bytes.
+   */
+  private invalidateUnder(destination: string) {
+    const root = cacheKey(destination);
+    for (const key of this.texts.keys()) {
+      if (isWithin(root, key)) this.texts.delete(key);
+    }
   }
 
   finish() {

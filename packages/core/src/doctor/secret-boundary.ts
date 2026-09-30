@@ -1,12 +1,41 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-// The lookbehind covers the whole alternation, not just part of it. Guarding only some names meant
-// `EXPO_PUBLIC_CLERK_SECRET_KEY` still matched the bare `CLERK_SECRET_KEY` alternative and the
-// doctor reported a leak in a correctly prefixed variable.
-// Adding /g here would make `test` stateful via lastIndex and silently alternate results.
-export const MOBILE_SECRET_PATTERN =
-  /(?<!EXPO_PUBLIC_)(CLERK_SECRET_KEY|BETTER_AUTH_SECRET|SUPABASE_SERVICE_ROLE_KEY|DIRECT_DATABASE_URL|JWT_SECRET|JWT_REFRESH_SECRET|DATABASE_URL|SUPABASE_URL|POSTHOG_API_KEY|POSTHOG_KEY|POSTHOG_SECRET|APTABASE_KEY|APTABASE_SECRET|SENTRY_AUTH_TOKEN|SENTRY_ORG|SENTRY_PROJECT)/;
+/**
+ * Server credentials. `EXPO_PUBLIC_` publishes a value in the app bundle; it does
+ * not turn a server credential into a public one, so the prefix grants no
+ * exemption here. Naming one of these in mobile code is the leak itself.
+ */
+const SERVER_CREDENTIALS = [
+  "CLERK_SECRET_KEY",
+  "BETTER_AUTH_SECRET",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "DIRECT_DATABASE_URL",
+  "JWT_SECRET",
+  "JWT_REFRESH_SECRET",
+  "SENTRY_AUTH_TOKEN",
+  "SENTRY_ORG",
+  "SENTRY_PROJECT",
+] as const;
+
+/**
+ * Ingestion keys, connection strings, and project identifiers a client SDK is
+ * expected to carry. A finding only when the name appears without its public
+ * prefix, because these are documented as public in a mobile app.
+ */
+const CLIENT_INGESTION = [
+  "DATABASE_URL",
+  "SUPABASE_URL",
+  "POSTHOG_API_KEY",
+  "POSTHOG_KEY",
+  "POSTHOG_SECRET",
+  "APTABASE_KEY",
+  "APTABASE_SECRET",
+] as const;
+
+export const MOBILE_SECRET_PATTERN = new RegExp(
+  [...SERVER_CREDENTIALS, ...CLIENT_INGESTION.map((name) => `(?<!EXPO_PUBLIC_)${name}`)].join("|"),
+);
 
 const skippedDirectories = new Set(["node_modules", ".expo", "dist", "dist-ios"]);
 
