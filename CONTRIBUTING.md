@@ -6,6 +6,14 @@ This guide will help you get started with contributing, whether you're reporting
 
 ---
 
+## Contributor trust and pull requests
+
+Target `dev` for new pull requests. We record trusted contributors with
+[Vouch](.github/vouch.md). Owusu1946, mhaadiabu, and Sonnysam can manage all trust actions.
+Trust changes also go through a pull request against `dev`.
+
+---
+
 ## Code of Conduct
 
 All contributors and participants agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please report any unacceptable behavior to the maintainers.

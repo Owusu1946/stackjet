@@ -1,0 +1,81 @@
+name: Manage contributor trust
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Trust action
+        type: choice
+        options: [vouch, unvouch, denounce]
+        required: true
+      username:
+        description: GitHub username without @
+        type: string
+        required: true
+      reason:
+        description: Reason for the change
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: vouch-manage
+  cancel-in-progress: false
+
+jobs:
+  manage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - uses: mitchellh/vouch/action/setup-vouch@d66fa29a64600490892131ad87597c30c91fcac4
+      - name: Apply the maintainer's trust decision
+        env:
+          VOUCH_ACTOR: ${{ github.actor }}
+          VOUCH_ACTION: ${{ inputs.action }}
+          VOUCH_USERNAME: ${{ inputs.username }}
+          VOUCH_REASON: ${{ inputs.reason }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          vouch check "github:$VOUCH_ACTOR" --vouched-file .github/VOUCHED-MANAGERS.td
+          if [[ ! "$VOUCH_USERNAME" =~ ^[A-Za-z0-9][A-Za-z0-9-]{0,38}$ ]]; then
+            echo "Enter a GitHub username without a platform prefix or @."
+            exit 1
+          fi
+          case "$VOUCH_ACTION" in
+            vouch) vouch add "github:$VOUCH_USERNAME" --write ;;
+            unvouch) vouch remove "github:$VOUCH_USERNAME" --write ;;
+            denounce) vouch denounce "github:$VOUCH_USERNAME" --reason "$VOUCH_REASON" --write ;;
+            *) exit 1 ;;
+          esac
+      - name: Open a trust change for review against dev
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VOUCH_ACTOR: ${{ github.actor }}
+          VOUCH_ACTION: ${{ inputs.action }}
+          VOUCH_USERNAME: ${{ inputs.username }}
+          VOUCH_REASON: ${{ inputs.reason }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- .github/VOUCHED.td; then
+            echo "The trust list already reflects this decision."
+            exit 0
+          fi
+          branch="vouch/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git switch -c "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/VOUCHED.td
+          git commit -m "chore(vouch): $VOUCH_ACTION $VOUCH_USERNAME"
+          git push origin "$branch"
+          body_file="$RUNNER_TEMP/vouch-pr.md"
+          printf 'Requested by @%s.\n\nAction: %s @%s\n\nReason: %s\n' \
+            "$VOUCH_ACTOR" "$VOUCH_ACTION" "$VOUCH_USERNAME" "$VOUCH_REASON" > "$body_file"
+          gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head "$branch" \
+            --title "chore(vouch): $VOUCH_ACTION $VOUCH_USERNAME" --body-file "$body_file"
