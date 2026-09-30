@@ -18,21 +18,37 @@ Both are necessary and neither is sufficient.
   flips a plugin order passes every existing check.
 
 This was felt directly. While restructuring `packages/adapters`, the question "did this change any
-generated file?" could not be answered cheaply and confidently by hand across 64 configurations.
+generated file?" could not be answered cheaply and confidently by hand across the selected scenarios.
 
 ## Decision
 
-1. `scripts/architecture-harness.mjs` plans every supported configuration, renders each plan in
-   memory, and records a SHA-256 tree hash per scenario in `architecture.baseline.json`.
+1. `scripts/architecture-harness.mjs` plans a **representative selection** of configurations, renders
+   each plan in memory, and records a SHA-256 tree hash per scenario in `architecture.baseline.json`.
 2. `pnpm architecture:check` compares against that baseline and exits non-zero on any drift. It runs
    as the last step of `pnpm check`, so CI enforces it.
-3. Scenarios are built from the axes — every structure, SDK, navigation type, styling adapter, icon
+3. Scenarios are built from the axes — structure, SDK, navigation type, styling adapter, icon
    library, state library, analytics, monitoring, backend, database/ORM pair, auth provider, package
-   manager, and feature toggle — rather than hand-listing combinations.
+   manager, and feature toggles — as a selection of representative points rather than the full
+   cross product.
 4. A scenario the create schema rejects is a harness failure, not a tolerated skip. The harness and
    the schema are two statements about the same architecture and must agree.
 5. The baseline is regenerated deliberately, with the diff reviewed, when a change to generated
    output is intended.
+
+## Coverage
+
+The selection is 64 scenarios that resolve to 52 distinct generated trees. The harness prints both
+numbers so the run output cannot be read as a claim about the whole matrix.
+
+This is a content check on rendered files. It is deliberately not a claim about:
+
+- every supported combination of the axes,
+- CLI prompts, cancellation, or configuration precedence,
+- doctor diagnostics,
+- operation semantics beyond the content they produce.
+
+Those need their own tests, and a change that touches them should add them rather than rely on this
+harness.
 
 ## Consequences
 
@@ -45,4 +61,3 @@ generated file?" could not be answered cheaply and confidently by hand across 64
 - It fingerprints *content*, so a change to generated code always shows up, including a change the
   author considered cosmetic. That is the intent: "cosmetic" in generated output is still a diff a
   user receives.
-EOF

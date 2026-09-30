@@ -164,7 +164,9 @@ Do not add tests unless the task asks for them. If a behavior change cannot be c
 
 For generated output, inspect the files that users will receive. Check both the presence of required files and the absence of incompatible dependencies, stale routes, secret names, and unresolved placeholders. A successful TypeScript compile does not prove that the generated architecture is correct.
 
-`pnpm architecture:check` hashes the generated tree of all 64 supported configurations against `architecture.baseline.json` and fails on drift. Unit tests prove an adapter does what it should; this proves nothing *else* moved while you were in there. Any change under `packages/core`, `packages/adapters` or `packages/cli` needs it. A change to the baseline is a change to what users receive and is reviewed as such.
+`pnpm architecture:check` hashes the generated tree of a representative selection of configurations — 64 scenarios that resolve to 52 distinct trees — against `architecture.baseline.json` and fails on drift. Unit tests prove an adapter does what it should; this proves nothing *else* moved while you were in there. Any change under `packages/core`, `packages/adapters` or `packages/cli` needs it. A change to the baseline is a change to what users receive and is reviewed as such.
+
+Treat that selection as what it is. It fingerprints rendered file content, so it will not notice a change to CLI prompts, cancellation handling, configuration precedence, doctor diagnostics, or operation semantics that produces identical bytes. A change in those areas needs its own tests; a green `architecture:check` is not evidence about them.
 
 Do not rewrite fixtures or snapshots just to make a failure disappear. First confirm that the new output is intentional and that the generator can reproduce it.
 
