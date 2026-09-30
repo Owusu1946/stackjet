@@ -89,7 +89,10 @@ vi.mock("@expojet/core", async (importOriginal) => ({
 
 const { promptCreate } = await import("./prompts.js");
 const { CliError: CliErrorClass } = await import("../errors.js");
-const { ExitCode } = await import("@expojet/core");
+const { ExitCode, savePreset } = (await import("@expojet/core")) as unknown as {
+  ExitCode: typeof import("@expojet/core").ExitCode;
+  savePreset: { mock: { calls: unknown[][] } };
+};
 
 let cwd: string;
 
@@ -99,6 +102,7 @@ beforeEach(() => {
   asked.length = 0;
   replies = {};
   savedPresets = [];
+  savePreset.mock.calls.length = 0;
   cwd = mkdtempSync(join(tmpdir(), "expojet-prompt-"));
 });
 
@@ -248,6 +252,48 @@ describe("promptCreate", () => {
   it("treats declining the final confirmation as a cancellation", async () => {
     replies[`Plan my-app with Expo SDK 57, clerk, uniwind, none database, and none ORM?`] = false;
     await expect(run()).rejects.toThrow(CliErrorClass);
+  });
+
+  // Reproduced in review: `Boolean(await p.confirm(...))` turned the abort symbol
+  // into `true`, so the run carried on to the plan confirmation and exit code 0.
+  it("stops on an aborted boolean question rather than reading the symbol as an answer", async () => {
+    replies["Enable Liquid Glass UI engine? (Native iOS 26 + cross-platform blur)"] = CANCEL;
+    const thrown = await run().then(
+      () => undefined,
+      (error: CliError) => error,
+    );
+    expect(thrown).toBeInstanceOf(CliErrorClass);
+    expect(thrown?.exitCode).toBe(ExitCode.Cancelled);
+    expect(asked).not.toContain("Plan ");
+  });
+
+  it("stops on an aborted select question", async () => {
+    replies.Database = CANCEL;
+    await expect(run()).rejects.toThrow(CliErrorClass);
+  });
+
+  it("stops on an aborted multiselect question", async () => {
+    replies["Social sign-in providers (optional)"] = CANCEL;
+    await expect(run()).rejects.toThrow(CliErrorClass);
+  });
+
+  it("stops on an aborted saved-preset question", async () => {
+    savedPresets = [{ name: "my-stack", config: {} }];
+    replies["Would you like to use a saved preset?"] = CANCEL;
+    await expect(run()).rejects.toThrow(CliErrorClass);
+    expect(asked).not.toContain("Select a saved preset");
+  });
+
+  it("stops on an aborted preset-name question and saves nothing", async () => {
+    replies["Would you like to save this configuration as a preset for future use?"] = true;
+    replies["Preset name"] = CANCEL;
+    const thrown = await run().then(
+      () => undefined,
+      (error: CliError) => error,
+    );
+    expect(thrown).toBeInstanceOf(CliErrorClass);
+    expect(thrown?.exitCode).toBe(ExitCode.Cancelled);
+    expect(savePreset.mock.calls).toHaveLength(0);
   });
 
   it("rejects the experimental auth provider without the opt-in", async () => {

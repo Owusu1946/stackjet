@@ -36,7 +36,8 @@ import {
   styleOptions,
 } from "./options.js";
 import { presetConfigFrom } from "./presets.js";
-import { cancelled, isUnresolved, resolveChoice } from "./resolve.js";
+import { ask } from "./prompt.js";
+import { isUnresolved, resolveChoice } from "./resolve.js";
 
 /**
  * Ask for whatever the flags, shorthands, and config file did not already decide.
@@ -56,19 +57,17 @@ export async function promptCreate(
   const activeConfig = { ...(await resolvePreset(flags)), ...config };
   const shorthand = shorthandChoices(flags);
 
-  const sdk = await resolveChoice(
-    [supportedSdk(flags), activeConfig.sdk],
-    async () =>
-      (await p.select({
-        message: "Expo SDK version",
-        options: sdkOptions,
-        initialValue: 57,
-      })) as CreateInput["sdk"],
+  const sdk = await resolveChoice([supportedSdk(flags), activeConfig.sdk], async () =>
+    ask.select<CreateInput["sdk"]>({
+      message: "Expo SDK version",
+      options: sdkOptions,
+      initialValue: 57,
+    }),
   );
 
   const projectName = await resolveChoice(
     [projectNameArgument, activeConfig.projectName],
-    async () => String(await p.text({ message: "Project name", placeholder: "my-app" })),
+    async () => ask.text({ message: "Project name", placeholder: "my-app" }),
   );
 
   // Fail before asking the remaining configuration questions when the name or
@@ -91,22 +90,22 @@ export async function promptCreate(
   const packageManager = await resolveChoice(
     [flags.packageManager, activeConfig.packageManager],
     async () => {
-      const keepDetected = await p.confirm({
+      const keepDetected = await ask.confirm({
         message: `We detected ${detected.manager}${detected.version ? ` v${detected.version}` : ""} as your preferred package manager. Would you like to continue using it?`,
         initialValue: true,
       });
       if (keepDetected) return detected.manager as CreateInput["packageManager"];
-      return (await p.select({
+      return ask.select<CreateInput["packageManager"]>({
         message: "Which package manager would you like to use?",
         options: packageManagerOptions,
-      })) as CreateInput["packageManager"];
+      });
     },
   );
 
   const structure = await resolveChoice(
     [flags.structure, activeConfig.structure],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Project structure",
         options: structureOptions,
       })) as CreateInput["structure"],
@@ -115,7 +114,7 @@ export async function promptCreate(
   const navigation = await resolveChoice(
     [flags.navigation, activeConfig.navigation],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Navigation",
         options: navigationOptions,
       })) as CreateInput["navigation"],
@@ -124,7 +123,7 @@ export async function promptCreate(
   const navigationType = await resolveChoice(
     [flags.navigationType, activeConfig.navigationType],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Navigation type",
         options: navigationTypeOptions,
       })) as CreateInput["navigationType"],
@@ -133,7 +132,7 @@ export async function promptCreate(
   const backend = await resolveChoice(
     [flags.backend, activeConfig.backend],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: structure === "standalone" ? "Backend API" : "Backend Framework",
         options: structure === "standalone" ? standaloneBackendOptions : monorepoBackendOptions,
       })) as CreateInput["backend"],
@@ -142,7 +141,7 @@ export async function promptCreate(
   const auth = await resolveChoice(
     [flags.auth, activeConfig.auth],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Authentication",
         options: authOptions(structure, flags.experimental ?? false),
       })) as CreateInput["auth"],
@@ -157,40 +156,34 @@ export async function promptCreate(
 
   const socialProviders = auth === "clerk" ? await askSocialProviders(flags, activeConfig) : [];
 
-  const style = await resolveChoice(
-    [flags.style, activeConfig.style],
-    async () =>
-      (await p.select({ message: "Styling", options: styleOptions })) as CreateInput["style"],
+  const style = await resolveChoice([flags.style, activeConfig.style], async () =>
+    ask.select<CreateInput["style"]>({ message: "Styling", options: styleOptions }),
   );
 
-  const icons = await resolveChoice(
-    [flags.icons, shorthand.icons, activeConfig.icons],
-    async () =>
-      (await p.select({ message: "Icons", options: iconOptions })) as CreateInput["icons"],
+  const icons = await resolveChoice([flags.icons, shorthand.icons, activeConfig.icons], async () =>
+    ask.select<CreateInput["icons"]>({ message: "Icons", options: iconOptions }),
   );
 
   const state = await resolveChoice(
     [flags.state, shorthand.state, activeConfig.state],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "State management",
         options: stateOptions,
       })) as CreateInput["state"],
   );
 
   const liquidGlass = await resolveChoice([flags.liquidGlass, activeConfig.liquidGlass], async () =>
-    Boolean(
-      await p.confirm({
-        message: "Enable Liquid Glass UI engine? (Native iOS 26 + cross-platform blur)",
-        initialValue: true,
-      }),
-    ),
+    ask.confirm({
+      message: "Enable Liquid Glass UI engine? (Native iOS 26 + cross-platform blur)",
+      initialValue: true,
+    }),
   );
 
   const analytics = await resolveChoice(
     [flags.analytics, shorthand.analytics, activeConfig.analytics],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Mobile analytics",
         options: analyticsOptions,
       })) as CreateInput["analytics"],
@@ -199,7 +192,7 @@ export async function promptCreate(
   const monitoring = await resolveChoice(
     [flags.monitoring, shorthand.monitoring, activeConfig.monitoring],
     async () =>
-      (await p.select({
+      (await ask.select<string>({
         message: "Error monitoring",
         options: monitoringOptions,
       })) as CreateInput["monitoring"],
@@ -215,7 +208,7 @@ export async function promptCreate(
             : auth === "better-auth"
               ? "better-auth"
               : "monorepo";
-        return (await p.select({
+        return (await ask.select<string>({
           message: "Database",
           options: databaseOptions(context),
         })) as CreateInput["database"];
@@ -229,7 +222,7 @@ export async function promptCreate(
     ? ("none" as const)
     : await resolveChoice([flags.orm, activeConfig.orm], async () => {
         if (auth === "better-auth") return "drizzle" as const;
-        return (await p.select({
+        return (await ask.select<string>({
           message: "ORM",
           options: ormOptions(structure === "standalone" ? "standalone" : "monorepo"),
         })) as CreateInput["orm"];
@@ -316,8 +309,7 @@ export async function promptCreate(
     sdk,
   });
 
-  const confirmed = await p.confirm({ message: confirmMessage(input), initialValue: true });
-  cancelled(confirmed);
+  const confirmed = await ask.confirm({ message: confirmMessage(input), initialValue: true });
   if (!confirmed) throw new CliError("Cancelled", ExitCode.Cancelled);
 
   await offerToSavePreset(input);
@@ -331,12 +323,12 @@ function confirmMessage(input: CreateInput) {
 }
 
 async function offerToSavePreset(input: CreateInput) {
-  const shouldSave = await p.confirm({
+  const shouldSave = await ask.confirm({
     message: "Would you like to save this configuration as a preset for future use?",
     initialValue: false,
   });
   if (!shouldSave) return;
-  const presetName = await p.text({
+  const presetName = await ask.text({
     message: "Preset name",
     placeholder: "my-stack",
     validate: (value) => (String(value).trim() ? undefined : "Preset name is required"),
@@ -352,14 +344,12 @@ async function offerToSavePreset(input: CreateInput) {
 }
 
 async function askSocialProviders(flags: CreateFlags, config: CreateConfig) {
-  return resolveChoice(
-    [flags.socials ?? flags.socialProviders, config.socialProviders],
-    async () =>
-      (await p.multiselect({
-        message: "Social sign-in providers (optional)",
-        options: socialOptions,
-        required: false,
-      })) as CreateInput["socialProviders"],
+  return resolveChoice([flags.socials ?? flags.socialProviders, config.socialProviders], async () =>
+    ask.multiselect({
+      message: "Social sign-in providers (optional)",
+      options: socialOptions,
+      required: false,
+    }),
   );
 }
 
@@ -388,12 +378,12 @@ async function resolvePreset(flags: CreateFlags): Promise<CreateConfig> {
 
   const saved = await loadPresets();
   if (saved.length === 0) return {};
-  const usePreset = await p.confirm({
+  const usePreset = await ask.confirm({
     message: "Would you like to use a saved preset?",
     initialValue: false,
   });
   if (!usePreset) return {};
-  const selected = await p.select({
+  const selected = await ask.select<string>({
     message: "Select a saved preset",
     options: saved.map((preset) => ({
       value: preset.name,
@@ -415,7 +405,5 @@ async function confirm(
   question: { message: string; initialValue: boolean },
 ): Promise<boolean> {
   if (!isUnresolved(flag, configured)) return (flag ?? configured) as boolean;
-  const answer = await p.confirm(question);
-  cancelled(answer);
-  return Boolean(answer);
+  return ask.confirm(question);
 }
