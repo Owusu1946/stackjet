@@ -31,6 +31,146 @@ describe("plan conflicts", () => {
     expect(() => resolvePlanPath(root, "../escape.txt")).toThrow("escapes");
     expect(() => resolvePlanPath(root, join(root, "absolute.txt"))).toThrow("Unsafe");
   });
+
+  // Reproduced in review: replacing `expo` wholesale and then setting `expo.name`
+  // are order-dependent, because each edit applies against the current text.
+  it("rejects a parent pointer claimed with one value and a child with another", () => {
+    const operations = [
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo"], value: { name: "A" } }],
+        owner: "adapter-a",
+      },
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo", "name"], value: "B" }],
+        owner: "adapter-b",
+      },
+    ];
+    const conflicts = detectPlanConflicts(operations);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0]?.message).toContain("overlaps");
+    expect(conflicts[0]?.owners).toEqual(["adapter-a", "adapter-b"]);
+  });
+
+  it("rejects the same overlap in the other order", () => {
+    const operations = [
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo", "name"], value: "B" }],
+        owner: "adapter-b",
+      },
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo"], value: { name: "A" } }],
+        owner: "adapter-a",
+      },
+    ];
+    expect(detectPlanConflicts(operations)).toHaveLength(1);
+  });
+
+  it("allows sibling pointers, which do not interfere", () => {
+    const operations = [
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo", "name"], value: "A" }],
+        owner: "adapter-a",
+      },
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo", "slug"], value: "B" }],
+        owner: "adapter-b",
+      },
+    ];
+    expect(detectPlanConflicts(operations)).toHaveLength(0);
+  });
+
+  it("keeps ['expo','name'] distinct from ['exponame']", () => {
+    const operations = [
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["expo", "name"], value: "A" }],
+        owner: "adapter-a",
+      },
+      {
+        type: "patch-json" as const,
+        path: "app.json",
+        edits: [{ path: ["exponame"], value: "B" }],
+        owner: "adapter-b",
+      },
+    ];
+    expect(detectPlanConflicts(operations)).toHaveLength(0);
+  });
+
+  it("rejects a wholesale section replacement that overlaps an added dependency", () => {
+    const operations = [
+      {
+        type: "add-dependency" as const,
+        workspace: ".",
+        kind: "dependencies" as const,
+        name: "kept",
+        version: "1.0.0",
+        owner: "adapter-a",
+      },
+      {
+        type: "patch-json" as const,
+        path: "package.json",
+        edits: [{ path: ["dependencies"], value: { other: "2.0.0" } }],
+        owner: "adapter-b",
+      },
+    ];
+    const conflicts = detectPlanConflicts(operations);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0]?.message).toContain("overlaps");
+  });
+
+  it("rejects a wholesale section replacement that overlaps an added script", () => {
+    const operations = [
+      {
+        type: "add-script" as const,
+        workspace: ".",
+        name: "dev",
+        command: "expo start",
+        owner: "adapter-a",
+      },
+      {
+        type: "patch-json" as const,
+        path: "package.json",
+        edits: [{ path: ["scripts"], value: { build: "tsc" } }],
+        owner: "adapter-b",
+      },
+    ];
+    expect(detectPlanConflicts(operations)).toHaveLength(1);
+  });
+
+  it("still allows one owner to add several dependencies", () => {
+    const operations = [
+      {
+        type: "add-dependency" as const,
+        workspace: ".",
+        kind: "dependencies" as const,
+        name: "one",
+        version: "1.0.0",
+        owner: "adapter-a",
+      },
+      {
+        type: "add-dependency" as const,
+        workspace: ".",
+        kind: "dependencies" as const,
+        name: "two",
+        version: "2.0.0",
+        owner: "adapter-b",
+      },
+    ];
+    expect(detectPlanConflicts(operations)).toHaveLength(0);
+  });
 });
 
 describe("atomic plan execution", () => {
