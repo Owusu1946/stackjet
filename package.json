@@ -15,6 +15,7 @@
     "build": "turbo build",
     "changeset": "changeset",
     "check": "biome check . && pnpm sdk:check && turbo typecheck test && pnpm architecture:check",
+    "dev:web": "turbo dev --filter=@expojet/docs",
     "format": "biome check --write .",
     "sdk:check": "node scripts/sync-sdk-pack.mjs --check",
     "sdk:sync": "node scripts/sync-sdk-pack.mjs",

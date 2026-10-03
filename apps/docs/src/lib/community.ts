@@ -84,7 +84,7 @@ export async function getCommunityData(): Promise<CommunityData> {
     packageName: createPackageName,
     stars: repo?.stargazers_count ?? null,
     forks: repo?.forks_count ?? null,
-    contributors: people?.slice(0, 8) ?? [],
+    contributors: people ?? [],
     contributorCount: people?.length ?? null,
     weeklyDownloads: weekly?.downloads ?? null,
     totalDownloads: await getTotalDownloads(registry?.time?.created),
