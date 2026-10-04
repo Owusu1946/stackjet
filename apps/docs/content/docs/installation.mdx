@@ -21,6 +21,16 @@ Or use pnpm:
 pnpm create expojet my-app
 ```
 
+## Use a reviewed release
+
+Keep `@latest` when trying the newest generator. For a team baseline, select the exact release your team has reviewed:
+
+```bash
+npx create-expojet@0.8.0 my-app
+```
+
+Replace `0.8.0` with your approved version and record it in your team's setup instructions. This pins the generator release, not every app dependency: generated dependency ranges are resolved when the package manager installs them. Commit the generated project's lockfile and use frozen-lockfile installs in CI to reuse that resolution.
+
 ## Interactive choices
 
 Expojet asks for the project structure, package manager, authentication adapter, styling adapter, onboarding, and EAS profiles. Stable authentication choices include Clerk, Supabase, Firebase, and none. Better Auth appears only when the CLI is started with `--experimental`.
