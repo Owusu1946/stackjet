@@ -134,16 +134,16 @@ importers:
   packages/cli:
     dependencies:
       '@clack/prompts':
-        specifier: latest
+        specifier: 1.8.1
         version: 1.8.1
       commander:
-        specifier: latest
+        specifier: 15.0.0
         version: 15.0.0
       execa:
-        specifier: latest
+        specifier: 10.0.1
         version: 10.0.1
       zod:
-        specifier: latest
+        specifier: 4.6.5
         version: 4.6.5
     devDependencies:
       '@expojet/adapters':

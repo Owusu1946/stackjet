@@ -30,10 +30,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clack/prompts": "latest",
-    "commander": "latest",
-    "execa": "latest",
-    "zod": "latest"
+    "@clack/prompts": "1.8.1",
+    "commander": "15.0.0",
+    "execa": "10.0.1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@expojet/adapters": "workspace:*",
