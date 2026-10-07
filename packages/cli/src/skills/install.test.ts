@@ -1,4 +1,11 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -22,7 +29,7 @@ const acquire: AcquireSkills = async (_source, skills, workspace) => {
 describe("recoverable skills installation", () => {
   afterEach(() => vi.unstubAllEnvs());
   it("global installs leave the project untouched and keep records outside it", async () => {
-    const root = mkdtempSync(join(tmpdir(), "skills-global-"));
+    const root = mkdtempSync(join(realpathSync(tmpdir()), "skills-global-"));
     const project = join(root, "app");
     mkdirSync(project);
     writeFileSync(join(project, "user.txt"), "unchanged");
@@ -43,7 +50,7 @@ describe("recoverable skills installation", () => {
     expect(readdirSync(join(root, "records"))).toContain("expojet-skills.lock.json");
   });
   it("cancellation after one source keeps successful installs and their record", async () => {
-    const project = mkdtempSync(join(tmpdir(), "skills-cancel-partial-"));
+    const project = mkdtempSync(join(realpathSync(tmpdir()), "skills-cancel-partial-"));
     const controller = new AbortController();
     const skills = skillCatalog.filter(
       (skill) => skill.id === "expo-overview" || skill.id === "hono",
@@ -71,7 +78,7 @@ describe("recoverable skills installation", () => {
     );
   });
   it("installs, retries idempotently, and preserves edited skills", async () => {
-    const project = mkdtempSync(join(tmpdir(), "skills install spaces "));
+    const project = mkdtempSync(join(realpathSync(tmpdir()), "skills install spaces "));
     const skill = skillCatalog[0];
     if (!skill) throw new Error("Empty catalog");
     const root = join(project, ".agents", "skills");
@@ -96,7 +103,7 @@ describe("recoverable skills installation", () => {
   });
 
   it("continues independent sources after an offline failure", async () => {
-    const project = mkdtempSync(join(tmpdir(), "skills-partial-"));
+    const project = mkdtempSync(join(realpathSync(tmpdir()), "skills-partial-"));
     const selected = skillCatalog.filter(
       (skill) => skill.id === "expo-overview" || skill.id === "hono",
     );
@@ -117,7 +124,7 @@ describe("recoverable skills installation", () => {
   });
 
   it("cancellation before acquisition does not install anything", async () => {
-    const project = mkdtempSync(join(tmpdir(), "skills-cancel-"));
+    const project = mkdtempSync(join(realpathSync(tmpdir()), "skills-cancel-"));
     const controller = new AbortController();
     controller.abort();
     const result = await installSelectedSkills(
