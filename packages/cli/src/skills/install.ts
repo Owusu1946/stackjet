@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { assertNoSymlinkAncestors, installSkillDirectory, redactText } from "@expojet/core";
@@ -47,7 +47,8 @@ export async function installSelectedSkills(
     if (!selected.some((existing) => existing.id === skill.id)) selected.push(skill);
     grouped.set(skill.source, selected);
   }
-  const workspace = mkdtempSync(join(tmpdir(), "expojet-skills-"));
+  // macOS aliases /var to /private/var. Canonicalize our own temp root, not user destinations.
+  const workspace = mkdtempSync(join(realpathSync(tmpdir()), "expojet-skills-"));
   const updates: SkillRecordEntry[] = [];
   try {
     for (const [sourceId, skills] of grouped) {

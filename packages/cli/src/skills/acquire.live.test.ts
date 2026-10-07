@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vitest";
@@ -11,7 +11,7 @@ it
   .each(Object.keys(skillSources) as SkillSourceId[])(
   "stages the reviewed %s catalog from its exact upstream revision",
   async (source) => {
-    const root = mkdtempSync(join(tmpdir(), "expojet-source-smoke-"));
+    const root = mkdtempSync(join(realpathSync(tmpdir()), "expojet-source-smoke-"));
     try {
       const skills = skillCatalog.filter((skill) => skill.source === source);
       const result = await acquireSkillSource(source, skills, root);
