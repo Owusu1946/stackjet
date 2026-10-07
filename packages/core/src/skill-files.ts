@@ -124,3 +124,18 @@ export function writeSkillRecord(path: string, content: string): void {
     rmSync(staging, { recursive: true });
   }
 }
+
+/** Serialize read/merge/write transactions; never remove another process's lock. */
+export function withSkillRecordLock<T>(path: string, update: () => T): T {
+  assertNoSymlinkAncestors(path);
+  mkdirSync(dirname(path), { recursive: true });
+  assertNoSymlinkAncestors(path);
+  const lock = `${path}.install-lock`;
+  const handle = openSync(lock, "wx");
+  try {
+    return update();
+  } finally {
+    closeSync(handle);
+    rmSync(lock);
+  }
+}

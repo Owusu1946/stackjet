@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createSkillsOptions, validateCreateSkills } from "./post-create.js";
 
 describe("post-create skills options", () => {
@@ -25,8 +25,6 @@ describe("post-create skills options", () => {
     expect(() => validateCreateSkills({ skillsScope: "global" })).toThrow("require --skills");
   });
   it("does not require agents for read-only previews", () => {
-    vi.stubGlobal("unused", undefined);
     expect(() => validateCreateSkills({ yes: true, dryRun: true, skills: true })).not.toThrow();
-    vi.unstubAllGlobals();
   });
 });
