@@ -1,4 +1,11 @@
-import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -10,7 +17,7 @@ import {
 } from "./skill-files.js";
 
 function setup() {
-  const root = mkdtempSync(join(tmpdir(), "skills safe "));
+  const root = mkdtempSync(join(realpathSync(tmpdir()), "skills safe "));
   const source = join(root, "source");
   mkdirSync(source);
   writeFileSync(join(source, "SKILL.md"), "---\nname: demo\ndescription: Example\n---\n");

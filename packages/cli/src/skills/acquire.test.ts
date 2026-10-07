@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -12,7 +12,7 @@ describe("reviewed skill sources", () => {
       expect(source.commit).toMatch(/^[a-f0-9]{40}$/);
   });
   it("requires the selected name and a description", () => {
-    const directory = mkdtempSync(join(tmpdir(), "skill-metadata-"));
+    const directory = mkdtempSync(join(realpathSync(tmpdir()), "skill-metadata-"));
     const skill = skillCatalog.find((s) => s.id === "expo-overview");
     if (!skill) throw new Error("Missing catalog entry");
     writeFileSync(join(directory, "SKILL.md"), "---\nname: unrelated\ndescription: Example\n---\n");
