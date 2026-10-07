@@ -11,7 +11,7 @@ export const skillSources = {
   },
   convex: {
     repository: "waynesutton/convexskills",
-    commit: "82d1ce23d8637f6d0301e6cac9dcdb124711f3b1",
+    commit: "6dfa247c34a8a15650aef7e660f3feb937b0d987",
     license: "Apache-2.0",
     licensePath: "LICENSE",
     provenance: "community",

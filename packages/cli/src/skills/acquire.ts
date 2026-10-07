@@ -26,6 +26,10 @@ export type SkillCommand = (
 export const runSkillCommand: SkillCommand = async (file, args, cwd, signal) => {
   const isolatedHome = join(cwd, ".installer-home");
   mkdirSync(isolatedHome, { recursive: true });
+  const npmConfig = join(isolatedHome, "npmrc");
+  if (!existsSync(npmConfig)) writeFileSync(npmConfig, "", { flag: "wx" });
+  const globalNpmConfig = join(isolatedHome, "global-npmrc");
+  if (!existsSync(globalNpmConfig)) writeFileSync(globalNpmConfig, "", { flag: "wx" });
   const result = await execa(file, args, {
     cwd,
     shell: false,
@@ -43,6 +47,11 @@ export const runSkillCommand: SkillCommand = async (file, args, cwd, signal) => 
       CLAUDE_CONFIG_DIR: join(isolatedHome, "claude"),
       npm_config_cache: join(cwd, ".npm-cache"),
       npm_config_ignore_scripts: "true",
+      npm_config_userconfig: npmConfig,
+      npm_config_globalconfig: globalNpmConfig,
+      GIT_TERMINAL_PROMPT: "0",
+      GIT_CONFIG_NOSYSTEM: "1",
+      GIT_CONFIG_GLOBAL: npmConfig,
     },
   });
   return result.stdout;
