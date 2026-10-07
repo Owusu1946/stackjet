@@ -6,7 +6,7 @@ import { ExitCode, redactText } from "@expojet/core";
 import { CliError } from "../errors.js";
 import type { CliIo } from "../io.js";
 import { agentLabels, resolveSkillTargets, skillAgents } from "./agents.js";
-import { skillSources } from "./catalog.js";
+import { type CatalogSkill, skillSources } from "./catalog.js";
 import { installSelectedSkills } from "./install.js";
 import { parseSkillsOptions, type SkillsOptions } from "./options.js";
 import { recommendSkills, type SkillsStack } from "./recommend.js";
@@ -18,6 +18,17 @@ function selected<T>(value: T): Exclude<T, symbol> {
 
 export function interactiveSkills() {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+}
+
+export function skillPromptGroups(skills: readonly CatalogSkill[]) {
+  return Object.fromEntries(
+    ["Expo", "Authentication", "Backend", "Database/ORM", "Web"].flatMap((group) => {
+      const entries = skills
+        .filter((skill) => skill.group === group)
+        .map((skill) => ({ value: skill.id, label: skill.name, hint: skill.description }));
+      return entries.length ? [[group, entries]] : [];
+    }),
+  );
 }
 
 export async function runSkillsFlow(
@@ -52,15 +63,13 @@ export async function runSkillsFlow(
     if (choice === "skip") return ExitCode.Success;
     if (choice === "customize") {
       const ids = selected(
-        await p.multiselect({
+        await p.groupMultiselect<string>({
           message: "Select individual skills (Space toggles)",
           required: false,
+          selectableGroups: false,
+          groupSpacing: 1,
           initialValues: skills.map((skill) => skill.id),
-          options: skills.map((skill) => ({
-            value: skill.id,
-            label: `${skill.group} / ${skill.name}`,
-            hint: skill.description,
-          })),
+          options: skillPromptGroups(skills),
         }),
       );
       skills = skills.filter((skill) => ids.includes(skill.id));

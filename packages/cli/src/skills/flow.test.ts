@@ -3,9 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { normalizeNonInteractiveCreate } from "../create/index.js";
-import { runSkillsFlow } from "./flow.js";
+import { skillCatalog } from "./catalog.js";
+import { runSkillsFlow, skillPromptGroups } from "./flow.js";
 
 describe("skills previews", () => {
+  it("groups choices without introducing inapplicable skills", () => {
+    const groups = skillPromptGroups(skillCatalog.filter((skill) => skill.condition === "always"));
+    expect(Object.keys(groups)).toEqual(["Expo"]);
+    expect(groups.Expo?.map((option) => option.value)).toContain("expo-overview");
+  });
   it.each(["57", "58"])("previews SDK %s without writes or downloads", async (sdk) => {
     const root = mkdtempSync(join(tmpdir(), "skills-preview-"));
     const input = normalizeNonInteractiveCreate("app", { yes: true, sdk, auth: "none" }, {}, root);
