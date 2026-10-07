@@ -5,6 +5,8 @@ import { CliError } from "../errors.js";
 import { generateCreatePlan } from "../generation.js";
 import { initGitRepository, installDependencies } from "../install.js";
 import type { CliIo } from "../io.js";
+import { offerCreateSkills, validateCreateSkills } from "../skills/post-create.js";
+import { recommendSkills } from "../skills/recommend.js";
 import { readConfig } from "./config.js";
 import type { CreateFlags } from "./flags.js";
 import { normalizeNonInteractiveCreate } from "./non-interactive.js";
@@ -17,6 +19,7 @@ export async function runCreate(
   flags: CreateFlags,
   io: CliIo,
 ): Promise<ExitCodeValue> {
+  validateCreateSkills(flags);
   if (flags.savePreset !== undefined && !flags.savePreset.trim()) {
     throw new CliError(
       "Preset name cannot be empty",
@@ -29,6 +32,11 @@ export async function runCreate(
     const input = flags.yes
       ? normalizeNonInteractiveCreate(projectName, flags, config, io.cwd)
       : await promptCreate(projectName, flags, config, io.cwd);
+    for (const id of flags.skill ?? []) {
+      if (!recommendSkills(input).skills.some((skill) => skill.id === id)) {
+        throw new CliError(`Skill is not applicable to this stack: ${id}`, ExitCode.InvalidInput);
+      }
+    }
     if (input.auth === "better-auth" && !flags.experimental) {
       throw new CliError(
         "Better Auth is experimental and requires --experimental",
@@ -77,6 +85,9 @@ export async function runCreate(
       io.stdout(`✓ Preset "${flags.savePreset}" saved.`);
     }
 
+    if (result.committed || (flags.skills === true && flags.dryRun)) {
+      await offerCreateSkills(input, flags, io);
+    }
     printResult(input, result, io, { git: gitInitialized, install: installCompleted });
     return ExitCode.Success;
   } catch (error) {

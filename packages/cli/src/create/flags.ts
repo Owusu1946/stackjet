@@ -48,6 +48,10 @@ export interface CreateFlags {
   preset?: string;
   savePreset?: string;
   typescript?: boolean;
+  skills?: boolean;
+  skillAgents?: string[];
+  skillsScope?: string;
+  skill?: string[];
 }
 
 /**
