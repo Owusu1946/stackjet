@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { skillsLockFileName } from "@expojet/brand";
-import { assertNoSymlinkAncestors, getPresetsDirectory, writeSkillRecord } from "@expojet/core";
+import {
+  assertNoSymlinkAncestors,
+  getPresetsDirectory,
+  withSkillRecordLock,
+  writeSkillRecord,
+} from "@expojet/core";
 import { z } from "zod";
 import type { SkillAgent, SkillScope } from "./agents.js";
 import { catalogVersion } from "./catalog.js";
@@ -38,6 +43,10 @@ export function readSkillsRecord(path: string): z.infer<typeof recordSchema> {
 }
 
 export function saveSkillsRecords(path: string, updates: readonly SkillRecordEntry[]) {
+  return withSkillRecordLock(path, () => mergeSkillsRecords(path, updates));
+}
+
+function mergeSkillsRecords(path: string, updates: readonly SkillRecordEntry[]) {
   const record = readSkillsRecord(path);
   const entries = new Map(record.entries.map((entry) => [entry.destination, entry]));
   for (const entry of updates) {

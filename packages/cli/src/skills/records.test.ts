@@ -27,4 +27,10 @@ describe("skills installation records", () => {
     expect(() => saveSkillsRecords(path, [])).toThrow();
     expect(readFileSync(path, "utf8")).toBe("user content");
   });
+  it("preserves another process's record lock", () => {
+    const path = join(mkdtempSync(join(tmpdir(), "skills-record-lock-")), "record.json");
+    writeFileSync(`${path}.install-lock`, "another installer");
+    expect(() => saveSkillsRecords(path, [])).toThrow();
+    expect(readFileSync(`${path}.install-lock`, "utf8")).toBe("another installer");
+  });
 });

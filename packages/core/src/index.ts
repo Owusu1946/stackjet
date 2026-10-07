@@ -65,5 +65,6 @@ export {
   inspectSkillDestination,
   installSkillDirectory,
   skillTreeHash,
+  withSkillRecordLock,
   writeSkillRecord,
 } from "./skill-files.js";
