@@ -29,6 +29,8 @@ import {
 import { type CreateFlags, runCreate } from "./create/index.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
+import { runSkillsInstall } from "./skills/command.js";
+import type { SkillsOptions } from "./skills/options.js";
 
 export const cliVersion = releaseVersion;
 
@@ -124,6 +126,19 @@ export function createProgram(io: CliIo) {
     .option("--no-typescript", "disable TypeScript")
     .action(async (projectName: string | undefined, flags: CreateFlags) => {
       process.exitCode = await runCreate(projectName, flags, io);
+    });
+
+  const skills = program
+    .command("skills")
+    .description("Install reviewed skills for the current stack");
+  decorateCommand(skills.command("install"))
+    .option("--agents <agents...>", "coding agents to install for")
+    .option("--scope <scope>", "project or global")
+    .option("--skill <ids...>", "individual applicable skill IDs")
+    .option("--yes", "confirm explicitly selected installation without prompts")
+    .option("--dry-run", "preview without downloads or writes")
+    .action(async (options: SkillsOptions) => {
+      process.exitCode = await runSkillsInstall(options, io);
     });
 
   const preset = program
