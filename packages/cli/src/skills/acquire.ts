@@ -1,4 +1,11 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { assertNoSymlinkAncestors, resolvePlanPath, skillTreeHash } from "@expojet/core";
 import { execa } from "execa";
@@ -49,6 +56,12 @@ export function findNpmCli(): string {
   for (const directory of candidates) {
     const path = join(directory, "node_modules/npm/bin/npm-cli.js");
     if (existsSync(path)) return path;
+    // Distribution packages and Homebrew expose npm through a symlink to its JS entrypoint.
+    const executable = join(directory, "npm");
+    if (existsSync(executable)) {
+      const actual = realpathSync(executable);
+      if (actual.endsWith("npm-cli.js")) return actual;
+    }
   }
   throw new Error(
     "npm is required for the pinned skills installer. Install Node.js with npm, then retry.",
@@ -79,10 +92,12 @@ export async function acquireSkillSource(
   const staging = join(root, "staging");
   mkdirSync(repository, { recursive: true });
   mkdirSync(staging);
+  const hooks = join(root, "empty-hooks");
+  mkdirSync(hooks);
   const git = (args: string[]) =>
     run(
       "git",
-      ["-c", "core.hooksPath=/dev/null", "-c", "protocol.file.allow=never", ...args],
+      ["-c", `core.hooksPath=${hooks}`, "-c", "protocol.file.allow=never", ...args],
       repository,
       signal,
     );
