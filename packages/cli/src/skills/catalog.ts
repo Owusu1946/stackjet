@@ -2,6 +2,20 @@ export const catalogVersion = 1;
 export const skillsInstallerVersion = "1.7.1";
 
 export const skillSources = {
+  next: {
+    repository: "vercel/next.js",
+    commit: "3439bde95975e4e755e3286ce36d8f667e6e1a25",
+    license: "MIT",
+    licensePath: "license.md",
+    provenance: "official",
+  },
+  convex: {
+    repository: "waynesutton/convexskills",
+    commit: "82d1ce23d8637f6d0301e6cac9dcdb124711f3b1",
+    license: "Apache-2.0",
+    licensePath: "LICENSE",
+    provenance: "community",
+  },
   expo: {
     repository: "expo/skills",
     commit: "d4f484024fec15196bfd3c272e953e3f983972cf",
@@ -58,7 +72,9 @@ export type SkillCondition =
   | "hono"
   | "prisma"
   | "neon"
-  | "supabase";
+  | "supabase"
+  | "web"
+  | "convex";
 
 export interface CatalogSkill {
   id: string;
@@ -84,6 +100,32 @@ function expo(name: string, condition: SkillCondition, description: string): Cat
 
 // Source revisions are reviewed with catalog changes, never resolved during app generation.
 export const skillCatalog: readonly CatalogSkill[] = [
+  {
+    id: "next-dev-loop",
+    source: "next",
+    name: "next-dev-loop",
+    path: "skills/next-dev-loop",
+    group: "Web",
+    condition: "web",
+    description: "Verify the Next.js workspace in a running dev server",
+  },
+  ...[
+    "convex-best-practices",
+    "convex-functions",
+    "convex-schema-validator",
+    "convex-realtime",
+    "convex-security-check",
+  ].map(
+    (name): CatalogSkill => ({
+      id: name,
+      source: "convex",
+      name,
+      path: `skills/${name}`,
+      group: "Backend",
+      condition: "convex",
+      description: "Community-maintained Convex guidance",
+    }),
+  ),
   expo("expo-overview", "always", "Navigate Expo tooling and documentation"),
   expo("expo-project-structure", "always", "Organize an Expo application"),
   expo("expo-native-ui", "always", "Build native-feeling mobile interfaces"),
