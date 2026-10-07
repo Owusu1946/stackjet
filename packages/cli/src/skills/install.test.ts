@@ -1,7 +1,7 @@
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { skillCatalog } from "./catalog.js";
 import { type AcquireSkills, installSelectedSkills } from "./install.js";
 
@@ -20,6 +20,56 @@ const acquire: AcquireSkills = async (_source, skills, workspace) => {
 };
 
 describe("recoverable skills installation", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  it("global installs leave the project untouched and keep records outside it", async () => {
+    const root = mkdtempSync(join(tmpdir(), "skills-global-"));
+    const project = join(root, "app");
+    mkdirSync(project);
+    writeFileSync(join(project, "user.txt"), "unchanged");
+    vi.stubEnv("EXPOJET_CONFIG_DIR", join(root, "records"));
+    const result = await installSelectedSkills(
+      {
+        project,
+        scope: "global",
+        skills: skillCatalog.slice(0, 1),
+        targets: [{ root: join(root, "global-agent/skills"), agents: ["codex"] }],
+      },
+      undefined,
+      acquire,
+    );
+    expect(result.outcomes[0]?.status).toBe("installed");
+    expect(readdirSync(project)).toEqual(["user.txt"]);
+    expect(readFileSync(join(project, "user.txt"), "utf8")).toBe("unchanged");
+    expect(readdirSync(join(root, "records"))).toContain("expojet-skills.lock.json");
+  });
+  it("cancellation after one source keeps successful installs and their record", async () => {
+    const project = mkdtempSync(join(tmpdir(), "skills-cancel-partial-"));
+    const controller = new AbortController();
+    const skills = skillCatalog.filter(
+      (skill) => skill.id === "expo-overview" || skill.id === "hono",
+    );
+    const result = await installSelectedSkills(
+      {
+        project,
+        scope: "project",
+        skills,
+        targets: [{ root: join(project, ".agents/skills"), agents: ["codex"] }],
+      },
+      controller.signal,
+      async (...args) => {
+        if (args[0] === "hono") {
+          controller.abort();
+          throw new Error("cancelled");
+        }
+        return acquire(...args);
+      },
+    );
+    expect(result.cancelled).toBe(true);
+    expect(result.outcomes.map((outcome) => outcome.status)).toEqual(["installed"]);
+    expect(readFileSync(join(project, "expojet-skills.lock.json"), "utf8")).toContain(
+      "expo-overview",
+    );
+  });
   it("installs, retries idempotently, and preserves edited skills", async () => {
     const project = mkdtempSync(join(tmpdir(), "skills install spaces "));
     const skill = skillCatalog[0];
