@@ -12,8 +12,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 // Slide-in navigation sheet for compact viewports. Also carries the theme
-// switcher (not on the home page, which is always dark) and the GitHub link,
-// which move out of the header on small screens.
+// switcher and GitHub link, which move out of the header on small screens.
 export function SiteMenu({ active }: { active: "home" | "builder" }) {
   const [open, setOpen] = useState(false);
 
@@ -41,7 +40,7 @@ export function SiteMenu({ active }: { active: "home" | "builder" }) {
           ))}
         </nav>
         <div className="site-menu-foot">
-          {active === "home" ? null : <ThemeToggle />}
+          <ThemeToggle />
           <a
             className="site-menu-github"
             href={`https://github.com/${gitConfig.user}/${gitConfig.repo}`}
