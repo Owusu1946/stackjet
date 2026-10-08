@@ -11,6 +11,8 @@ cd my-app
 pnpm install
 ```
 
+For a reviewed team baseline, replace the first command with `npx create-expojet@0.8.0 my-app` (or your team's approved release). This pins the generator, not all installed app dependencies. Commit the generated lockfile and use frozen-lockfile installs in CI; see [Use a reviewed release](/docs/installation#use-a-reviewed-release).
+
 ## Configure
 
 Copy the generated examples. A standalone app has one example; a monorepo separates mobile and API configuration.

@@ -1,6 +1,5 @@
 "use client";
 
-import { commandName, createPackageName } from "@expojet/brand";
 import {
   Cancel01Icon,
   CodeIcon,
@@ -21,9 +20,14 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCopyFeedback } from "@/hooks/use-copy-feedback";
+import {
+  createCommand,
+  type PackageManager,
+  packageManagers,
+  supportsPackageManager,
+} from "@/lib/create-command";
 import { type PreviewFile, StackPreview } from "./stack-preview";
 
-type PackageManager = "pnpm" | "npm" | "bun" | "yarn";
 type CategoryKey = keyof Config | "features";
 type Config = {
   sdk: 57 | 58;
@@ -579,7 +583,7 @@ export function StackBuilder() {
   const [preset, setPreset] = useState("");
 
   const select = (key: keyof Config, value: string) => {
-    if (key === "sdk" && value === "58" && packageManager === "yarn") {
+    if (key === "sdk" && !supportsPackageManager(Number(value), packageManager)) {
       setPackageManager("pnpm");
     }
     setConfig((current) => {
@@ -631,14 +635,7 @@ export function StackBuilder() {
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9._-]+/g, "-") || "my-expojet-app";
-    const starters: Record<PackageManager, string> = {
-      pnpm: `pnpm create ${commandName}@latest`,
-      npm: `npx ${createPackageName}@latest`,
-      bun: `bun create ${commandName}@latest`,
-      yarn: `yarn create ${commandName}`,
-    };
     const flags = [
-      `--package-manager ${packageManager}`,
       `--sdk ${config.sdk}`,
       `--structure ${config.structure}`,
       `--navigation ${config.navigation}`,
@@ -662,7 +659,7 @@ export function StackBuilder() {
     if (config.auth === "better-auth") flags.push("--experimental");
     if (config.auth === "clerk" && config.socials.length)
       flags.push(`--socials ${config.socials.join(" ")}`);
-    return `${starters[packageManager]} ${safeName} ${flags.join(" ")}`;
+    return createCommand(packageManager, safeName, flags);
   }, [config, packageManager, projectName]);
   const { status: copyStatus, copy: copyCommand } = useCopyFeedback(command);
 
@@ -894,15 +891,15 @@ export function StackBuilder() {
               </small>
             </label>
             <fieldset className="builder-manager" aria-label="Package manager">
-              {(["pnpm", "npm", "bun", "yarn"] as const).map((manager) => (
+              {packageManagers.map((manager) => (
                 <button
                   type="button"
                   key={manager}
-                  disabled={config.sdk === 58 && manager === "yarn"}
+                  disabled={!supportsPackageManager(config.sdk, manager)}
                   title={
-                    config.sdk === 58 && manager === "yarn"
-                      ? "Not supported by the SDK 58 beta pack"
-                      : undefined
+                    supportsPackageManager(config.sdk, manager)
+                      ? undefined
+                      : "Not supported by the SDK 58 beta pack"
                   }
                   data-active={packageManager === manager}
                   onClick={() => setPackageManager(manager)}

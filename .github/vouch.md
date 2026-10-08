@@ -13,5 +13,15 @@ Review and merge that PR manually. The workflow does not merge PRs.
 GitHub requires this workflow on the default branch before it appears in the Actions menu.
 
 Changes to either trust list should also target `dev` when submitted manually.
-This setup records trust and manages the list. It does not automatically close or lock issues
-or PRs from unvouched contributors.
+
+## Trust labels
+
+`pr-vouch.yml` labels open pull requests and `issue-vouch.yml` labels open
+issues with one of `vouch:trusted`, `vouch:unvouched`, or `vouch:denounced`,
+based on the author's status in `VOUCHED.td`. Collaborators with write access
+and bots count as trusted without a list entry. Labels refresh when PRs and
+issues open or change, when `VOUCHED.td` changes on `dev` or `main`, and when
+someone comments `/recheck-vouch`.
+
+This setup records trust and surfaces it as labels. It does not automatically
+close or lock issues or PRs from unvouched contributors.

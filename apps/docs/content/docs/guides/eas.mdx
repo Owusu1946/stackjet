@@ -1,9 +1,9 @@
 ---
-title: EAS Production Pipeline
-description: Production-ready Expo Application Services (EAS) configuration, profiles, and deployment workflows for Expo SDK 57 and SDK 58.
+title: EAS Build and Deployment
+description: Generated EAS build profiles and the deployment controls your team must configure.
 ---
 
-Expojet provides a certified, production-grade **EAS (Expo Application Services)** configuration out of the box for Expo SDK 57 and SDK 58 applications, supporting both standalone projects and full-stack monorepos.
+Expojet generates **EAS (Expo Application Services)** development, preview, and production build profiles for Expo SDK 57 and SDK 58 applications, in standalone projects and full-stack monorepos. These profiles describe how to build and distribute the app; they are not a deployment certification or a security review.
 
 ---
 
@@ -20,7 +20,7 @@ Expo Application Services (EAS) is a suite of cloud services tailored for Expo a
 
 ## Configuration (`eas.json`)
 
-When `--eas` is enabled (default in interactive mode), Expojet generates a fully structured `eas.json` conforming to the official schema:
+When `--eas` is enabled (default in interactive mode), Expojet generates the following `eas.json`:
 
 ```json
 {
@@ -94,6 +94,17 @@ When building a monorepo workspace with EAS CLI, EAS automatically detects the r
 
 ---
 
+## Deployment controls you must configure
+
+The generated `production` profile names a build configuration, not an approval boundary. Before shipping, your team must decide:
+
+- **Credential access:** choose who can manage signing credentials and production environment values. Set appropriate [Expo organization roles](https://docs.expo.dev/accounts/account-types/#manage-access) and limit access to CI tokens; never share a personal account login.
+- **Update permissions:** decide who may publish production updates and who approves them. Configure access restrictions in your Expo account and approval gates in your release process; a `production` channel name alone does not enforce them.
+- **Signing:** configure the app-store signing credentials needed for your builds. If you use EAS Update, decide whether to enable [update code signing](https://docs.expo.dev/eas-update/code-signing/) and protect its private key separately. Expojet does not provision update-signing keys.
+- **Rollback:** retain known-good builds and updates, assign responsibility for recovery, and rehearse the procedure. [EAS Update rollbacks](https://docs.expo.dev/eas-update/rollbacks/) apply to compatible updates; native changes may require a new store build.
+
+The generated profiles include preview and production channel names. They do not complete EAS Update setup, configure account permissions, or install a release-approval workflow. Linking a project and building it do not replace those decisions.
+
 ## Common Workflows
 
 ### 1. Linking EAS Project
@@ -134,13 +145,16 @@ npx eas build --profile production --platform all --auto-submit
 
 ## Doctor Diagnostics
 
-Expojet includes automated diagnostic checks for EAS integrity. Run:
+Expojet checks local EAS configuration, not account permissions, signing-key access, or deployment approval. Run:
 
 ```bash
 node packages/cli/dist/cli.js doctor
 ```
 
-When `features.eas` is enabled in `expojet-manifest.json`, the doctor check validates:
+When `features.eas` is enabled in `expojet.jsonc`, the doctor check validates:
 1. `eas.json` is present in the mobile root (`.` or `apps/mobile/`).
 2. Valid JSON syntax.
 3. Presence of `development`, `preview`, and `production` build profiles.
+4. Presence of `ios.bundleIdentifier` and `android.package` in the app configuration.
+
+A passing result does not verify every EAS schema option or establish that the application is ready for production deployment.

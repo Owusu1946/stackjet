@@ -17,6 +17,10 @@
       "dependsOn": ["build"],
       "outputs": ["architecture.baseline.json"],
       "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
