@@ -1,0 +1,34 @@
+# Expojet release notes template.
+#
+# This config drives GitHub's auto-generated release notes ("Generate release
+# notes" on the releases page, `gh release create --generate-notes`, or the
+# API's generate_release_notes flag). It mirrors the t3code release format:
+#
+# - one `What's Changed` list where every entry attributes its contributor
+#   (`title by @author in #number`),
+# - a `New Contributors` section for first-time contributors,
+# - a `Full Changelog` compare link,
+# - GitHub's automatic `Contributors` avatar grid at the bottom.
+#
+# t3code produces that shape with GitHub defaults and no config file. This
+# file locks the same shape in for Expojet and additionally keeps noise out:
+# bot PRs and PRs closed as duplicate/invalid/wontfix never appear in notes.
+# PRs without a matching label still land under `What's Changed` through the
+# catch-all, so unlabeled PRs are never silently dropped. To leave a merged
+# PR out of the notes on purpose, label it `skip-changelog`.
+
+changelog:
+  exclude:
+    labels:
+      - duplicate
+      - invalid
+      - wontfix
+      - question
+      - skip-changelog
+    authors:
+      - dependabot
+      - github-actions
+  categories:
+    - title: What's Changed
+      labels:
+        - "*"
