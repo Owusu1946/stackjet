@@ -7,6 +7,7 @@ export const releases = [
     date: "October 8, 2026",
     summary: "Optional, stack-aware agent skills for your coding tools.",
     changes: [
+      "Pinned direct CLI runtime dependencies to reviewed versions and clarified team setup and EAS deployment responsibilities.",
       "Choose recommended skills or customize individual Expo and selected backend skills after setup; installation is optional and skipped by default.",
       "Install skills later with expojet skills install, with coding-agent selection and project or global scope.",
       "Preview pinned sources and destinations, preserve existing edits, and retry partial installations safely.",
