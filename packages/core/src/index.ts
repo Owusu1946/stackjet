@@ -60,3 +60,11 @@ export {
   validateProjectPath,
 } from "./project-path.js";
 export { redactRecord, redactText } from "./redact.js";
+export {
+  assertNoSymlinkAncestors,
+  inspectSkillDestination,
+  installSkillDirectory,
+  skillTreeHash,
+  withSkillRecordLock,
+  writeSkillRecord,
+} from "./skill-files.js";
