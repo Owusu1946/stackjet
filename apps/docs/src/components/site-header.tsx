@@ -29,8 +29,7 @@ export function SiteHeader({ active }: { active: "home" | "builder" }) {
       </nav>
       <div className="site-header-actions">
         <SiteSearch />
-        {/* The home page is one dark flight scene, so it has no theme to switch. */}
-        {active === "home" ? null : <ThemeToggle />}
+        <ThemeToggle />
         <a
           className="site-header-github"
           href={`https://github.com/${gitConfig.user}/${gitConfig.repo}`}

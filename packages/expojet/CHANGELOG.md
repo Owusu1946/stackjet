@@ -1,5 +1,12 @@
 # expojet
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [7c084ed]
+  - create-expojet@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes
