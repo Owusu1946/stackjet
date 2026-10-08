@@ -7,6 +7,74 @@ Every documentation page has **Copy Markdown** and an **Open** menu. The menu
 opens supported web agents directly, while Copy Markdown is the universal path
 for local and desktop agents such as Codex, Cursor, OpenCode, and Antigravity.
 
+## Install stack-aware skills
+
+After creating a project, interactive setup offers **Install recommended**,
+**Customize**, or **Skip** (the default). Customize lets you toggle each applicable
+Expo, authentication, backend, database/ORM, and web skill individually. Choose
+your coding agents and then **Project** (recommended) or **Global** scope. Review
+the pinned sources and destinations before confirming.
+
+```bash
+npx create-expojet@latest my-app --yes --skills --skill-agents codex --skills-scope project
+npx create-expojet@latest my-app --yes --skills --skill-agents claude-code --skills-scope global
+npx create-expojet@latest my-app --yes --no-skills
+```
+
+`--yes` by itself does not install skills. Explicit noninteractive installation
+requires agent names and confirmation through `--yes`. These options are separate
+from the generation input and do not change presets or the app manifest.
+
+For an existing generated project, run this from the project or a subdirectory:
+
+```bash
+expojet skills install
+expojet skills install --yes --agents codex --scope global
+expojet skills install --dry-run
+expojet skills install --yes --agents codex --skill expo-overview expo-router
+```
+
+Dry runs do not download sources or write files. `--skill` accepts applicable
+catalog IDs, shown in the preview. Omit it to use recommendations or customize
+interactively. Reload your agent if newly installed skills are not discovered.
+
+### Coverage and compatibility
+
+Every stack gets selectable Expo fundamentals. Expo Router, Expo UI for Liquid
+Glass, and EAS skills appear only when relevant. Reviewed sources also cover
+Clerk, Hono, Prisma, Neon, Supabase Postgres, Next.js, and Convex. Convex guidance
+comes from a clearly labeled community source; the other sources are official.
+
+Some integrations do not yet have reviewed, redistributable catalog coverage,
+including Better Auth, Express, NestJS, Drizzle, and styling/state/analytics
+integrations. Setup reports these gaps rather than substituting unrelated skills.
+Skill guidance is **not** an SDK compatibility certificate: upstream instructions
+may target different dependency versions, including Clerk guidance. Check your
+installed SDK and package versions before applying an agent's suggestions.
+
+Supported targets are Codex, Claude Code, Cursor, GitHub Copilot, Gemini CLI,
+OpenCode, Antigravity, Windsurf, and a shared directory. Project installs use
+`.agents/skills`, except Claude Code (`.claude/skills`) and Windsurf
+(`.windsurf/skills`). Global destinations follow each target's configuration and
+are printed before installation. Agent versions must support skill discovery at
+those locations; installation does not configure an agent or MCP server.
+
+### Safe retries
+
+Sources and the installer are pinned. Skills are copied, not symlinked; included
+scripts are never run. Identical skills are skipped. Different existing content is
+preserved and reported as a conflict—there is no automatic overwrite or update.
+
+Project installs record successful destinations in `expojet-skills.lock.json`.
+Global installs keep that record in Expojet's user-data directory (normally
+`~/.expojet`, or `EXPOJET_CONFIG_DIR`) without changing project files.
+
+Failures are reported per source and independent sources continue. Cancellation
+preserves successful installations. Post-create skills failure leaves app
+creation successful; incomplete standalone installation returns a nonzero exit
+code. Use the scoped retry command printed by setup after fixing connectivity or
+reviewing existing content. Each external command has a two-minute timeout.
+
 ## Machine-readable endpoints
 
 | Endpoint | Best for |

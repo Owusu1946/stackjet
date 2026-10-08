@@ -29,6 +29,8 @@ import {
 import { type CreateFlags, runCreate } from "./create/index.js";
 import { CliError } from "./errors.js";
 import type { CliIo } from "./io.js";
+import { runSkillsInstall } from "./skills/command.js";
+import type { SkillsOptions } from "./skills/options.js";
 
 export const cliVersion = releaseVersion;
 
@@ -112,6 +114,11 @@ export function createProgram(io: CliIo) {
     .option("--no-eas", "exclude EAS profiles")
     .option("--install", "install dependencies after scaffolding (default: true)")
     .option("--no-install", "skip installing dependencies")
+    .option("--skills", "offer selected agent skills after setup")
+    .option("--no-skills", "skip optional agent skills setup")
+    .option("--skill-agents <agents...>", "coding agents for explicit skills installation")
+    .option("--skills-scope <scope>", "project or global skills installation")
+    .option("--skill <ids...>", "individual applicable skill IDs (requires --skills)")
     .option("--git", "initialize a git repository (default: true)")
     .option("--no-git", "skip git repository initialization")
     .option("--allow-current-directory", "explicitly allow an empty current directory")
@@ -124,6 +131,19 @@ export function createProgram(io: CliIo) {
     .option("--no-typescript", "disable TypeScript")
     .action(async (projectName: string | undefined, flags: CreateFlags) => {
       process.exitCode = await runCreate(projectName, flags, io);
+    });
+
+  const skills = program
+    .command("skills")
+    .description("Install reviewed skills for the current stack");
+  decorateCommand(skills.command("install"))
+    .option("--agents <agents...>", "coding agents to install for")
+    .option("--scope <scope>", "project or global")
+    .option("--skill <ids...>", "individual applicable skill IDs")
+    .option("--yes", "confirm explicitly selected installation without prompts")
+    .option("--dry-run", "preview without downloads or writes")
+    .action(async (options: SkillsOptions) => {
+      process.exitCode = await runSkillsInstall(options, io);
     });
 
   const preset = program
