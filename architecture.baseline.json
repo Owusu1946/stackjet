@@ -5,259 +5,259 @@
   "results": {
     "default/standalone": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "default/monorepo": {
       "fileCount": 64,
-      "treeHash": "eb78a4a6b5e94bec"
+      "treeHash": "7bbd2b083b470594"
     },
     "default/monorepo-web": {
       "fileCount": 74,
-      "treeHash": "6e441ebb6f7bc19b"
+      "treeHash": "054166ea93c5b627"
     },
     "sdk/57": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "sdk/58": {
       "fileCount": 45,
-      "treeHash": "89c73ccc8df1677c"
+      "treeHash": "472365d84f770158"
     },
     "nav/router-tabs": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "nav/router-drawer": {
       "fileCount": 45,
-      "treeHash": "0b470e44c15501c0"
+      "treeHash": "cf0c9bad31d993ac"
     },
     "nav/router-both": {
       "fileCount": 47,
-      "treeHash": "6f9aef586ab81536"
+      "treeHash": "d41996d6b1d296bd"
     },
     "nav/router-stack": {
       "fileCount": 45,
-      "treeHash": "93cfb44495e82472"
+      "treeHash": "62a4ef07d8666542"
     },
     "nav/reactnav-tabs": {
       "fileCount": 45,
-      "treeHash": "e46dcfea068ff2b5"
+      "treeHash": "dc6ceb44eab9a369"
     },
     "nav/reactnav-drawer": {
       "fileCount": 46,
-      "treeHash": "70f530542a8adde3"
+      "treeHash": "98f17f039ea75443"
     },
     "nav/reactnav-both": {
       "fileCount": 47,
-      "treeHash": "666422921c5fd61f"
+      "treeHash": "46e1bee928109eed"
     },
     "nav/reactnav-stack": {
       "fileCount": 46,
-      "treeHash": "072f79fd48699a93"
+      "treeHash": "bd6a718b9f65af17"
     },
     "nav/reactnav-both-glass": {
       "fileCount": 47,
-      "treeHash": "666422921c5fd61f"
+      "treeHash": "46e1bee928109eed"
     },
     "structure/monorepo-nav-both": {
       "fileCount": 66,
-      "treeHash": "1e5a70753f2a3ceb"
+      "treeHash": "3f751456151eb8a0"
     },
     "structure/monorepo-web-nav-both": {
       "fileCount": 76,
-      "treeHash": "3889a45bbb44fce1"
+      "treeHash": "49a18b3dbad8c885"
     },
     "style/uniwind": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "style/nativewind": {
       "fileCount": 46,
-      "treeHash": "b40c3ca2546ce67d"
+      "treeHash": "f73946be0fd08fb7"
     },
     "style/unistyles": {
       "fileCount": 44,
-      "treeHash": "6645d19bae1dda6f"
+      "treeHash": "4d5fa29b3e7faefc"
     },
     "style/stylesheet": {
       "fileCount": 44,
-      "treeHash": "7c4e6aa13d917812"
+      "treeHash": "2c5258711b5a453d"
     },
     "style/uniwind-monorepo": {
       "fileCount": 64,
-      "treeHash": "eb78a4a6b5e94bec"
+      "treeHash": "7bbd2b083b470594"
     },
     "style/nativewind-monorepo": {
       "fileCount": 65,
-      "treeHash": "6fe6626b0d5bcb2b"
+      "treeHash": "5c1632c09ddb9ccb"
     },
     "style/unistyles-monorepo": {
       "fileCount": 63,
-      "treeHash": "b14a5d09b9608b1c"
+      "treeHash": "4599f1aeeaf51d5b"
     },
     "style/stylesheet-monorepo": {
       "fileCount": 62,
-      "treeHash": "6a44fa9aec46b6bb"
+      "treeHash": "f5b44f9015834470"
     },
     "icons/lucide": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "icons/hugeicons": {
       "fileCount": 45,
-      "treeHash": "8fb2202a6fd5f556"
+      "treeHash": "2e25cc3a748a4fda"
     },
     "icons/expo": {
       "fileCount": 45,
-      "treeHash": "d7f85ece8e21fd5f"
+      "treeHash": "77340f5947d48243"
     },
     "state/none": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "state/zustand": {
       "fileCount": 47,
-      "treeHash": "45bc6b4cadb7f115"
+      "treeHash": "d6e8cb070ce407ae"
     },
     "state/mobx": {
       "fileCount": 48,
-      "treeHash": "1b5e884bff26d568"
+      "treeHash": "be75ea3e34327226"
     },
     "analytics/none": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "analytics/posthog": {
       "fileCount": 48,
-      "treeHash": "bc52c6fa5124e4b8"
+      "treeHash": "cc0b97befacfc102"
     },
     "analytics/aptabase": {
       "fileCount": 48,
-      "treeHash": "b572651302d23a06"
+      "treeHash": "e3ac0963d1ff39b0"
     },
     "monitoring/none": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "monitoring/sentry": {
       "fileCount": 45,
-      "treeHash": "04fef45246e568ee"
+      "treeHash": "92faee9918e7575c"
     },
     "backend/convex-standalone": {
       "fileCount": 49,
-      "treeHash": "4a8fa1681dfe7c6e"
+      "treeHash": "cdcceea4487d591e"
     },
     "backend/convex-monorepo": {
       "fileCount": 59,
-      "treeHash": "37fc1c2ced9b2939"
+      "treeHash": "2757a46ecf60ae15"
     },
     "backend/hono": {
       "fileCount": 64,
-      "treeHash": "eb78a4a6b5e94bec"
+      "treeHash": "7bbd2b083b470594"
     },
     "backend/express": {
       "fileCount": 64,
-      "treeHash": "58065b1ea473b06c"
+      "treeHash": "887b01941bb2d417"
     },
     "backend/nestjs": {
       "fileCount": 68,
-      "treeHash": "3dc987775a7718ef"
+      "treeHash": "c6c9e814aa6aee3a"
     },
     "db/neon-drizzle": {
       "fileCount": 68,
-      "treeHash": "784915d941cf9169"
+      "treeHash": "83e112d91a487830"
     },
     "db/postgres-drizzle": {
       "fileCount": 69,
-      "treeHash": "d51d9572974cffa5"
+      "treeHash": "bce1372f666119ec"
     },
     "db/postgres-prisma": {
       "fileCount": 67,
-      "treeHash": "8aa1da18df16284a"
+      "treeHash": "dfde6b25550965ca"
     },
     "db/sqlite-drizzle": {
       "fileCount": 68,
-      "treeHash": "35eb5db557fae6bf"
+      "treeHash": "df9fa90a0bfaa52f"
     },
     "db/supabase-drizzle": {
       "fileCount": 68,
-      "treeHash": "a62088747f7839a4"
+      "treeHash": "163289993cf10d8c"
     },
     "db/supabase-prisma": {
       "fileCount": 66,
-      "treeHash": "0a608b6ff8533fa4"
+      "treeHash": "738f7eef9400e0b5"
     },
     "auth/clerk": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "auth/clerk-socials": {
       "fileCount": 47,
-      "treeHash": "17cb2a967a6a4c93"
+      "treeHash": "f6ee1156a65ba047"
     },
     "auth/none": {
       "fileCount": 43,
-      "treeHash": "3a205113a9145cc6"
+      "treeHash": "dd968bee213ad70b"
     },
     "auth/supabase": {
       "fileCount": 64,
-      "treeHash": "48a775ead3e42ff5"
+      "treeHash": "add69579736d33cd"
     },
     "auth/firebase": {
       "fileCount": 45,
-      "treeHash": "99eb2a071b9261da"
+      "treeHash": "e10443e1a0b09c9b"
     },
     "auth/better-auth": {
       "fileCount": 69,
-      "treeHash": "eda4518c124040f4"
+      "treeHash": "acc64971e345fb30"
     },
     "pm/pnpm": {
       "fileCount": 45,
-      "treeHash": "40800d122abe5e42"
+      "treeHash": "47ae3aef2e1dd69e"
     },
     "pm/npm": {
       "fileCount": 45,
-      "treeHash": "d6d93cbab87904f6"
+      "treeHash": "947117c9ef3c0ffe"
     },
     "pm/bun": {
       "fileCount": 45,
-      "treeHash": "462840c3dad2547b"
+      "treeHash": "c9038da41fe4d314"
     },
     "pm/yarn": {
       "fileCount": 45,
-      "treeHash": "14a4805da76de206"
+      "treeHash": "004063372bb7ddcb"
     },
     "pm/yarn-sdk58": {
       "fileCount": 45,
-      "treeHash": "169ef0e5c11ecd9e"
+      "treeHash": "51f926d9c54e61db"
     },
     "feature/eas-off": {
       "fileCount": 44,
-      "treeHash": "86971e52d973f4d4"
+      "treeHash": "6aa2758500aad410"
     },
     "feature/dark-off": {
       "fileCount": 45,
-      "treeHash": "958b3b20c9168bcf"
+      "treeHash": "5a1b59cae3cacad7"
     },
     "feature/haptics-off": {
       "fileCount": 45,
-      "treeHash": "b52ec7d65ec5fa57"
+      "treeHash": "4c44e38aa51b7d46"
     },
     "feature/onboarding-off": {
       "fileCount": 45,
-      "treeHash": "06743bb0fdd5055c"
+      "treeHash": "b0816054cc91a995"
     },
     "feature/glass-off": {
       "fileCount": 44,
-      "treeHash": "b5980f434991457b"
+      "treeHash": "76b5725f826780a9"
     },
     "feature/all-off": {
       "fileCount": 43,
-      "treeHash": "7d1e6715edc8c0dc"
+      "treeHash": "7ddb8d74d371f7e0"
     },
     "kitchen-sink/monorepo-web": {
       "fileCount": 87,
-      "treeHash": "8c1d6322c7a642d3"
+      "treeHash": "78c5189b3a65816d"
     }
   }
 }
