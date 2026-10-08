@@ -4,6 +4,17 @@ import { releaseVersion } from "@expojet/brand";
 export const releases = [
   {
     version: releaseVersion,
+    date: "October 8, 2026",
+    summary: "Optional, stack-aware agent skills for your coding tools.",
+    changes: [
+      "Choose recommended skills or customize individual Expo and selected backend skills after setup; installation is optional and skipped by default.",
+      "Install skills later with expojet skills install, with coding-agent selection and project or global scope.",
+      "Preview pinned sources and destinations, preserve existing edits, and retry partial installations safely.",
+      "Record skill provenance separately without changing your app manifest or generated application files.",
+    ],
+  },
+  {
+    version: "0.8.0",
     date: "October 2, 2026",
     summary: "Optional SDK 58 beta support and more reliable project generation.",
     changes: [
