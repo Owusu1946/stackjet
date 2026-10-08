@@ -1,5 +1,14 @@
 # create-expojet
 
+## 0.8.1
+
+### Patch Changes
+
+- 7c084ed: Add optional stack-aware coding-agent skills installation after project creation
+  and through `expojet skills install`. Select individual applicable skills, coding
+  agents, and project/global scope; preview pinned sources, preserve existing edits,
+  and retry partial failures without changing the app manifest.
+
 ## 0.8.0
 
 ### Minor Changes
