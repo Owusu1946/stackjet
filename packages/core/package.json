@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsrs --noEmit"
   },
   "dependencies": {
     "@expojet/brand": "workspace:*",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/node": "latest",
     "tsup": "latest",
-    "typescript": "~6.0.3",
+    "tsrs": "7.1.0-beta.tsrs5",
     "vitest": "latest"
   }
 }

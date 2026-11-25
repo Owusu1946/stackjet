@@ -88,7 +88,7 @@ function makeHonoPackage(auth: CreateInput["auth"]) {
       scripts: {
         dev: "tsx watch src/index.ts",
         start: "tsx src/index.ts",
-        typecheck: "tsc --noEmit",
+        typecheck: "tsrs --noEmit",
         test: "vitest run",
       },
       dependencies: {
@@ -101,7 +101,7 @@ function makeHonoPackage(auth: CreateInput["auth"]) {
       devDependencies: {
         "@types/node": "^24.3.1",
         tsx: "^4.20.5",
-        typescript: "~6.0.3",
+        tsrs: "7.1.0-beta.tsrs5",
         vitest: "^3.2.4",
       },
     },

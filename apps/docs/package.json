@@ -7,7 +7,7 @@
     "predev": "pnpm --filter create-expojet build",
     "dev": "next dev",
     "start": "next start",
-    "typecheck": "pnpm --filter create-expojet build && next typegen && tsc --noEmit",
+    "typecheck": "pnpm --filter create-expojet build && next typegen && tsrs --noEmit",
     "lint": "biome check",
     "format": "biome format --write"
   },
@@ -35,6 +35,7 @@
     "@types/react-dom": "^19.2.7",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
+    "tsrs": "7.1.0-beta.tsrs5",
     "typescript": "^7.0.2"
   }
 }

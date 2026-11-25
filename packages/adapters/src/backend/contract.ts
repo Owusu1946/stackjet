@@ -88,12 +88,12 @@ export const contractPackageHono = `{
     "@expojet/api": "workspace:*"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsrs --noEmit",
     "test": "node --test"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
-    "typescript": "~6.0.3"
+    "tsrs": "7.1.0-beta.tsrs5"
   }
 }
 `;
@@ -104,12 +104,12 @@ export const contractPackageShared = `{
   "type": "module",
   "types": "./src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsrs --noEmit",
     "test": "node --test"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
-    "typescript": "~6.0.3"
+    "tsrs": "7.1.0-beta.tsrs5"
   }
 }
 `;
