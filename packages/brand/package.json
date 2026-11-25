@@ -9,11 +9,11 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsrs --noEmit"
   },
   "devDependencies": {
     "tsup": "latest",
-    "typescript": "~6.0.3",
+    "tsrs": "7.1.0-beta.tsrs5",
     "vitest": "latest"
   }
 }

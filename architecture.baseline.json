@@ -4,260 +4,260 @@
   "scenarios": 64,
   "results": {
     "default/standalone": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "default/monorepo": {
-      "fileCount": 64,
-      "treeHash": "7bbd2b083b470594"
+      "fileCount": 65,
+      "treeHash": "8012e03607aefe31"
     },
     "default/monorepo-web": {
-      "fileCount": 74,
-      "treeHash": "054166ea93c5b627"
+      "fileCount": 75,
+      "treeHash": "6fbb8294b9e66a8a"
     },
     "sdk/57": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "sdk/58": {
-      "fileCount": 45,
-      "treeHash": "472365d84f770158"
+      "fileCount": 46,
+      "treeHash": "55fdba358e284bd7"
     },
     "nav/router-tabs": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "nav/router-drawer": {
-      "fileCount": 45,
-      "treeHash": "cf0c9bad31d993ac"
+      "fileCount": 46,
+      "treeHash": "3d957b04486c2a2b"
     },
     "nav/router-both": {
-      "fileCount": 47,
-      "treeHash": "d41996d6b1d296bd"
+      "fileCount": 48,
+      "treeHash": "d93cef1993019d32"
     },
     "nav/router-stack": {
-      "fileCount": 45,
-      "treeHash": "62a4ef07d8666542"
+      "fileCount": 46,
+      "treeHash": "6b76acb48abfe75b"
     },
     "nav/reactnav-tabs": {
-      "fileCount": 45,
-      "treeHash": "dc6ceb44eab9a369"
+      "fileCount": 46,
+      "treeHash": "d808b0a36d00e33e"
     },
     "nav/reactnav-drawer": {
-      "fileCount": 46,
-      "treeHash": "98f17f039ea75443"
+      "fileCount": 47,
+      "treeHash": "dc5ad1338f78f8d5"
     },
     "nav/reactnav-both": {
-      "fileCount": 47,
-      "treeHash": "46e1bee928109eed"
+      "fileCount": 48,
+      "treeHash": "3b2781315e3b187e"
     },
     "nav/reactnav-stack": {
-      "fileCount": 46,
-      "treeHash": "bd6a718b9f65af17"
+      "fileCount": 47,
+      "treeHash": "4292dbbb9a2a5128"
     },
     "nav/reactnav-both-glass": {
-      "fileCount": 47,
-      "treeHash": "46e1bee928109eed"
+      "fileCount": 48,
+      "treeHash": "3b2781315e3b187e"
     },
     "structure/monorepo-nav-both": {
-      "fileCount": 66,
-      "treeHash": "3f751456151eb8a0"
+      "fileCount": 67,
+      "treeHash": "2c90a7371f243657"
     },
     "structure/monorepo-web-nav-both": {
-      "fileCount": 76,
-      "treeHash": "49a18b3dbad8c885"
+      "fileCount": 77,
+      "treeHash": "2877285fe8fca2fb"
     },
     "style/uniwind": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "style/nativewind": {
-      "fileCount": 46,
-      "treeHash": "f73946be0fd08fb7"
+      "fileCount": 47,
+      "treeHash": "a93e0a5dd6eb1445"
     },
     "style/unistyles": {
-      "fileCount": 44,
-      "treeHash": "4d5fa29b3e7faefc"
+      "fileCount": 45,
+      "treeHash": "2c2e70c77b48f73f"
     },
     "style/stylesheet": {
-      "fileCount": 44,
-      "treeHash": "2c5258711b5a453d"
+      "fileCount": 45,
+      "treeHash": "7632797a30b3bfbb"
     },
     "style/uniwind-monorepo": {
-      "fileCount": 64,
-      "treeHash": "7bbd2b083b470594"
+      "fileCount": 65,
+      "treeHash": "8012e03607aefe31"
     },
     "style/nativewind-monorepo": {
-      "fileCount": 65,
-      "treeHash": "5c1632c09ddb9ccb"
+      "fileCount": 66,
+      "treeHash": "3a4744fd123ad863"
     },
     "style/unistyles-monorepo": {
-      "fileCount": 63,
-      "treeHash": "4599f1aeeaf51d5b"
+      "fileCount": 64,
+      "treeHash": "f506c3f72bab0fc0"
     },
     "style/stylesheet-monorepo": {
-      "fileCount": 62,
-      "treeHash": "f5b44f9015834470"
+      "fileCount": 63,
+      "treeHash": "999a235179ca148a"
     },
     "icons/lucide": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "icons/hugeicons": {
-      "fileCount": 45,
-      "treeHash": "2e25cc3a748a4fda"
+      "fileCount": 46,
+      "treeHash": "f484266fcf99a5aa"
     },
     "icons/expo": {
-      "fileCount": 45,
-      "treeHash": "77340f5947d48243"
+      "fileCount": 46,
+      "treeHash": "6db2efd14a145837"
     },
     "state/none": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "state/zustand": {
-      "fileCount": 47,
-      "treeHash": "d6e8cb070ce407ae"
+      "fileCount": 48,
+      "treeHash": "b4f439d4211b9bb1"
     },
     "state/mobx": {
-      "fileCount": 48,
-      "treeHash": "be75ea3e34327226"
+      "fileCount": 49,
+      "treeHash": "a0c7258b8cf13553"
     },
     "analytics/none": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "analytics/posthog": {
-      "fileCount": 48,
-      "treeHash": "cc0b97befacfc102"
+      "fileCount": 49,
+      "treeHash": "a3334bab462e3462"
     },
     "analytics/aptabase": {
-      "fileCount": 48,
-      "treeHash": "e3ac0963d1ff39b0"
+      "fileCount": 49,
+      "treeHash": "530d726ddcb73efc"
     },
     "monitoring/none": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "monitoring/sentry": {
-      "fileCount": 45,
-      "treeHash": "92faee9918e7575c"
+      "fileCount": 46,
+      "treeHash": "f025f6cf88f08444"
     },
     "backend/convex-standalone": {
-      "fileCount": 49,
-      "treeHash": "cdcceea4487d591e"
+      "fileCount": 50,
+      "treeHash": "b5b50711aaf675f7"
     },
     "backend/convex-monorepo": {
-      "fileCount": 59,
-      "treeHash": "2757a46ecf60ae15"
+      "fileCount": 60,
+      "treeHash": "67f3502f9afcb2f9"
     },
     "backend/hono": {
-      "fileCount": 64,
-      "treeHash": "7bbd2b083b470594"
+      "fileCount": 65,
+      "treeHash": "8012e03607aefe31"
     },
     "backend/express": {
-      "fileCount": 64,
-      "treeHash": "887b01941bb2d417"
+      "fileCount": 65,
+      "treeHash": "d054e02612088100"
     },
     "backend/nestjs": {
-      "fileCount": 68,
-      "treeHash": "c6c9e814aa6aee3a"
+      "fileCount": 69,
+      "treeHash": "e4620af494b16257"
     },
     "db/neon-drizzle": {
-      "fileCount": 68,
-      "treeHash": "83e112d91a487830"
+      "fileCount": 69,
+      "treeHash": "9d38d27ed0bd7bc4"
     },
     "db/postgres-drizzle": {
-      "fileCount": 69,
-      "treeHash": "bce1372f666119ec"
+      "fileCount": 70,
+      "treeHash": "4b447e910b7b3365"
     },
     "db/postgres-prisma": {
-      "fileCount": 67,
-      "treeHash": "dfde6b25550965ca"
+      "fileCount": 68,
+      "treeHash": "6b094488d0043e80"
     },
     "db/sqlite-drizzle": {
-      "fileCount": 68,
-      "treeHash": "df9fa90a0bfaa52f"
+      "fileCount": 69,
+      "treeHash": "0b84f5c54754b584"
     },
     "db/supabase-drizzle": {
-      "fileCount": 68,
-      "treeHash": "163289993cf10d8c"
+      "fileCount": 69,
+      "treeHash": "756a1d970c14fa5e"
     },
     "db/supabase-prisma": {
-      "fileCount": 66,
-      "treeHash": "738f7eef9400e0b5"
+      "fileCount": 67,
+      "treeHash": "7e6c6efd1726dede"
     },
     "auth/clerk": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "auth/clerk-socials": {
-      "fileCount": 47,
-      "treeHash": "f6ee1156a65ba047"
+      "fileCount": 48,
+      "treeHash": "906f021ec9f7d294"
     },
     "auth/none": {
-      "fileCount": 43,
-      "treeHash": "dd968bee213ad70b"
+      "fileCount": 44,
+      "treeHash": "f9992fa125acf72f"
     },
     "auth/supabase": {
-      "fileCount": 64,
-      "treeHash": "add69579736d33cd"
+      "fileCount": 65,
+      "treeHash": "e127c0c73eee8fcd"
     },
     "auth/firebase": {
-      "fileCount": 45,
-      "treeHash": "e10443e1a0b09c9b"
+      "fileCount": 46,
+      "treeHash": "9ad53207c5ab73dd"
     },
     "auth/better-auth": {
-      "fileCount": 69,
-      "treeHash": "acc64971e345fb30"
+      "fileCount": 70,
+      "treeHash": "a2fdcadc0478beeb"
     },
     "pm/pnpm": {
-      "fileCount": 45,
-      "treeHash": "47ae3aef2e1dd69e"
+      "fileCount": 46,
+      "treeHash": "958f84bb0f1bddcc"
     },
     "pm/npm": {
-      "fileCount": 45,
-      "treeHash": "947117c9ef3c0ffe"
+      "fileCount": 46,
+      "treeHash": "349ceb5c6c8c53c3"
     },
     "pm/bun": {
-      "fileCount": 45,
-      "treeHash": "c9038da41fe4d314"
+      "fileCount": 46,
+      "treeHash": "6196cbbf779e92ec"
     },
     "pm/yarn": {
-      "fileCount": 45,
-      "treeHash": "004063372bb7ddcb"
+      "fileCount": 46,
+      "treeHash": "ae15d2b5fd57541c"
     },
     "pm/yarn-sdk58": {
-      "fileCount": 45,
-      "treeHash": "51f926d9c54e61db"
+      "fileCount": 46,
+      "treeHash": "7f22f9d1dd94de20"
     },
     "feature/eas-off": {
-      "fileCount": 44,
-      "treeHash": "6aa2758500aad410"
+      "fileCount": 45,
+      "treeHash": "d3b564cae1572590"
     },
     "feature/dark-off": {
-      "fileCount": 45,
-      "treeHash": "5a1b59cae3cacad7"
+      "fileCount": 46,
+      "treeHash": "14cd8e5551c175b0"
     },
     "feature/haptics-off": {
-      "fileCount": 45,
-      "treeHash": "4c44e38aa51b7d46"
+      "fileCount": 46,
+      "treeHash": "6d5b688f541c7ad9"
     },
     "feature/onboarding-off": {
-      "fileCount": 45,
-      "treeHash": "b0816054cc91a995"
+      "fileCount": 46,
+      "treeHash": "2bef661bad51194c"
     },
     "feature/glass-off": {
-      "fileCount": 44,
-      "treeHash": "76b5725f826780a9"
+      "fileCount": 45,
+      "treeHash": "d3eeac03b05e7f4b"
     },
     "feature/all-off": {
-      "fileCount": 43,
-      "treeHash": "7ddb8d74d371f7e0"
+      "fileCount": 44,
+      "treeHash": "4c4ed790d828dff8"
     },
     "kitchen-sink/monorepo-web": {
-      "fileCount": 87,
-      "treeHash": "78c5189b3a65816d"
+      "fileCount": 88,
+      "treeHash": "4320732958b24ea0"
     }
   }
 }

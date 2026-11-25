@@ -29,7 +29,7 @@ function makeNestPackage(auth: CreateInput["auth"]) {
       scripts: {
         dev: "tsx watch src/main.ts",
         start: "tsx src/main.ts",
-        typecheck: "tsc --noEmit",
+        typecheck: "tsrs --noEmit",
         test: "vitest run",
       },
       dependencies: {
@@ -48,6 +48,7 @@ function makeNestPackage(auth: CreateInput["auth"]) {
         "@types/supertest": "^6.0.2",
         supertest: "^7.0.0",
         tsx: "^4.20.5",
+        tsrs: "7.1.0-beta.tsrs5",
         typescript: "~6.0.3",
         vitest: "^3.2.4",
       },

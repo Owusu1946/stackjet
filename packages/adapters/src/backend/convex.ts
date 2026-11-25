@@ -332,13 +332,14 @@ export const convexBackendAdapter: Adapter = {
               scripts: {
                 dev: "convex dev",
                 "convex:dev": "convex dev",
-                typecheck: "tsc --noEmit",
+                typecheck: "tsrs --noEmit",
               },
               dependencies: {
                 convex: "^1.19.4",
               },
               devDependencies: {
                 "@types/node": "^24.3.1",
+                tsrs: "7.1.0-beta.tsrs5",
                 typescript: "~6.0.3",
               },
             },
@@ -351,7 +352,7 @@ export const convexBackendAdapter: Adapter = {
           type: "write-file",
           path: "packages/api-contract/package.json",
           content:
-            '{"name":"@expojet/api-contract","private":true,"type":"module","types":"./src/index.ts","scripts":{"typecheck":"tsc --noEmit"}}\n',
+            '{"name":"@expojet/api-contract","private":true,"type":"module","types":"./src/index.ts","scripts":{"typecheck":"tsrs --noEmit"}}\n',
           owner: this.id,
         },
         {

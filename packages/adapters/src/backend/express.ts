@@ -38,7 +38,7 @@ function makeExpressPackage(auth: CreateInput["auth"]) {
       scripts: {
         dev: "tsx watch src/index.ts",
         start: "tsx src/index.ts",
-        typecheck: "tsc --noEmit",
+        typecheck: "tsrs --noEmit",
         test: "vitest run",
       },
       dependencies: {
@@ -56,7 +56,7 @@ function makeExpressPackage(auth: CreateInput["auth"]) {
         "@types/supertest": "^6.0.2",
         supertest: "^7.0.0",
         tsx: "^4.20.5",
-        typescript: "~6.0.3",
+        tsrs: "7.1.0-beta.tsrs5",
         vitest: "^3.2.4",
         ...authDevDeps,
       },

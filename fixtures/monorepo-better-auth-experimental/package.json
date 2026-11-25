@@ -9,5 +9,5 @@
     "db:generate": "pnpm --filter @expojet/api db:generate",
     "db:migrate": "pnpm --filter @expojet/api db:migrate"
   },
-  "devDependencies": { "turbo": "^2.5.6", "typescript": "~6.0.3" }
+  "devDependencies": { "turbo": "^2.5.6", "tsrs": "7.1.0-beta.tsrs5" }
 }

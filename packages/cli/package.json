@@ -27,7 +27,7 @@
     "build": "tsup",
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsrs --noEmit"
   },
   "dependencies": {
     "@clack/prompts": "1.8.1",
@@ -45,7 +45,7 @@
     "@types/node": "latest",
     "tsup": "latest",
     "tsx": "latest",
-    "typescript": "~6.0.3",
+    "tsrs": "7.1.0-beta.tsrs5",
     "vitest": "latest"
   }
 }

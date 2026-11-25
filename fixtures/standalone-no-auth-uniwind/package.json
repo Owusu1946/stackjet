@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsrs --noEmit",
     "test": "node --test"
   },
   "dependencies": {
@@ -38,6 +38,7 @@
     "metro": "0.84.5",
     "metro-cache": "0.84.5",
     "metro-transform-worker": "0.84.5",
+    "tsrs": "7.1.0-beta.tsrs5",
     "typescript": "~6.0.3"
   }
 }
